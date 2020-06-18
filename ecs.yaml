@@ -1,0 +1,5 @@
+# ecs.yaml
+parameters:
+    sets:
+        - 'clean-code'
+        - 'psr12'

@@ -1,0 +1,11 @@
+parameters:
+  fileExtensions:
+    - php
+    - phpt
+  level: 7
+  paths:
+    - Modelarium/
+    - tests/
+  checkMissingIterableValueType: false
+  ignoreErrors:
+    - "#Access to an undefined property Faker#"
