@@ -2,6 +2,7 @@
 
 namespace Modelarium\Laravel\Console\Commands;
 
+use App\Console\Commands\base_path;
 use Illuminate\Console\Command;
 use Modelarium\Laravel\Targets\FactoryGenerator;
 use Modelarium\Laravel\Targets\SeedGenerator;
@@ -121,23 +122,23 @@ class ModelariumCommand extends Command
         // if ($this->option('policy') || $this->option('all')) {
         //     $this->makePolicy();
         // }
-        if ($this->option('frontend') || $this->option('all')) {
-            if ($vue) {
-                $this->makeVueScaffold();
-                $this->makeVue($vue, 'Base', 'viewable');
-                $this->makeVue($vue, 'Item', 'viewable');
-                $this->makeVue($vue, 'ListPage', 'viewable');
-                $this->makeVue($vue, 'ShowPage', 'viewable');
-                $this->makeVue($vue, 'EditPage', 'editable');
-                $this->line('Generated Vue');
-            } elseif ($blade) {
-                $this->makeBlade($blade, 'show', 'viewable');
-                $this->makeBlade($blade, 'index', 'viewable');
-                $this->makeBlade($blade, 'form', 'editable');
-                $this->line('Generated Blade');
-            } else {
-                // TODO: react?
-            }
-        }
+        // if ($this->option('frontend') || $this->option('all')) {
+        //     if ($vue) {
+        //         $this->makeVueScaffold();
+        //         $this->makeVue($vue, 'Base', 'viewable');
+        //         $this->makeVue($vue, 'Item', 'viewable');
+        //         $this->makeVue($vue, 'ListPage', 'viewable');
+        //         $this->makeVue($vue, 'ShowPage', 'viewable');
+        //         $this->makeVue($vue, 'EditPage', 'editable');
+        //         $this->line('Generated Vue');
+        //     } elseif ($blade) {
+        //         $this->makeBlade($blade, 'show', 'viewable');
+        //         $this->makeBlade($blade, 'index', 'viewable');
+        //         $this->makeBlade($blade, 'form', 'editable');
+        //         $this->line('Generated Blade');
+        //     } else {
+        //         // TODO: react?
+        //     }
+        // }
     }
 }

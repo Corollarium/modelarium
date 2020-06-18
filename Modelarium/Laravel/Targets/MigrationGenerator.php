@@ -54,6 +54,9 @@ class MigrationGenerator extends BaseGenerator
             $db[] = '$table->string("' . $fieldName . '");';
         break;
         default:
+            // @hasMany
+            // @hasOne
+            // @foreignKey
             $db[] = '$table->' . $basetype . '("' . $fieldName . '");';
         break;
         }
@@ -73,8 +76,7 @@ class MigrationGenerator extends BaseGenerator
         return $db;
     }
 
-    public function processTypeDirectives(
-        \GraphQL\Type\Definition\Type $type,
+    public function processDirectives(
         \GraphQL\Language\AST\NodeList $directives
     ): array {
         $db = [];
@@ -113,7 +115,7 @@ class MigrationGenerator extends BaseGenerator
     {
         return $this->stubToString('migration', function ($stub) {
             /**
-             * @var Type
+             * @var GraphQL\Type\Definition\Type
              */
             $modelData = $this->model->getSchema()->getType($this->targetName);
             assert($modelData !== null);
@@ -128,7 +130,7 @@ class MigrationGenerator extends BaseGenerator
                 $db = array_merge($db, $this->processBasetype($field, $type, $directives));
             }
 
-            $db = array_merge($db, $this->processTypeDirectives($type, $modelData->astNode->directives));
+            $db = array_merge($db, $this->processDirectives($modelData->astNode->directives));
 
             $stub = str_replace(
                 '// dummyCode',

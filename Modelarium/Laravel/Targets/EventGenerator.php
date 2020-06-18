@@ -2,8 +2,10 @@
 
 namespace Modelarium\Laravel\Targets;
 
-class PolicyGenerator extends BaseGenerator
+class EventGenerator extends BaseGenerator
 {
+    protected $eventClass = null;
+
     public function processDirectives(
         \GraphQL\Language\AST\NodeList $directives
     ): array {
@@ -12,9 +14,8 @@ class PolicyGenerator extends BaseGenerator
         foreach ($directives as $directive) {
             $name = $directive->name->value;
             switch ($name) {
-            case 'can':
-                // ability
-                // model
+            case 'event':
+                $this->eventClass = $directive->arguments[0]->value->value;
                 break;
             default:
             }
@@ -55,6 +56,6 @@ class PolicyGenerator extends BaseGenerator
 
     protected function getGenerateFilename(): string
     {
-        return $this->getBasePath('app/Policies/'. $this->studlyName . 'Policy.php');
+        return $this->getBasePath(str_replace('\\', '/', $this->eventClass) . '.php');
     }
 }

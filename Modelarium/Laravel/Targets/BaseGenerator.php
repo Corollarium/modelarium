@@ -70,8 +70,9 @@ abstract class BaseGenerator
 
     public function generateFile($overwrite = true)
     {
-        $path = $this->getGenerateFilename();
-        return $this->writeStub($path, $overwrite, $this->generateString());
+        $data = $this->generateString();
+        $path = $this->getGenerateFilename(); // order matters, after $generateString
+        return $this->writeStub($path, $overwrite, $path);
     }
 
     /**
