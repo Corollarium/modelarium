@@ -1,7 +1,7 @@
 <template>
-<div>
-    {{form}}
-</div>
+  <div>
+    {{ form }}
+  </div>
 </template>
 
 <script>
@@ -24,5 +24,4 @@ export default {
     }
 };
 </script>
-<style>
-</style>
+<style></style>
