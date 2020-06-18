@@ -1,0 +1,5 @@
+type User @index(fields: ["name", "surname"]) {
+  id: ID!
+  name: String!
+  surname: String!
+}

@@ -8,6 +8,103 @@ use Modelarium\Laravel\ModelParameter;
 
 class MigrationGenerator extends BaseGenerator
 {
+    protected function processBasetype(
+        \GraphQL\Type\Definition\FieldDefinition $field,
+        \GraphQL\Type\Definition\Type $type,
+        \GraphQL\Language\AST\NodeList $directives
+    ): array {
+        $fieldName = $field->name;
+        $basetype = $type->name;
+        // TODO $basetype = $field->getExtension(FieldParameter::LARAVEL_TYPE, $datatype->getBasetype());
+
+        $db = [];
+
+        switch ($basetype) {
+        case Type::ID:
+            $db[] = '$table->bigIncrements("id");';
+            break;
+        case Type::STRING:
+            $db[] = '$table->string("' . $fieldName . '");';
+            break;
+        case Type::INT:
+            $db[] = '$table->integer("' . $fieldName . '");';
+            break;
+        case Type::BOOLEAN:
+            $db[] = '$table->bool("' . $fieldName . '");';
+            break;
+        case Type::FLOAT:
+            $db[] = '$table->float("' . $fieldName . '");';
+            break;
+        case 'choice':
+            /**
+             * @var Datatype_choice $datatype
+             */
+            $db[] = '$table->enum("' . $fieldName . '", ' . print_r($datatype->getChoices(), true) . ');';
+        break;
+        case 'datetime':
+            $db[] = '$table->dateTime("' . $fieldName . '");';
+        break;
+        case 'association':
+            $db[] = '$table->unsignedInteger("' . $fieldName . '_id");';
+            /*   TODO if ($field->getExtension(FieldParameter::FOREIGN_KEY, false)) {
+                $db[] = '$table->foreign("' . $fieldName . '_id")->references("id")->on("' . $fieldName . '");';
+            } */
+        break;
+        case 'url':
+            $db[] = '$table->string("' . $fieldName . '");';
+        break;
+        default:
+            $db[] = '$table->' . $basetype . '("' . $fieldName . '");';
+        break;
+        }
+
+        foreach ($directives as $directive) {
+            $name = $directive->name->value;
+            switch ($name) {
+            case 'uniqueIndex':
+                $db[] = '$table->unique("' . $fieldName . '");';
+                break;
+            case 'index':
+                $db[] = '$table->index("' . $fieldName . '");';
+                break;
+            }
+        }
+
+        return $db;
+    }
+
+    public function processTypeDirectives(
+        \GraphQL\Type\Definition\Type $type,
+        \GraphQL\Language\AST\NodeList $directives
+    ): array {
+        $db = [];
+
+        foreach ($directives as $directive) {
+            $name = $directive->name->value;
+            switch ($name) {
+            case 'softDeletes':
+                $db[] = '$table->softDeletes();';
+                break;
+            case 'index':
+                $values = $directive->arguments[0]->value->values;
+                
+                $indexFields = [];
+                foreach ($values as $value) {
+                    $indexFields[] = $value->value;
+                }
+                $db[] = '$table->index("' . implode('", "', $indexFields) .'");';
+                break;
+            }
+        }
+
+        // TODO: $table->index() $model->getExtension()
+        // if ($this->model->getExtension(ModelParameter::SOFT_DELETES, false)) {
+        //     $db[] = '$table->softDeletes();';
+        // }
+        
+        return $db;
+    }
+
     public function generateString(): string
     {
         // TODO: check if a migration '_create_'. $this->lowerName exists, generate a diff from model(), generate new migration with diff
@@ -25,53 +122,12 @@ class MigrationGenerator extends BaseGenerator
             foreach ($modelData->getFields() as $field) {
                 // TODO if (NonNull)
                 $type = $field->type->getWrappedType();
-                $fieldName = $field->name;
-                $basetype = $type->name;
-
-                // TODO $basetype = $field->getExtension(FieldParameter::LARAVEL_TYPE, $datatype->getBasetype());
-                switch ($basetype) {
-                case Type::ID:
-                    $db[] = '$table->bigIncrements(\'id\');';
-                    break;
-                case Type::STRING:
-                    $db[] = '$table->string("' . $fieldName . '");';
-                    break;
-                case Type::INT:
-                    $db[] = '$table->integer("' . $fieldName . '");';
-                    break;
-                case Type::BOOLEAN:
-                    $db[] = '$table->bool("' . $fieldName . '");';
-                    break;
-                case Type::FLOAT:
-                    $db[] = '$table->float("' . $fieldName . '");';
-                    break;
-                case 'choice':
-                    /**
-                     * @var Datatype_choice $datatype
-                     */
-                    $db[] = '$table->enum("' . $fieldName . '", ' . print_r($datatype->getChoices(), true) . ');';
-                break;
-                case 'datetime':
-                    $db[] = '$table->dateTime("' . $fieldName . '");';
-                break;
-                case 'association':
-                    $db[] = '$table->unsignedInteger("' . $fieldName . '_id");';
-                    if ($field->getExtension(FieldParameter::FOREIGN_KEY, false)) {
-                        $db[] = '$table->foreign("' . $fieldName . '_id")->references("id")->on("' . $fieldName . '");';
-                    }
-                break;
-                case 'url':
-                    $db[] = '$table->string("' . $fieldName . '");';
-                break;
-                default:
-                    $db[] = '$table->' . $basetype . '("' . $fieldName . '");';
-                break;
-                }
+                $directives = $field->astNode->directives;
+                $db = array_merge($db, $this->processBasetype($field, $type, $directives));
             }
-            // TODO: $table->index() $model->getExtension()
-            // if ($this->model->getExtension(ModelParameter::SOFT_DELETES, false)) {
-            //     $db[] = '$table->softDeletes();';
-            // }
+
+            $db = array_merge($db, $this->processTypeDirectives($type, $modelData->astNode->directives));
+
             $stub = str_replace(
                 '// dummyCode',
                 join("\n            ", $db),
@@ -80,7 +136,7 @@ class MigrationGenerator extends BaseGenerator
 
             $stub = str_replace(
                 'modelSchemaCode',
-                $modelData->toString(),
+                $modelData->toString(), // TODO: ->source
                 $stub
             );
             return $stub;
