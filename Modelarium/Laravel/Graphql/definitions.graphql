@@ -1,0 +1,31 @@
+"""
+Generates a composed index on the database for a type
+"""
+directive @index(
+    """
+    The list of fields to compose in the index
+    """
+    fields: [String]!
+) on OBJECT
+
+"""
+Generates a spatialIndex
+"""
+directive @spatialIndex(
+    """
+    The list of fields to compose in the index
+    """
+    field: String!
+) on OBJECT
+
+"""
+Specifies a soft delete mode for this type
+"""
+directive @softDeletes(
+) on OBJECT
+
+"""
+Generates a unique index on the database for that field
+"""
+directive @uniqueIndex(
+) on FIELD_DEFINITION
