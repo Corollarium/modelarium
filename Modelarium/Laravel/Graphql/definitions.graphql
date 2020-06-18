@@ -1,4 +1,14 @@
 """
+Default value for database column
+"""
+directive @defaultValue(
+    """
+    The value
+    """
+    value: Mixed!
+) on FIELD_DEFINITION
+
+"""
 Generates a composed index on the database for a type
 """
 directive @index(
@@ -28,4 +38,10 @@ directive @softDeletes(
 Generates a unique index on the database for that field
 """
 directive @uniqueIndex(
+) on FIELD_DEFINITION
+
+"""
+Generates a unique index on the database for that field
+"""
+directive @unsigned(
 ) on FIELD_DEFINITION

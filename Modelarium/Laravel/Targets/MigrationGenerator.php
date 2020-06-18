@@ -17,63 +17,74 @@ class MigrationGenerator extends BaseGenerator
         $basetype = $type->name;
         // TODO: scalars
 
-        $db = [];
+        $extra = [];
 
         switch ($basetype) {
         case Type::ID:
-            $db[] = '$table->bigIncrements("id");';
+            $base = '$table->bigIncrements("id")';
             break;
         case Type::STRING:
-            $db[] = '$table->string("' . $fieldName . '");';
+            $base = '$table->string("' . $fieldName . '")';
             break;
         case Type::INT:
-            $db[] = '$table->integer("' . $fieldName . '");';
+            $base = '$table->integer("' . $fieldName . '")';
             break;
         case Type::BOOLEAN:
-            $db[] = '$table->bool("' . $fieldName . '");';
+            $base = '$table->bool("' . $fieldName . '")';
             break;
         case Type::FLOAT:
-            $db[] = '$table->float("' . $fieldName . '");';
+            $base = '$table->float("' . $fieldName . '")';
             break;
         case 'choice':
             /**
              * @var Datatype_choice $datatype
              */
-            $db[] = '$table->enum("' . $fieldName . '", ' . print_r($datatype->getChoices(), true) . ');';
+            $base = '$table->enum("' . $fieldName . '", ' . print_r($datatype->getChoices(), true) . ')';
         break;
         case 'datetime':
-            $db[] = '$table->dateTime("' . $fieldName . '");';
+            $base = '$table->dateTime("' . $fieldName . '")';
         break;
         case 'association':
-            $db[] = '$table->unsignedInteger("' . $fieldName . '_id");';
+            $base = '$table->unsignedInteger("' . $fieldName . '_id")';
             /*   TODO if ($field->getExtension(FieldParameter::FOREIGN_KEY, false)) {
-                $db[] = '$table->foreign("' . $fieldName . '_id")->references("id")->on("' . $fieldName . '");';
+                $base = '$table->foreign("' . $fieldName . '_id")->references("id")->on("' . $fieldName . '");';
             } */
         break;
         case 'url':
-            $db[] = '$table->string("' . $fieldName . '");';
+            $base = '$table->string("' . $fieldName . '")';
         break;
         default:
             // @hasMany
             // @hasOne
             // @foreignKey
-            $db[] = '$table->' . $basetype . '("' . $fieldName . '");';
+            $base = '$table->' . $basetype . '("' . $fieldName . '")';
         break;
         }
-
+        
+        // TODO: ->nullable()
+        
         foreach ($directives as $directive) {
             $name = $directive->name->value;
             switch ($name) {
             case 'uniqueIndex':
-                $db[] = '$table->unique("' . $fieldName . '");';
+                $extra[] = '$table->unique("' . $fieldName . '");';
                 break;
             case 'index':
-                $db[] = '$table->index("' . $fieldName . '");';
+                $extra[] = '$table->index("' . $fieldName . '");';
+                break;
+            case 'unsigned':
+                $base .= '->unsigned()';
+                break;
+            case 'defaultValue':
+                $x = ''; // TODO
+                $base .= '->default(' . $x . ')';
                 break;
             }
         }
+        $base .= ';';
 
-        return $db;
+        array_unshift($extra, $base);
+        return $extra;
     }
 
     public function processDirectives(
