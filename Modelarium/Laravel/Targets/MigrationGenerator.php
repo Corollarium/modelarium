@@ -114,11 +114,6 @@ class MigrationGenerator extends BaseGenerator
             }
         }
 
-        // TODO: $table->index() $model->getExtension()
-        // if ($this->model->getExtension(ModelParameter::SOFT_DELETES, false)) {
-        //     $db[] = '$table->softDeletes();';
-        // }
-        
         return $db;
     }
 

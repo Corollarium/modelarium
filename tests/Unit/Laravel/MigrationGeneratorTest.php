@@ -49,6 +49,14 @@ final class MigrationGeneratorTest extends TestCase
         $this->assertStringContainsString('$table->spatialIndex("location");', $data);
     }
 
+    public function testGenerateWithUnsigned()
+    {
+        $gen = new MigrationGenerator('User', $this->getParser('userUnsigned'));
+        $data = $gen->generateString();
+        $this->assertNotNull($data);
+        $this->assertStringContainsString('$table->integer("counter")->unsigned();', $data);
+    }
+
     public function testGenerateWithExtendScalar()
     {
         $gen = new MigrationGenerator('User', $this->getParser('userExtendScalar'));
