@@ -1,0 +1,7 @@
+scalar UserType
+
+type User {
+  id: ID!
+  name: String!
+  userType: UserType!
+}

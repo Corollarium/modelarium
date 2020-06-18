@@ -9,6 +9,9 @@ use Modelarium\Laravel\Targets\SeedGenerator;
 // use Formularium\FrameworkComposer;
 // use Formularium\Frontend\Blade\Framework as FrameworkBlade;
 // use Formularium\Frontend\Vue\Framework as FrameworkVue;
+use Modelarium\Laravel\Targets\MigrationGenerator;
+use Modelarium\Laravel\Targets\ModelGenerator;
+use Modelarium\Parser;
 
 class ModelariumCommand extends Command
 {
@@ -63,7 +66,7 @@ class ModelariumCommand extends Command
     {
         $name = $this->argument('name');
         if ($name === '*') {
-            $path = base_path('app/Formularium/');
+            $path = base_path('graphql');
             $dir = scandir($path);
             if ($dir === false) {
                 $this->error("Cannot find model dir $path");
@@ -100,9 +103,11 @@ class ModelariumCommand extends Command
             $this->stubDir = $this->option('stubdir');
         }
 
+        $parser = Parser::fromPath(base_path($name . '.graphql'));
+
         // make stuff
         if ($this->option('model') || $this->option('all')) {
-            (new ModelGenerator($name))->generateFile();
+            (new ModelGenerator($name, $parser))->generateFile();
         }
         if ($this->option('migration') || $this->option('all')) {
             (new MigrationGenerator($name))->generateFile();
@@ -113,12 +118,9 @@ class ModelariumCommand extends Command
         if ($this->option('seed') || $this->option('all')) {
             (new SeedGenerator($name))->generateFile();
         }
-        if ($this->option('controller') || $this->option('all')) {
-            $this->makeController(($blade ? 'FormulariumControllerBlade' : 'FormulariumControllerAPI'));
-        }
-        if ($this->option('policy') || $this->option('all')) {
-            $this->makePolicy();
-        }
+        // if ($this->option('policy') || $this->option('all')) {
+        //     $this->makePolicy();
+        // }
         if ($this->option('frontend') || $this->option('all')) {
             if ($vue) {
                 $this->makeVueScaffold();

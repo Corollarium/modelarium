@@ -15,7 +15,7 @@ class MigrationGenerator extends BaseGenerator
     ): array {
         $fieldName = $field->name;
         $basetype = $type->name;
-        // TODO $basetype = $field->getExtension(FieldParameter::LARAVEL_TYPE, $datatype->getBasetype());
+        // TODO: scalars
 
         $db = [];
 
@@ -94,6 +94,10 @@ class MigrationGenerator extends BaseGenerator
                 }
                 $db[] = '$table->index("' . implode('", "', $indexFields) .'");';
                 break;
+            case 'spatialIndex':
+                $db[] = '$table->spatialIndex("' . $directive->arguments[0]->value->value .'");';
+                break;
+            default:
             }
         }
 
@@ -107,8 +111,6 @@ class MigrationGenerator extends BaseGenerator
 
     public function generateString(): string
     {
-        // TODO: check if a migration '_create_'. $this->lowerName exists, generate a diff from model(), generate new migration with diff
-  
         return $this->stubToString('migration', function ($stub) {
             /**
              * @var Type
@@ -145,6 +147,8 @@ class MigrationGenerator extends BaseGenerator
 
     protected function getGenerateFilename(): string
     {
+        // TODO: check if a migration '_create_'. $this->lowerName exists, generate a diff from model(), generate new migration with diff
+  
         return $this->getBasePath('database/migrations/' . date('Y_m_d_His') . '_create_'. $this->lowerName . '_table.php');
     }
 }

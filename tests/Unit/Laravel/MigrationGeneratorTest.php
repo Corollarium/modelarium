@@ -40,4 +40,21 @@ final class MigrationGeneratorTest extends TestCase
         $this->assertNotNull($data);
         $this->assertStringContainsString('$table->softDeletes();', $data);
     }
+
+    public function testGenerateWithSpatialIndex()
+    {
+        $gen = new MigrationGenerator('User', $this->getParser('userSpatialIndex'));
+        $data = $gen->generateString();
+        $this->assertNotNull($data);
+        $this->assertStringContainsString('$table->spatialIndex("location");', $data);
+    }
+
+    public function testGenerateWithExtendScalar()
+    {
+        $gen = new MigrationGenerator('User', $this->getParser('userExtendScalar'));
+        $data = $gen->generateString();
+        $this->assertNotNull($data);
+        $this->markTestIncomplete();
+        // TODO $this->assertStringContainsString('$table->();', $data);
+    }
 }

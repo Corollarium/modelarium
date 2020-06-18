@@ -1,0 +1,5 @@
+type User @spatialIndex(field: "location") {
+  id: ID!
+  name: String!
+  location: String!
+}
