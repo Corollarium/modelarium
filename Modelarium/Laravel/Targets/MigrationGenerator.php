@@ -2,53 +2,76 @@
 
 namespace Modelarium\Laravel\Targets;
 
+use GraphQL\Type\Definition\Type;
 use Modelarium\Laravel\FieldParameter;
 use Modelarium\Laravel\ModelParameter;
 
-class SeedGenerator extends BaseGenerator
+class MigrationGenerator extends BaseGenerator
 {
-    public function generate()
+    public function generateString(): string
     {
-        $path = $this->getBasePath('database/migrations/' . date('Y_m_d_His') . '_create_'. $this->lowerName . '_table.php');
-
         // TODO: check if a migration '_create_'. $this->lowerName exists, generate a diff from model(), generate new migration with diff
+  
+        return $this->stubToString('migration', function ($stub) {
+            /**
+             * @var Type
+             */
+            $modelData = $this->model->getSchema()->getType($this->targetName);
+            assert($modelData !== null);
 
-        $this->stubFile($path, 'migration', false, function ($stub) {
             $db = [
-                '$table->bigIncrements(\'id\');',
                 '$table->timestamps();'
             ];
-            foreach ($this->model->getFields() as $field) {
-                $datatype = $field->getDatatype();
-                $basetype = $field->getExtension(FieldParameter::LARAVEL_TYPE, $datatype->getBasetype());
+            foreach ($modelData->getFields() as $field) {
+                // TODO if (NonNull)
+                $type = $field->type->getWrappedType();
+                $fieldName = $field->name;
+                $basetype = $type->name;
+
+                // TODO $basetype = $field->getExtension(FieldParameter::LARAVEL_TYPE, $datatype->getBasetype());
                 switch ($basetype) {
+                case Type::ID:
+                    $db[] = '$table->bigIncrements(\'id\');';
+                    break;
+                case Type::STRING:
+                    $db[] = '$table->string("' . $fieldName . '");';
+                    break;
+                case Type::INT:
+                    $db[] = '$table->integer("' . $fieldName . '");';
+                    break;
+                case Type::BOOLEAN:
+                    $db[] = '$table->bool("' . $fieldName . '");';
+                    break;
+                case Type::FLOAT:
+                    $db[] = '$table->float("' . $fieldName . '");';
+                    break;
                 case 'choice':
                     /**
                      * @var Datatype_choice $datatype
                      */
-                    $db[] = '$table->enum("' . $field->getName() . '", ' . print_r($datatype->getChoices(), true) . ');';
+                    $db[] = '$table->enum("' . $fieldName . '", ' . print_r($datatype->getChoices(), true) . ');';
                 break;
                 case 'datetime':
-                    $db[] = '$table->dateTime("' . $field->getName() . '");';
+                    $db[] = '$table->dateTime("' . $fieldName . '");';
                 break;
                 case 'association':
-                    $db[] = '$table->unsignedInteger("' . $field->getName() . '_id");';
+                    $db[] = '$table->unsignedInteger("' . $fieldName . '_id");';
                     if ($field->getExtension(FieldParameter::FOREIGN_KEY, false)) {
-                        $db[] = '$table->foreign("' . $field->getName() . '_id")->references("id")->on("' . $field->getName() . '");';
+                        $db[] = '$table->foreign("' . $fieldName . '_id")->references("id")->on("' . $fieldName . '");';
                     }
                 break;
                 case 'url':
-                    $db[] = '$table->string("' . $field->getName() . '");';
+                    $db[] = '$table->string("' . $fieldName . '");';
                 break;
                 default:
-                    $db[] = '$table->' . $basetype . '("' . $field->getName() . '");';
+                    $db[] = '$table->' . $basetype . '("' . $fieldName . '");';
                 break;
                 }
             }
             // TODO: $table->index() $model->getExtension()
-            if ($this->model->getExtension(ModelParameter::SOFT_DELETES, false)) {
-                $db[] = '$table->softDeletes();';
-            }
+            // if ($this->model->getExtension(ModelParameter::SOFT_DELETES, false)) {
+            //     $db[] = '$table->softDeletes();';
+            // }
             $stub = str_replace(
                 '// dummyCode',
                 join("\n            ", $db),
@@ -57,10 +80,15 @@ class SeedGenerator extends BaseGenerator
 
             $stub = str_replace(
                 'modelSchemaCode',
-                $this->model->serialize(),
+                $modelData->toString(),
                 $stub
             );
             return $stub;
         });
+    }
+
+    protected function getGenerateFilename(): string
+    {
+        return $this->getBasePath('database/migrations/' . date('Y_m_d_His') . '_create_'. $this->lowerName . '_table.php');
     }
 }

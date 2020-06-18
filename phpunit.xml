@@ -15,4 +15,9 @@
             <directory suffix=".php">Modelarium</directory>
         </whitelist>
     </filter>
+    <testsuites>
+        <testsuite name="The project's test suite">
+            <directory>./tests</directory>
+        </testsuite>
+    </testsuites>
 </phpunit>

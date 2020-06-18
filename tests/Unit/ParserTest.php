@@ -1,7 +1,8 @@
 <?php declare(strict_types=1);
 
+namespace ModelariumTests;
+
 use Modelarium\Parser;
-use PHPUnit\Framework\TestCase;
 
 final class ParserTest extends TestCase
 {

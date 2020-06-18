@@ -3,8 +3,9 @@
 namespace Modelarium\Laravel\Targets;
 
 use Doctrine\Inflector\InflectorFactory;
-use Exception;
 use Illuminate\Support\Str;
+use Modelarium\Exception\Exception;
+use Modelarium\Parser;
 
 abstract class BaseGenerator
 {
@@ -20,6 +21,9 @@ abstract class BaseGenerator
 
     protected $inflector = null;
 
+    /**
+     * @var Parser
+     */
     protected $model = null;
 
     public function __construct($name, $model = null)
@@ -30,6 +34,13 @@ abstract class BaseGenerator
         $this->studlyName = Str::studly($this->targetName);
         $this->lowerName = mb_strtolower($this->targetName);
         $this->lowerNamePlural = $this->inflector->pluralize($this->lowerName);
+        if ($model instanceof Parser) {
+            // ok
+        } elseif ($model instanceof string) {
+            $parser = Parser::fromString($model);
+        } else {
+            throw new Exception('Invalid model');
+        }
         $this->model = $model;
     }
 

@@ -1,13 +1,15 @@
 <?php declare(strict_types=1);
 
+namespace ModelariumTests\Laravel;
+
 use Modelarium\Laravel\Targets\FactoryGenerator;
-use PHPUnit\Framework\TestCase;
+use ModelariumTests\TestCase;
 
 final class FactoryGeneratorTest extends TestCase
 {
     public function testGenerate()
     {
-        $gen = new FactoryGenerator('User');
+        $gen = new FactoryGenerator('User', $this->getParser('user'));
         $data = $gen->generateString();
         $this->assertNotNull($data);
     }

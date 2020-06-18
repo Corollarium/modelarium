@@ -2,6 +2,8 @@
 
 namespace Modelarium;
 
+use GraphQL\Utils\AST;
+
 class Parser
 {
     /**
@@ -28,8 +30,29 @@ class Parser
     {
         $this->schemaContent = $data;
         $this->schemaDocument = \GraphQL\Language\Parser::parse($this->schemaContent);
-        $this->schemaBuilder = new \GraphQL\Utils\BuildSchema($this->schemaDocument);
-        $this->schema = $this->schemaBuilder->buildSchema();
+        $this->schemaBuilder = new \GraphQL\Utils\BuildSchema(
+            $this->schemaDocument,
+            function ($typeConfig, $typeDefinitionNode) {
+                /* TODO: extended datatypes
+                if ($typeConfig['name'] === 'Email') {
+                    $typeConfig = array_merge($typeConfig, [
+                        'serialize' => function ($value) {
+                            // ...
+                        },
+                        'parseValue' => function ($value) {
+                            // ...
+                        },
+                        'parseLiteral' => function ($ast) {
+                            // ...
+                        }
+                    ]);
+                } */
+                return $typeConfig;
+            }
+        );
+        $this->schema = $this->schemaBuilder->buildSchema(
+            
+        );
     }
 
     /**
@@ -58,5 +81,15 @@ class Parser
     public static function fromString(string $data): self
     {
         return new self($data);
+    }
+
+    /**
+     * Get the value of schema
+     *
+     * @return  \GraphQL\Type\Schema
+     */
+    public function getSchema()
+    {
+        return $this->schema;
     }
 }

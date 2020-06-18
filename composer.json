@@ -10,7 +10,8 @@
     ],
     "autoload": {
         "psr-4": {
-            "Modelarium\\": "Modelarium/"
+            "Modelarium\\": "Modelarium/",
+            "ModelariumTests\\": "tests/Unit"
         }
     },
     "require": {
