@@ -4,7 +4,13 @@ namespace Modelarium\Laravel\Targets;
 
 class ModelGenerator extends BaseGenerator
 {
-    public function generate()
+    public function generateString(): string
     {
+        return $this->stubToString('model');
+    }
+
+    protected function getGenerateFilename(): string
+    {
+        return $this->getBasePath('app/Models/'. $this->studlyName . '.php');
     }
 }

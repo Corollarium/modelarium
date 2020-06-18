@@ -3,6 +3,9 @@
 namespace Modelarium\Laravel\Console\Commands;
 
 use Illuminate\Console\Command;
+use Modelarium\Laravel\Targets\FactoryGenerator;
+use Modelarium\Laravel\Targets\SeedGenerator;
+
 // use Formularium\FrameworkComposer;
 // use Formularium\Frontend\Blade\Framework as FrameworkBlade;
 // use Formularium\Frontend\Vue\Framework as FrameworkVue;
@@ -99,16 +102,16 @@ class ModelariumCommand extends Command
 
         // make stuff
         if ($this->option('model') || $this->option('all')) {
-            new ModelGenerator($model)->generate();
+            (new ModelGenerator($name))->generateFile();
         }
         if ($this->option('migration') || $this->option('all')) {
-            $this->makeMigration();
+            (new MigrationGenerator($name))->generateFile();
         }
         if ($this->option('factory') || $this->option('all')) {
-            $this->makeFactory();
+            (new FactoryGenerator($name))->generateFile();
         }
         if ($this->option('seed') || $this->option('all')) {
-            $this->makeSeed();
+            (new SeedGenerator($name))->generateFile();
         }
         if ($this->option('controller') || $this->option('all')) {
             $this->makeController(($blade ? 'FormulariumControllerBlade' : 'FormulariumControllerAPI'));

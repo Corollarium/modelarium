@@ -20,7 +20,9 @@ abstract class BaseGenerator
 
     protected $inflector = null;
 
-    public function __construct($name)
+    protected $model = null;
+
+    public function __construct($name, $model = null)
     {
         $this->inflector = InflectorFactory::create()->build();
 
@@ -28,6 +30,7 @@ abstract class BaseGenerator
         $this->studlyName = Str::studly($this->targetName);
         $this->lowerName = mb_strtolower($this->targetName);
         $this->lowerNamePlural = $this->inflector->pluralize($this->lowerName);
+        $this->model = $model;
     }
 
     /**
@@ -120,7 +123,7 @@ abstract class BaseGenerator
         if ($stub === false) {
             throw new \Exception('Stub file not found');
         }
-        return $this->stubString($stub, $f);
+        return $this->replaceStub($stub, $f);
     }
 
     /**

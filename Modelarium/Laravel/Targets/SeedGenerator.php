@@ -2,7 +2,7 @@
 
 namespace Modelarium\Laravel\Targets;
 
-class FactoryGenerator extends BaseGenerator
+class SeedGenerator extends BaseGenerator
 {
     public function generateString(): string
     {
