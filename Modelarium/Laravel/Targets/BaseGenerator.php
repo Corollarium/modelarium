@@ -36,7 +36,7 @@ abstract class BaseGenerator
      * @param string $file The filename
      * @return string
      */
-    public function getBasePath(string $file = null)
+    public function getBasePath(string $file = null): string
     {
         $basepath = dirname(\Composer\Factory::getComposerFile());
         if ($file) {
@@ -45,7 +45,20 @@ abstract class BaseGenerator
         return $basepath;
     }
 
-    abstract public function generate();
+    abstract protected function getGenerateFilename(): string;
+
+    /**
+     * Undocumented function
+     *
+     * @return string
+     */
+    abstract public function generateString(): string;
+
+    public function generateFile($overwrite = true)
+    {
+        $path = $this->getGenerateFilename();
+        return $this->writeStub($path, $overwrite, $this->generateString());
+    }
 
     /**
      * Prints a warning message.
@@ -72,12 +85,11 @@ abstract class BaseGenerator
      * Takes a stub file and generates the target file with replacements.
      *
      * @param string $targetPath The path for the stub file.
-     * @param string $stubName The name for the stub file.
      * @param boolean $overwrite
-     * @param Callable $f
+     * @param string $stubName The name for the stub file.
      * @return void
      */
-    public function stubFile(string $targetPath, string $stubName, bool $overwrite = true, callable $f = null)
+    public function writeStub(string $targetPath, bool $overwrite, string $stubData)
     {
         if (file_exists($targetPath) && !$overwrite) {
             $this->warning("File $targetPath already exists.");
@@ -85,9 +97,8 @@ abstract class BaseGenerator
         }
 
         mkdir(dirname($targetPath), 0777, true);
-        $data = $this->stubString($stubName);
 
-        $ret = file_put_contents($targetPath, $data);
+        $ret = file_put_contents($targetPath, $stubData);
         if (!$ret) {
             $this->error("Cannot write to $targetPath");
             throw new \Exception("Cannot write to $targetPath");
@@ -100,16 +111,16 @@ abstract class BaseGenerator
      *
      * @param string $stubName The name for the stub file.
      * @param Callable $f
-     * @return void
+     * @return string
      * @see BaseGenerator::stubFile()
      */
-    public function stubString(string $stubName, callable $f = null)
+    public function stubToString(string $stubName, callable $f = null): string
     {
         $stub = file_get_contents($this->stubDir . "/$stubName.stub.php");
         if ($stub === false) {
             throw new \Exception('Stub file not found');
         }
-        return $this->stubData($stub, $f);
+        return $this->stubString($stub, $f);
     }
 
     /**
@@ -117,9 +128,9 @@ abstract class BaseGenerator
      *
      * @param string $stub
      * @param callable $f
-     * @return void
+     * @return string
      */
-    public function stubData(string $stub, callable $f = null)
+    public function replaceStub(string $stub, callable $f = null): string
     {
         $data = $this->replaceDummy($stub);
         if ($f) {

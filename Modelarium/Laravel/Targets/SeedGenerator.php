@@ -2,11 +2,15 @@
 
 namespace Modelarium\Laravel\Targets;
 
-class SeedGenerator extends BaseGenerator
+class FactoryGenerator extends BaseGenerator
 {
-    public function generate()
+    public function generateString(): string
     {
-        $path = $this->getBasePath('database/seeds/'. $this->studlyName . 'Seeder.php');
-        $this->stubFile($path, 'seed');
+        return $this->stubToString('seed');
+    }
+
+    protected function getGenerateFilename(): string
+    {
+        return $this->getBasePath('database/seeds/'. $this->studlyName . 'Seeder.php');
     }
 }

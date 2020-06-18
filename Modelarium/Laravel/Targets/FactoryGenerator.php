@@ -4,9 +4,13 @@ namespace Modelarium\Laravel\Targets;
 
 class FactoryGenerator extends BaseGenerator
 {
-    public function generate()
+    public function generateString(): string
     {
-        $path = $this->getBasePath('database/seeds/'. $this->studlyName . 'Factory.php');
-        $this->stubFile($path, 'factory');
+        return $this->stubToString('factory');
+    }
+
+    protected function getGenerateFilename(): string
+    {
+        return $this->getBasePath('database/seeds/'. $this->studlyName . 'Factory.php');
     }
 }

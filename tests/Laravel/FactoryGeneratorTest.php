@@ -1,13 +1,13 @@
 <?php declare(strict_types=1);
 
-use Modelarium\Laravel\Targets\SeedGenerator;
+use Modelarium\Laravel\Targets\FactoryGenerator;
 use PHPUnit\Framework\TestCase;
 
-final class SeedGeneratorTest extends TestCase
+final class FactoryGeneratorTest extends TestCase
 {
     public function testGenerate()
     {
-        $gen = new SeedGenerator('User');
+        $gen = new FactoryGenerator('User');
         $data = $gen->generateString();
         $this->assertNotNull($data);
     }
