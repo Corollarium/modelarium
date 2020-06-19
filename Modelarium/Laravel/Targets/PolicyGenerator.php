@@ -20,41 +20,94 @@ class PolicyGenerator extends BaseGenerator
 
     public function processDirectives(
         \GraphQL\Language\AST\NodeList $directives
-    ): array {
-        $db = [];
-
+    ) {
         foreach ($directives as $directive) {
             $name = $directive->name->value;
             switch ($name) {
             case 'can':
-                // ability
-                // model
+                $ability = '';
+                $find = '';
+                $injected = false;
+                $args = false;
+                $model = $this->studlyName;
+                foreach ($directive->arguments as $arg) {
+                    /**
+                     * @var \GraphQL\Language\AST\ArgumentNode $arg
+                     */
+                    $value = $arg->value->value;
+                    switch ($arg->name->value) {
+                        case 'ability':
+                            $ability = $value;
+                        break;
+                        case 'find':
+                            $find = $value;
+                        break;
+                        case 'model':
+                            $model = $value;
+                        break;
+                        case 'injectArgs':
+                            $injected = ', array $injectedArgs';
+                        break;
+                        case 'args':
+                            $args = ', array $staticArgs';
+                        break;
+                    }
+                }
+                if ($find) {
+                    $stub = <<<EOF
+    /**
+     * 
+     *
+     * @param \App\User \$user
+     * @param \App\{$this->model} \${$this->lowerName}
+     * @return mixed
+     */
+    public function {$ability}(User \$user, {$model} \${$this->lowerName}):bool
+    {
+        return false; // TODO
+    }
+EOF;
+                } elseif ($args || $injected) {
+                    $stub = <<<EOF
+    /**
+     * 
+     * @param \App\User  \$user
+     * @param array      \$args
+     * @return bool
+     */
+    public function {$ability}(User \$user $injected $args):bool
+    {
+        return false; // TODO
+    }
+EOF;
+                } else {
+                    $stub = <<<EOF
+    /**
+     * 
+     * @param \App\User  \$user
+     * @return bool
+     */
+    public function {$ability}(User \$user):bool
+    {
+        return false; // TODO
+    }
+EOF;
+                }
                 break;
             default:
+            break;
             }
         }
-        
-        return $db;
     }
 
     public function generateString(): string
     {
-        return $this->stubToString('event', function ($stub) {
+        return $this->stubToString('policy', function ($stub) {
             $this->processDirectives($this->type->astNode->directives);
 
-            assert($this->eventClass !== null);
-            $eventTokens = explode('\\', $this->eventClass);
-            $eventClassName = array_pop($eventTokens);
-            $eventNamespace = implode('\\', $eventTokens);
             $stub = str_replace(
-                'DummyEventNamespace',
-                $eventNamespace,
-                $stub
-            );
-            
-            $stub = str_replace(
-                'DummyEventClassName',
-                $eventClassName,
+                '{{dummyCode}}',
+                join("\n", $this->code),
                 $stub
             );
             return $stub;
