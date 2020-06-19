@@ -12,6 +12,8 @@ class DummyClass extends {{ParentDummyModel}}
     {{traitsCode}}
 
     protected $fillable = {{dummyFillable}};
+    
+    protected $hidden = {{dummyHidden}};
 
 {{dummyMethods}}
 }

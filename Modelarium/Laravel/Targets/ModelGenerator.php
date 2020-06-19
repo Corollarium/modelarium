@@ -25,6 +25,13 @@ class ModelGenerator extends BaseGenerator
     protected $fillable = [];
 
     /**
+     * fillable attributes
+     *
+     * @var array
+     */
+    protected $hidden = [];
+
+    /**
      *
      * @var string
      */
@@ -65,6 +72,9 @@ class ModelGenerator extends BaseGenerator
             switch ($name) {
             case 'fillable':
                 $this->fillable[] = $name;
+                break;
+            case 'hidden':
+                $this->hidden[] = $name;
                 break;
             }
         }
@@ -180,6 +190,12 @@ EOF;
             $stub = str_replace(
                 '{{dummyFillable}}',
                 var_export($this->fillable, true),
+                $stub
+            );
+
+            $stub = str_replace(
+                '{{dummyHidden}}',
+                var_export($this->hidden, true),
                 $stub
             );
 
