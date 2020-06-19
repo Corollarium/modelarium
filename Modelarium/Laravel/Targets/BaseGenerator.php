@@ -12,16 +12,34 @@ use Modelarium\Parser;
 
 abstract class BaseGenerator
 {
-    protected $targetName = '';
+    /**
+     * @var string
+     */
+    protected $name = '';
 
+    /**
+     * @var string
+     */
     protected $studlyName = '';
 
+    /**
+     * @var string
+     */
     protected $lowerName = '';
 
+    /**
+     * @var string
+     */
     protected $lowerNamePlural = '';
 
+    /**
+     * @var string
+     */
     protected $stubDir = __DIR__ . "/stubs/";
 
+    /**
+     * @var \Doctrine\Inflector\Inflector
+     */
     protected $inflector = null;
 
     /**
@@ -34,7 +52,14 @@ abstract class BaseGenerator
      */
     protected $type = null;
 
-    public function __construct(Parser $parser, $name, $type = null)
+    /**
+     * Undocumented function
+     *
+     * @param Parser $parser
+     * @param string $name
+     * @param Type|string $type
+     */
+    public function __construct(Parser $parser, string $name, $type = null)
     {
         $this->inflector = InflectorFactory::create()->build();
 
@@ -70,11 +95,6 @@ abstract class BaseGenerator
 
     abstract public function getGenerateFilename(): string;
 
-    /**
-     * Undocumented function
-     *
-     * @return string
-     */
     abstract public function generate(): GeneratedCollection;
 
     /**

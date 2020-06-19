@@ -12,6 +12,9 @@ use Modelarium\Processor as ModelariumProcessor;
 
 class Processor extends ModelariumProcessor
 {
+    /**
+     * @var Parser
+     */
     protected $parser = null;
 
     /**
@@ -29,9 +32,7 @@ class Processor extends ModelariumProcessor
         foreach ($typeMap as $name => $object) {
             if ($object instanceof ObjectType) {
                 $g = $this->processType($name, $object);
-                if ($g) {
-                    $data = $data->merge($g);
-                }
+                $data = $data->merge($g);
             }
         }
 

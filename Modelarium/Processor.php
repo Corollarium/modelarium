@@ -9,12 +9,6 @@ use Modelarium\Laravel\Targets\MigrationGenerator;
 
 abstract class Processor
 {
-    public function processFiles(array $files)
-    {
-        foreach ($files as $file) {
-        }
-    }
-
     /**
      *
      * @param string $data

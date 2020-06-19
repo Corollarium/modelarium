@@ -13,6 +13,11 @@ use Modelarium\Laravel\ModelParameter;
 
 class MigrationGenerator extends BaseGenerator
 {
+    /**
+     * @var ObjectType
+     */
+    protected $type = null;
+
     public function generate(): GeneratedCollection
     {
         return new GeneratedCollection(
@@ -40,6 +45,7 @@ class MigrationGenerator extends BaseGenerator
         }
         $basetype = $type->name;
 
+        $base = '';
         switch ($basetype) {
         case Type::ID:
             $base = '$table->bigIncrements("id")';
@@ -56,12 +62,6 @@ class MigrationGenerator extends BaseGenerator
         case Type::FLOAT:
             $base = '$table->float("' . $fieldName . '")';
             break;
-        case 'choice':
-            /**
-             * @var Datatype_choice $datatype
-             */
-            $base = '$table->enum("' . $fieldName . '", ' . print_r($datatype->getChoices(), true) . ')';
-        break;
         case 'datetime':
             $base = '$table->dateTime("' . $fieldName . '")';
         break;
@@ -71,7 +71,6 @@ class MigrationGenerator extends BaseGenerator
         default:
             throw new Exception("Unsupported type " . $basetype);
             // $base = '$table->' . $basetype . '("' . $fieldName . '")';
-        break;
         }
         
         if (!($field->type instanceof NonNull)) {
@@ -114,6 +113,7 @@ class MigrationGenerator extends BaseGenerator
         } else {
             $type = $field->type;
         }
+        $typeName = $type->name;
 
         $fieldName = mb_strtolower($lowerName) . '_id';
         
@@ -130,12 +130,18 @@ class MigrationGenerator extends BaseGenerator
                 $extra[] = '$table->index("' . $fieldName . '");';
                 break;
             case 'belongsTo':
-                $targetType = $this->parser->getType($type->name);
-                $targetField = $targetType->getField($this->lowerName); // TODO: might have another name
+                $targetType = $this->parser->getType($typeName);
+                if (!$targetType) {
+                    throw new Exception("Cannot get type {$typeName} as a relationship to {$this->name}");
+                } elseif (!($targetType instanceof ObjectType)) {
+                    throw new Exception("{$typeName} is not a type for a relationship to {$this->name}");
+                }
+                $targetField = $targetType->getField($this->lowerName); // TODO: might have another name than lowerName
                 $targetDirectives = $targetField->astNode->directives;
                 foreach ($targetDirectives as $targetDirective) {
                     switch ($targetDirective->name->value) {
                     case 'hasOne':
+                    case 'hasMany':
                         $base = '$table->unsignedBigInteger("' . $fieldName . '")';
                     break;
                     }
@@ -148,20 +154,23 @@ class MigrationGenerator extends BaseGenerator
                 $onUpdate = null;
                 foreach ($directive->arguments as $arg) {
                     /**
-                     * @var GraphQL\Language\AST\ArgumentNode $arg
+                     * @var \GraphQL\Language\AST\ArgumentNode $arg
                      */
+
+                    $value = $arg->value->value;
+
                     switch ($arg->name->value) {
                     case 'references':
-                        $references = $arg->value->value;
+                        $references = $value;
                     break;
                     case 'on':
-                        $on = $arg->value->value;
+                        $on = $value;
                     break;
                     case 'onDelete':
-                        $onDelete = $arg->value->value;
+                        $onDelete = $value;
                     break;
                     case 'onUpdate':
-                        $onUpdate = $arg->value->value;
+                        $onUpdate = $value;
                     break;
                     }
                 }
@@ -235,11 +244,17 @@ class MigrationGenerator extends BaseGenerator
                     // relationship
                     $db = array_merge($db, $this->processRelationship($field, $directives));
                 } else {
-                    $db = array_merge($db, $this->processBasetype($field, $directives, true));
+                    $db = array_merge($db, $this->processBasetype($field, $directives));
                 }
             }
 
-            $db = array_merge($db, $this->processDirectives($this->type->astNode->directives));
+            /**
+             * @var \GraphQL\Language\AST\NodeList|null
+             */
+            $directives = $this->type->astNode->directives;
+            if ($directives) {
+                $db = array_merge($db, $this->processDirectives($directives));
+            }
 
             $stub = str_replace(
                 '// dummyCode',

@@ -8,10 +8,10 @@ class GeneratedCollection extends Collection
 {
     public function __construct(array $items = [])
     {
-        parent::__construct($items, \ArrayObject::ARRAY_AS_PROPS);
+        parent::__construct($items);
     }
 
-    public function filterByType($type)
+    public function filterByType(string $type): GeneratedCollection
     {
         return $this->filter(
             function ($i) use ($type) {

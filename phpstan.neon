@@ -6,6 +6,8 @@ parameters:
   paths:
     - Modelarium/
     - tests/
+  excludes_analyse:
+    - Modelarium/Laravel/Targets/stubs/*
   checkMissingIterableValueType: false
   ignoreErrors:
     - "#Access to an undefined property Faker#"

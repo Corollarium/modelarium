@@ -15,7 +15,7 @@ class ModelariumServiceProvider extends ServiceProvider
     {
         if ($this->app->runningInConsole()) {
             $this->commands([
-                \Modelarium\Laravel\Console\Commands::class
+                \Modelarium\Laravel\Console\Commands\ModelariumCommand::class
             ]);
         }
     }

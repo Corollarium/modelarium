@@ -2,8 +2,10 @@
 
 namespace Modelarium;
 
+use Exception;
 use GraphQL\Utils\AST;
 use GraphQL\Type\Definition\Type;
+use GraphQL\Type\Schema;
 
 class Parser
 {
@@ -13,12 +15,12 @@ class Parser
     protected $schemaContent;
 
     /**
-     * @var GraphQL\Language\AST\DocumentNode
+     * @var \GraphQL\Language\AST\DocumentNode
      */
     protected $schemaDocument;
 
     /**
-     * @var GraphQL\Utils\BuildSchema
+     * @var \GraphQL\Utils\BuildSchema
      */
     protected $schemaBuilder;
 
@@ -67,7 +69,7 @@ class Parser
     {
         $data = file_get_contents($path);
         if (!$data) {
-            throw new \Exception('Invalid path');
+            throw new Exception('Invalid path');
         }
         return new self($data);
     }
@@ -84,17 +86,12 @@ class Parser
         return new self($data);
     }
 
-    /**
-     * Get the value of schema
-     *
-     * @return GraphQL\Type\Definition\Type
-     */
-    public function getSchema()
+    public function getSchema(): Schema
     {
         return $this->schema;
     }
 
-    public function getType($name) : ?Type
+    public function getType(string $name) : ?Type
     {
         return $this->schema->getType($name);
     }

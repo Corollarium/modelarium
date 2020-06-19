@@ -40,13 +40,7 @@ class PolicyGenerator extends BaseGenerator
     public function generateString(): string
     {
         return $this->stubToString('event', function ($stub) {
-            /**
-             * @var Type
-             */
-            $modelData = $this->model->getSchema()->getType($this->targetName);
-            assert($modelData !== null);
-
-            $this->processDirectives($modelData->astNode->directives);
+            $this->processDirectives($this->type->astNode->directives);
 
             assert($this->eventClass !== null);
             $eventTokens = explode('\\', $this->eventClass);
