@@ -2,7 +2,8 @@
 
 namespace Modelarium\Laravel\Targets;
 
-use GraphQL\Type\Definition\ObjectType;
+use GraphQL\Language\AST\DirectiveNode;
+use Modelarium\Exception\Exception;
 use Modelarium\GeneratedCollection;
 use Modelarium\GeneratedItem;
 
@@ -13,10 +14,13 @@ class PolicyGenerator extends BaseGenerator
      */
     protected $type = null;
 
+    protected $modelName = '';
+
     /**
      * @var array
      */
     protected $policies = [];
+
 
     public function generate(): GeneratedCollection
     {
@@ -30,42 +34,72 @@ class PolicyGenerator extends BaseGenerator
     }
 
     public function processDirectives(
+        \GraphQL\Type\Definition\FieldDefinition $field,
         \GraphQL\Language\AST\NodeList $directives
     ): void {
         foreach ($directives as $directive) {
             $name = $directive->name->value;
             switch ($name) {
             case 'can':
-                $ability = '';
-                $find = '';
-                $injected = false;
-                $args = false;
-                $model = $this->studlyName;
-                foreach ($directive->arguments as $arg) {
+                $this->processCan($field, $directive);
+            break;
+            default:
+            break;
+            }
+        }
+    }
+
+    public function processCan(
+        \GraphQL\Type\Definition\FieldDefinition $field,
+        DirectiveNode $directive
+    ): void {
+        $ability = '';
+        $find = '';
+        $injected = false;
+        $args = false;
+        $model = $field->type->name; /** @phpstan-ignore-line */;
+        foreach ($directive->arguments as $arg) {
+            switch ($arg->name->value) {
+                case 'ability':
                     /**
                      * @var \GraphQL\Language\AST\ArgumentNode $arg
                      */
-                    $value = $arg->value->value;
-                    switch ($arg->name->value) {
-                        case 'ability':
-                            $ability = $value;
-                        break;
-                        case 'find':
-                            $find = $value;
-                        break;
-                        case 'model':
-                            $model = $value;
-                        break;
-                        case 'injectArgs':
-                            $injected = ', array $injectedArgs';
-                        break;
-                        case 'args':
-                            $args = ', array $staticArgs';
-                        break;
-                    }
-                }
-                if ($find) {
-                    $stub = <<<EOF
+                    $ability = $arg->value->value;
+                break;
+                case 'find':
+                    /**
+                     * @var \GraphQL\Language\AST\ArgumentNode $arg
+                     */
+                    $find = $arg->value->value;
+                break;
+                case 'model':
+                    /**
+                     * @var \GraphQL\Language\AST\ArgumentNode $arg
+                     */
+                    $model = $arg->value->value;
+                break;
+                case 'injectArgs':
+                    $injected = ', array $injectedArgs';
+                break;
+                case 'args':
+                    $args = ', array $staticArgs';
+                break;
+            }
+        }
+
+        if (!$this->modelName) {
+            $this->modelName = $model;
+        } else {
+            if ($model != $this->modelName) {
+                // TODO
+                throw new Exception(
+                    'Mixing fields with different arguments in the same mutation type is not supported yet.'
+                );
+            }
+        }
+        if ($find) {
+            $stub = <<<EOF
+
     /**
      * 
      *
@@ -73,56 +107,57 @@ class PolicyGenerator extends BaseGenerator
      * @param \App\{$model} \${$this->lowerName}
      * @return mixed
      */
-    public function {$ability}(User \$user, {$model} \${$this->lowerName}):bool
+    public function {$ability}(User \$user, {$model} \${$this->lowerName}): bool
     {
         return false; // TODO: fill with your logic
     }
 EOF;
-                } elseif ($args || $injected) {
-                    $stub = <<<EOF
+        } elseif ($args || $injected) {
+            $stub = <<<EOF
+
     /**
      * 
      * @param \App\User  \$user
      * @param array      \$args
      * @return bool
      */
-    public function {$ability}(User \$user $injected $args):bool
+    public function {$ability}(User \$user$injected$args): bool
     {
         return false; // TODO: fill with your logic
     }
 EOF;
-                } else {
-                    $stub = <<<EOF
+        } else {
+            $stub = <<<EOF
+
     /**
      * 
      * @param \App\User  \$user
      * @return bool
      */
-    public function {$ability}(User \$user):bool
+    public function {$ability}(User \$user): bool
     {
         return false; // TODO: fill with your logic
     }
 EOF;
-                }
-                $this->policies[] = $stub;
-                break;
-            default:
-            break;
-            }
         }
+
+        $this->policies[] = $stub;
     }
 
     public function generateString(): string
     {
         return $this->stubToString('policy', function ($stub) {
-            /**
-             * @var \GraphQL\Language\AST\NodeList|null
-             */
-            $directives = $this->type->astNode->directives;
-            if ($directives) {
-                $this->processDirectives($directives);
+            foreach ($this->type->getFields() as $field) {
+                $directives = $field->astNode->directives;
+                $this->processDirectives($field, $directives);
             }
 
+            $stub = str_replace(
+                'DummyPolicyClassName',
+                $this->modelName,
+                $stub
+            );
+            
             $stub = str_replace(
                 '{{dummyCode}}',
                 join("\n", $this->policies),

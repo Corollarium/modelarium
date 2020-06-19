@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace ModelariumTests;
+namespace ModelariumTests\Laravel;
 
 use Modelarium\Laravel\Targets\SeedGenerator;
 use ModelariumTests\TestCase;

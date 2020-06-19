@@ -1,11 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace ModelariumTests;
+namespace ModelariumTests\Laravel;
 
 use Modelarium\GeneratedItem;
 use Modelarium\Laravel\Processor as LaravelProcessor;
-use Modelarium\Parser;
-use Modelarium\Processor;
+use ModelariumTests\TestCase;
 
 final class LaravelProcessorTest extends TestCase
 {

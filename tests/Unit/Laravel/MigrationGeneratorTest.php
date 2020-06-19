@@ -35,10 +35,26 @@ final class MigrationGeneratorTest extends TestCase
 
     public function testGenerateWithSoftDeletes()
     {
-        $gen = new MigrationGenerator($this->getParser('userSoftDeletes'), 'User');
+        $gen = new MigrationGenerator($this->getParser('userBaseDirectives'), 'User');
         $data = $gen->generateString();
         $this->assertNotNull($data);
         $this->assertStringContainsString('$table->softDeletes();', $data);
+    }
+
+    public function testGenerateWithTimestamps()
+    {
+        $gen = new MigrationGenerator($this->getParser('userBaseDirectives'), 'User');
+        $data = $gen->generateString();
+        $this->assertNotNull($data);
+        $this->assertStringContainsString('$table->timestamps();', $data);
+    }
+
+    public function testGenerateWithRememberToken()
+    {
+        $gen = new MigrationGenerator($this->getParser('userBaseDirectives'), 'User');
+        $data = $gen->generateString();
+        $this->assertNotNull($data);
+        $this->assertStringContainsString('$table->rememberToken();', $data);
     }
 
     public function testGenerateWithSpatialIndex()
@@ -72,10 +88,16 @@ final class MigrationGeneratorTest extends TestCase
         $data = $gen->generateString();
         $this->assertNotNull($data);
         $this->assertStringContainsString('$table->string("someField")->nullable();', $data);
-        $this->markTestIncomplete();
     }
 
-    public function testOneToOne()
+    public function testBaseTypes()
     {
+        $gen = new MigrationGenerator($this->getParser('userBaseTypes'), 'User');
+        $data = $gen->generateString();
+        $this->assertNotNull($data);
+        $this->assertStringContainsString('$table->integer("ainteger");', $data);
+        $this->assertStringContainsString('$table->float("afloat");', $data);
+        $this->assertStringContainsString('$table->string("astring");', $data);
+        $this->assertStringContainsString('$table->bool("aboolean");', $data);
     }
 }

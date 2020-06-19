@@ -16,15 +16,18 @@ class MigrationGenerator extends BaseGenerator
      */
     protected $type = null;
 
+    protected $collection = null;
+
     public function generate(): GeneratedCollection
     {
-        return new GeneratedCollection(
-            [ new GeneratedItem(
-                GeneratedItem::TYPE_MIGRATION,
-                $this->generateString(),
-                $this->getGenerateFilename()
-            )]
+        $this->collection = new GeneratedCollection();
+        $item = new GeneratedItem(
+            GeneratedItem::TYPE_MIGRATION,
+            $this->generateString(),
+            $this->getGenerateFilename($this->lowerName)
         );
+        $this->collection->prepend($item);
+        return $this->collection;
     }
 
     protected function processBasetype(
@@ -143,6 +146,16 @@ class MigrationGenerator extends BaseGenerator
                         $base = '$table->unsignedBigInteger("' . $fieldName . '")';
                     break;
                     }
+                }
+                break;
+            case 'belongsToMany':
+                $type1 = $this->lowerName;
+                $type2 = $this->lowerName;
+
+                // we only generate once, so use a comparison for that
+                if (strcasecmp($type1, $type2) > 0) {
+                    $item = $this->generateManyToManyTable($type1, $type2);
+                    $this->collection->append($item);
                 }
                 break;
             case 'foreign':
@@ -269,10 +282,21 @@ class MigrationGenerator extends BaseGenerator
         });
     }
 
-    public function getGenerateFilename(): string
+    public function generateManyToManyTable($type1, $type2): GeneratedItem
+    {
+        $contents = ''; // TODO
+        $item = new GeneratedItem(
+            GeneratedItem::TYPE_MIGRATION,
+            $contents,
+            $this->getGenerateFilename($type1 . '_' . $type2)
+        );
+        return $item;
+    }
+
+    public function getGenerateFilename($basename): string
     {
         // TODO: check if a migration '_create_'. $this->lowerName exists, generate a diff from model(), generate new migration with diff
   
-        return $this->getBasePath('database/migrations/' . date('Y_m_d_His') . '_create_'. $this->lowerName . '_table.php');
+        return $this->getBasePath('database/migrations/' . date('Y_m_d_His') . '_create_'. $basename . '_table.php');
     }
 }

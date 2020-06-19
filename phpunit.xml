@@ -13,6 +13,9 @@
     <filter>
         <whitelist processUncoveredFilesFromWhitelist="true">
             <directory suffix=".php">Modelarium</directory>
+            <exclude>
+                <directory>Modelarium/Laravel/Targets/stubs</directory>
+            </exclude>
         </whitelist>
     </filter>
     <testsuites>

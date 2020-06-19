@@ -1,0 +1,7 @@
+type User {
+  roles: [Role!]! @belongsToMany
+}
+
+type Role {
+  users: [User!]! @belongsToMany
+}

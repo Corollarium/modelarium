@@ -4,7 +4,7 @@ namespace App\Policies;
 
 use Illuminate\Auth\Access\HandlesAuthorization;
 
-class DummyClassPolicy
+class DummyPolicyClassNamePolicy
 {
     use HandlesAuthorization;
 

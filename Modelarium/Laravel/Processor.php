@@ -40,7 +40,7 @@ class Processor extends ModelariumProcessor
             }
         }
 
-        $data = $this->processMutation($schema->getMutationType());
+        $data = $data->merge($this->processMutation($schema->getMutationType()));
 
         return $data;
     }
@@ -61,6 +61,9 @@ class Processor extends ModelariumProcessor
 
     protected function processMutation(?Type $object):  GeneratedCollection
     {
+        if (!$object) {
+            return new GeneratedCollection();
+        }
         $collection = (new EventGenerator($this->parser, 'Mutation', $object))->generate();
         return $collection;
     }

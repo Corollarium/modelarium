@@ -16,7 +16,7 @@ final class ModelGeneratorTest extends TestCase
 
     public function testGenerateWithSoftDeletes()
     {
-        $gen = new ModelGenerator($this->getParser('userSoftDeletes'), 'User');
+        $gen = new ModelGenerator($this->getParser('userBaseDirectives'), 'User');
         $data = $gen->generateString();
         $this->assertNotNull($data);
         $this->assertStringContainsString('use SoftDeletes;', $data);

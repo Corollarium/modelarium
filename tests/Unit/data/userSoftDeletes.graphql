@@ -1,5 +1,0 @@
-type User @softDeletes {
-  id: ID!
-  name: String!
-  email: String!
-}

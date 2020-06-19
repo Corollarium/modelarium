@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace ModelariumTests;
+namespace ModelariumTests\Laravel;
 
 use Modelarium\Laravel\Targets\EventGenerator;
 use ModelariumTests\TestCase;
@@ -18,6 +18,5 @@ final class EventGeneratorTest extends TestCase
         $this->assertStringContainsString('class UserCreated', $event->contents);
         $this->assertStringContainsString('namespace App\\Events;', $event->contents);
         $this->assertStringContainsString('public function __construct(User $target)', $event->contents);
-        echo $event->contents;
     }
 }

@@ -1,0 +1,5 @@
+type User @softDeletes @rememberToken @timestamps {
+  id: ID!
+  name: String!
+  email: String!
+}

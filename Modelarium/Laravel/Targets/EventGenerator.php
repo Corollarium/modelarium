@@ -2,12 +2,18 @@
 
 namespace Modelarium\Laravel\Targets;
 
+use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use Modelarium\GeneratedCollection;
 use Modelarium\GeneratedItem;
 
 class EventGenerator extends BaseGenerator
 {
+    /**
+     * @var ObjectType
+     */
+    protected $type = null;
+
     /**
      * @var GeneratedCollection
      */
@@ -59,7 +65,7 @@ class EventGenerator extends BaseGenerator
         \GraphQL\Type\Definition\FieldDefinition $field,
         \GraphQL\Language\AST\NodeList $directives
     ): void {
-        $type = $field->type->name;
+        $type = $field->type->name; /** @phpstan-ignore-line */
         
         foreach ($directives as $directive) {
             $name = $directive->name->value;
