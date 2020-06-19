@@ -3,17 +3,19 @@
 namespace ModelariumTests;
 
 use Modelarium\GeneratedItem;
+use Modelarium\Laravel\Processor as LaravelProcessor;
 use Modelarium\Parser;
 use Modelarium\Processor;
 
-final class ProcessorTest extends TestCase
+final class LaravelProcessorTest extends TestCase
 {
-    public function testParse()
+    public function testParseRelationshipOneToOne()
     {
-        $processor = new Processor();
+        $processor = new LaravelProcessor();
         $data = $processor->processString(file_get_contents($this->getPathGraphql('oneToOne')));
 
         $this->assertEquals(2, $data->count());
+        
         $userMigration = $data->filter(
             function (GeneratedItem $i) {
                 return $i->type = GeneratedItem::TYPE_MIGRATION &&
@@ -28,10 +30,13 @@ final class ProcessorTest extends TestCase
             }
         )->first();
 
-        $this->assertStringContainsString('$table->unsignedBigInteger("phone_id");', $userMigration->contents);
-        $this->assertStringContainsString('$table->foreign("phone_id")->references("id")->on("phones");', $userMigration->contents);
+        $this->assertStringNotContainsString('phone_id', $userMigration->contents);
+        $this->assertStringNotContainsString('->references;', $userMigration->contents);
 
-        $this->assertStringContainsString('$table->unsignedBigInteger("user_id");', $userMigration->contents);
-        $this->assertStringContainsString('$table->foreign("phone_id")->references("id")->on("phones");', $userMigration->contents);
+        $this->assertStringContainsString('$table->unsignedBigInteger("user_id");', $phoneMigration->contents);
+        $this->assertStringContainsString(
+            '$table->foreign("user_id")->references("id")->on("users")->onDelete("cascade")->onUpdate("cascade");',
+            $phoneMigration->contents
+        );
     }
 }

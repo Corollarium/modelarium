@@ -9,7 +9,7 @@ final class MigrationGeneratorTest extends TestCase
 {
     public function testGenerate()
     {
-        $gen = new MigrationGenerator('User', $this->getParser('user')->getType('User'));
+        $gen = new MigrationGenerator($this->getParser('user'), 'User');
         $data = $gen->generateString();
         $this->assertNotNull($data);
         $this->assertStringContainsString('$table->bigIncrements("id")', $data);
@@ -19,7 +19,7 @@ final class MigrationGeneratorTest extends TestCase
 
     public function testGenerateWithUnique()
     {
-        $gen = new MigrationGenerator('User', $this->getParser('userUniqueEmail')->getType('User'));
+        $gen = new MigrationGenerator($this->getParser('userUniqueEmail'), 'User');
         $data = $gen->generateString();
         $this->assertNotNull($data);
         $this->assertStringContainsString('$table->unique("email");', $data);
@@ -27,7 +27,7 @@ final class MigrationGeneratorTest extends TestCase
 
     public function testGenerateWithMultiIndex()
     {
-        $gen = new MigrationGenerator('User', $this->getParser('userMultiIndex')->getType('User'));
+        $gen = new MigrationGenerator($this->getParser('userMultiIndex'), 'User');
         $data = $gen->generateString();
         $this->assertNotNull($data);
         $this->assertStringContainsString('$table->index("name", "surname");', $data);
@@ -35,7 +35,7 @@ final class MigrationGeneratorTest extends TestCase
 
     public function testGenerateWithSoftDeletes()
     {
-        $gen = new MigrationGenerator('User', $this->getParser('userSoftDeletes')->getType('User'));
+        $gen = new MigrationGenerator($this->getParser('userSoftDeletes'), 'User');
         $data = $gen->generateString();
         $this->assertNotNull($data);
         $this->assertStringContainsString('$table->softDeletes();', $data);
@@ -43,7 +43,7 @@ final class MigrationGeneratorTest extends TestCase
 
     public function testGenerateWithSpatialIndex()
     {
-        $gen = new MigrationGenerator('User', $this->getParser('userSpatialIndex')->getType('User'));
+        $gen = new MigrationGenerator($this->getParser('userSpatialIndex'), 'User');
         $data = $gen->generateString();
         $this->assertNotNull($data);
         $this->assertStringContainsString('$table->spatialIndex("location");', $data);
@@ -51,7 +51,7 @@ final class MigrationGeneratorTest extends TestCase
 
     public function testGenerateWithUnsigned()
     {
-        $gen = new MigrationGenerator('User', $this->getParser('userUnsigned')->getType('User'));
+        $gen = new MigrationGenerator($this->getParser('userUnsigned'), 'User');
         $data = $gen->generateString();
         $this->assertNotNull($data);
         $this->assertStringContainsString('$table->integer("counter")->unsigned();', $data);
@@ -59,16 +59,16 @@ final class MigrationGeneratorTest extends TestCase
 
     public function testGenerateWithExtendScalar()
     {
-        $gen = new MigrationGenerator('User', $this->getParser('userExtendScalar')->getType('User'));
-        $data = $gen->generateString();
-        $this->assertNotNull($data);
+        // $gen = new MigrationGenerator($this->getParser('userExtendScalar'), 'User');
+        // $data = $gen->generateString();
+        // $this->assertNotNull($data);
         $this->markTestIncomplete();
         // TODO $this->assertStringContainsString('$table->();', $data);
     }
 
     public function testNullable()
     {
-        $gen = new MigrationGenerator('User', $this->getParser('userNullableField')->getType('User'));
+        $gen = new MigrationGenerator($this->getParser('userNullableField'), 'User');
         $data = $gen->generateString();
         $this->assertNotNull($data);
         $this->assertStringContainsString('$table->string("someField")->nullable();', $data);

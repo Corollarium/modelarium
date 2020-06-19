@@ -9,7 +9,7 @@ final class EventGeneratorTest extends TestCase
 {
     public function testGenerate()
     {
-        $gen = new EventGenerator('User', $this->getParser('userEvent')->getType('User'));
+        $gen = new EventGenerator($this->getParser('userEvent'), 'User');
         $data = $gen->generateString();
         $this->assertNotNull($data);
         $this->assertStringContainsString('class UserCreated {', $data);

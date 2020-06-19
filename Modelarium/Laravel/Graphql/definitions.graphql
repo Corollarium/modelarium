@@ -9,6 +9,32 @@ directive @defaultValue(
 ) on FIELD_DEFINITION
 
 """
+Default value for database column
+"""
+directive @foreign(
+    """
+    What field it references
+    """
+    references: String
+
+    """
+    What table it references
+    """
+    on: String
+
+    """
+    What to do onDelete
+    """
+    onDelete: String
+
+    """
+    What to do on Update
+    """
+    onUpdate: String
+) on FIELD_DEFINITION
+
+
+"""
 Generates a composed index on the database for a type
 """
 directive @index(

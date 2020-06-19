@@ -1,9 +1,9 @@
 type User {
   id: ID!
-  phone: Phone @hasOne @foreign
+  phone: Phone! @hasOne
 }
 
 type Phone {
   id: ID!
-  user: User @belongsTo
+  user: User! @belongsTo @foreign(onDelete: "cascade", onUpdate: "cascade")
 }

@@ -25,22 +25,28 @@ abstract class BaseGenerator
     protected $inflector = null;
 
     /**
+     * @var Parser
+     */
+    protected $parser = null;
+
+    /**
      * @var Type
      */
     protected $type = null;
 
-    public function __construct($name, $type = null)
+    public function __construct(Parser $parser, $name, $type = null)
     {
         $this->inflector = InflectorFactory::create()->build();
 
-        $this->targetName = $name;
-        $this->studlyName = Str::studly($this->targetName);
-        $this->lowerName = mb_strtolower($this->targetName);
+        $this->name = $name;
+        $this->studlyName = Str::studly($this->name);
+        $this->lowerName = mb_strtolower($this->name);
         $this->lowerNamePlural = $this->inflector->pluralize($this->lowerName);
+        $this->parser = $parser;
+
         if ($type instanceof Type) {
             $this->type = $type;
-        } elseif ($type instanceof string) {
-            $parser = Parser::fromString($type);
+        } elseif (!$type) {
             $this->type = $parser->getSchema()->getType($name);
         } else {
             throw new Exception('Invalid model');
@@ -119,7 +125,7 @@ abstract class BaseGenerator
         );
         $str = str_replace(
             'DummyName',
-            $this->targetName,
+            $this->name,
             $str
         );
         $str = str_replace(

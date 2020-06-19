@@ -7,7 +7,7 @@ use GraphQL\Type\Definition\Type;
 use GraphQL\Utils\AST;
 use Modelarium\Laravel\Targets\MigrationGenerator;
 
-class Processor
+abstract class Processor
 {
     public function processFiles(array $files)
     {
@@ -20,47 +20,7 @@ class Processor
      * @param string $data
      * @return GeneratedCollection
      */
-    public function processString(string $data): GeneratedCollection
-    {
-        $parser = Parser::fromString($data);
-        $schema = $parser->getSchema();
-        $typeMap = $schema->getTypeMap();
-
-        $data = new GeneratedCollection();
-        foreach ($typeMap as $name => $object) {
-            if ($object instanceof ObjectType) {
-                $g = $this->processType($name, $object);
-                if ($g) {
-                    $data->push($g);
-                }
-            }
-        }
-
-        // TODO $this->processMutation($schema->getMutationType());
-        return $data;
-    }
-
-    protected function processType(string $name, ObjectType $object): ?GeneratedItem
-    {
-        if (str_starts_with($name, '__')) {
-            // internal type
-            return null;
-        }
-
-        $gen = new MigrationGenerator($name, $object);
-        return new GeneratedItem(
-            GeneratedItem::TYPE_MIGRATION,
-            $gen->generateString(),
-            $gen->getGenerateFilename()
-        );
-    }
-
-    protected function processMutation(?Type $object)
-    {
-        if (!$object) {
-            return;
-        }
-    }
+    abstract public function processString(string $data): GeneratedCollection;
 
     /**
      * Takes a stub file and generates the target file with replacements.

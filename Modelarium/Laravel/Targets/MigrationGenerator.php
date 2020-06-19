@@ -5,6 +5,7 @@ namespace Modelarium\Laravel\Targets;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
+use Modelarium\Exception\Exception;
 use Modelarium\GeneratedCollection;
 use Modelarium\GeneratedItem;
 use Modelarium\Laravel\FieldParameter;
@@ -68,7 +69,8 @@ class MigrationGenerator extends BaseGenerator
             $base = '$table->string("' . $fieldName . '")';
         break;
         default:
-            $base = '$table->' . $basetype . '("' . $fieldName . '")';
+            throw new Exception("Unsupported type " . $basetype);
+            // $base = '$table->' . $basetype . '("' . $fieldName . '")';
         break;
         }
         
@@ -102,16 +104,21 @@ class MigrationGenerator extends BaseGenerator
 
     protected function processRelationship(
         \GraphQL\Type\Definition\FieldDefinition $field,
-        \GraphQL\Type\Definition\Type $type,
         \GraphQL\Language\AST\NodeList $directives
     ): array {
         $lowerName = mb_strtolower($field->name);
         $lowerNamePlural = $this->inflector->pluralize($lowerName);
 
+        if ($field->type instanceof NonNull) {
+            $type = $field->type->getWrappedType();
+        } else {
+            $type = $field->type;
+        }
+
         $fieldName = mb_strtolower($lowerName) . '_id';
         
+        $base = null;
         $extra = [];
-        $base = '$table->unsignedBigInteger("' . $fieldName . '")';
 
         foreach ($directives as $directive) {
             $name = $directive->name->value;
@@ -122,15 +129,57 @@ class MigrationGenerator extends BaseGenerator
             case 'index':
                 $extra[] = '$table->index("' . $fieldName . '");';
                 break;
+            case 'belongsTo':
+                $targetType = $this->parser->getType($type->name);
+                $targetField = $targetType->getField($this->lowerName); // TODO: might have another name
+                $targetDirectives = $targetField->astNode->directives;
+                foreach ($targetDirectives as $targetDirective) {
+                    switch ($targetDirective->name->value) {
+                    case 'hasOne':
+                        $base = '$table->unsignedBigInteger("' . $fieldName . '")';
+                    break;
+                    }
+                }
+                break;
             case 'foreign':
-                $extra[] = '$table->foreign("' . $fieldName . '")->references("id")->on("' . $lowerNamePlural . '");';
+                $references = 'id';
+                $on = $lowerNamePlural;
+                $onDelete = null;
+                $onUpdate = null;
+                foreach ($directive->arguments as $arg) {
+                    /**
+                     * @var GraphQL\Language\AST\ArgumentNode $arg
+                     */
+                    switch ($arg->name->value) {
+                    case 'references':
+                        $references = $arg->value->value;
+                    break;
+                    case 'on':
+                        $on = $arg->value->value;
+                    break;
+                    case 'onDelete':
+                        $onDelete = $arg->value->value;
+                    break;
+                    case 'onUpdate':
+                        $onUpdate = $arg->value->value;
+                    break;
+                    }
+                }
+                $extra[] = '$table->foreign("' . $fieldName . '")' .
+                    "->references(\"$references\")" .
+                    "->on(\"$on\")" .
+                    ($onDelete ? "->onDelete(\"$onDelete\")" : '') .
+                    ($onUpdate ? "->onUpdate(\"$onUpdate\")" : '') .
+                    ';';
                 break;
             }
         }
 
-        $base .= ';';
+        if ($base) {
+            $base .= ';';
+            array_unshift($extra, $base);
+        }
 
-        array_unshift($extra, $base);
         return $extra;
     }
 
@@ -179,9 +228,12 @@ class MigrationGenerator extends BaseGenerator
                 // TODO if (NonNull)
 
                 $directives = $field->astNode->directives;
-                if ($field->type instanceof ObjectType) {
+                if (
+                    $field->type instanceof ObjectType ||
+                    ($field->type instanceof NonNull && $field->type->getWrappedType() instanceof ObjectType)
+                ) {
                     // relationship
-                    $db = array_merge($db, $this->processRelationship($field, $field->type, $directives));
+                    $db = array_merge($db, $this->processRelationship($field, $directives));
                 } else {
                     $db = array_merge($db, $this->processBasetype($field, $directives, true));
                 }

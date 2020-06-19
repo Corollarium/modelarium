@@ -9,7 +9,7 @@ final class SeedGeneratorTest extends TestCase
 {
     public function testGenerate()
     {
-        $gen = new SeedGenerator('User', $this->getParser('user')->getType('User'));
+        $gen = new SeedGenerator($this->getParser('user'), 'User');
         $data = $gen->generateString();
         $this->assertNotNull($data);
     }

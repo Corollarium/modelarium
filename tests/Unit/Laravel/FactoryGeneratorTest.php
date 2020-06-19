@@ -9,7 +9,7 @@ final class FactoryGeneratorTest extends TestCase
 {
     public function testGenerate()
     {
-        $gen = new FactoryGenerator('User', $this->getParser('user')->getType('User'));
+        $gen = new FactoryGenerator($this->getParser('user'), 'User');
         $data = $gen->generateString();
         $this->assertNotNull($data);
     }
