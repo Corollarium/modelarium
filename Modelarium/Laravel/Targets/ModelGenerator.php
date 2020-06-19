@@ -4,6 +4,7 @@ namespace Modelarium\Laravel\Targets;
 
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ObjectType;
+use Illuminate\Support\Str;
 use GraphQL\Type\Definition\Type;
 use Modelarium\Exception\Exception;
 use Modelarium\GeneratedCollection;
@@ -39,7 +40,7 @@ class ModelGenerator extends BaseGenerator
     {
         return new GeneratedCollection(
             [ new GeneratedItem(
-                GeneratedItem::TYPE_MIGRATION,
+                GeneratedItem::TYPE_MODEL,
                 $this->generateString(),
                 $this->getGenerateFilename()
             )]
@@ -86,7 +87,7 @@ class ModelGenerator extends BaseGenerator
         $typeName = $type->name;
 
         $extra = [];
-        $targetClass = 'App\\' . $field->name;
+        $targetClass = 'App\\\\' . Str::studly($field->name);
 
         foreach ($directives as $directive) {
             $name = $directive->name->value;

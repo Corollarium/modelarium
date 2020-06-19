@@ -7,7 +7,6 @@ use GraphQL\Type\Definition\Type;
 use Illuminate\Support\Str;
 use Modelarium\Exception\Exception;
 use Modelarium\GeneratedCollection;
-use Modelarium\GeneratedItem;
 use Modelarium\Parser;
 
 abstract class BaseGenerator

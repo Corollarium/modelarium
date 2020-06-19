@@ -13,5 +13,5 @@ class DummyClass extends {{ParentDummyModel}}
 
     protected $fillable = {{dummyFillable}};
 
-    {{dummyMethods}}
+{{dummyMethods}}
 }

@@ -29,7 +29,6 @@ class EventGenerator extends BaseGenerator
             $name = $directive->name->value;
             switch ($name) {
             case 'event':
-                var_dump($directive->arguments);
                 $this->eventClass = $directive->arguments[0]->value->value;
                 break;
             default:

@@ -6,7 +6,10 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use Modelarium\GeneratedCollection;
 use Modelarium\GeneratedItem;
+use Modelarium\Laravel\Targets\FactoryGenerator;
 use Modelarium\Laravel\Targets\MigrationGenerator;
+use Modelarium\Laravel\Targets\ModelGenerator;
+use Modelarium\Laravel\Targets\SeedGenerator;
 use Modelarium\Parser;
 use Modelarium\Processor as ModelariumProcessor;
 
@@ -47,8 +50,11 @@ class Processor extends ModelariumProcessor
             return new GeneratedCollection();
         }
 
-        $gen = new MigrationGenerator($this->parser, $name, $object);
-        return $gen->generate();
+        $collection = (new MigrationGenerator($this->parser, $name, $object))->generate();
+        $collection = $collection->merge((new SeedGenerator($this->parser, $name, $object))->generate());
+        $collection = $collection->merge((new FactoryGenerator($this->parser, $name, $object))->generate());
+        $collection = $collection->merge((new ModelGenerator($this->parser, $name, $object))->generate());
+        return $collection;
     }
 
     protected function processMutation(?Type $object):  GeneratedCollection

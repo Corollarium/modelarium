@@ -6,11 +6,6 @@ use Illuminate\Support\Collection;
 
 class GeneratedCollection extends Collection
 {
-    public function __construct(array $items = [])
-    {
-        parent::__construct($items);
-    }
-
     public function filterByType(string $type): GeneratedCollection
     {
         return $this->filter(
