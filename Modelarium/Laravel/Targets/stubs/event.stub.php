@@ -2,6 +2,7 @@
 
 namespace DummyEventNamespace;
 
+use App\Models\DummyTypeClass;
 use Illuminate\Queue\SerializesModels;
 
 class DummyEventClassName
@@ -15,7 +16,7 @@ class DummyEventClassName
      *
      * @return void
      */
-    public function __construct(DummyClass $target)
+    public function __construct(DummyTypeClass $target)
     {
         $this->target = $target;
     }

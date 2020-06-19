@@ -6,5 +6,5 @@ type User {
 
 type Mutation {
   createUser(name: String!, email: String!, password: String!): User
-    @event(class: "App\\Events\\UserCreated")
+    @event(dispatch: "App\\Events\\UserCreated")
 }
