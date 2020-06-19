@@ -1,0 +1,39 @@
+sudo: false
+language: php
+php:
+  - "7.1"
+  - "7.2"
+  - "7.3"
+  - "7.4"
+
+cache:
+  directories:
+    - $HOME/.composer/cache/files
+
+# Commands to be run before your environment runs.
+before_script:
+  - composer self-update
+  # disable xdebug if not coverage
+  - if [[ $CODE_COVERAGE == "" ]]; then phpenv config-rm xdebug.ini; fi
+  - composer install --prefer-source --no-interaction --dev
+
+script:
+  - vendor/bin/phpunit --bootstrap vendor/autoload.php tests
+
+jobs:
+  allow_failures:
+    - php: nightly
+
+  include:
+    - stage: Quality assurance
+      env:
+        - CODE_COVERAGE=yes
+      script: vendor/bin/phpunit --bootstrap vendor/autoload.php --whitelist Modelarium --coverage-clover ./clover.xml tests/
+      after_script:
+        - wget https://scrutinizer-ci.com/ocular.phar
+        - php ocular.phar code-coverage:upload --format=php-clover ./clover.xml
+
+    - stage: Quality assurance
+      env: STATIC_ANALYSIS
+      install: travis_retry composer install
+      script: vendor/bin/phpstan analyze Modelarium
