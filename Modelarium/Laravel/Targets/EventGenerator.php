@@ -2,56 +2,34 @@
 
 namespace Modelarium\Laravel\Targets;
 
+use GraphQL\Type\Definition\Type;
 use Modelarium\GeneratedCollection;
 use Modelarium\GeneratedItem;
 
 class EventGenerator extends BaseGenerator
 {
+    /**
+     * @var GeneratedCollection
+     */
+    protected $events;
+
     public function generate(): GeneratedCollection
     {
-        return new GeneratedCollection(
-            [ new GeneratedItem(
-                GeneratedItem::TYPE_EVENT,
-                $this->generateString(),
-                $this->getGenerateFilename()
-            )]
-        );
-    }
-
-    protected $eventClass = null;
-
-    public function processDirectives(
-        \GraphQL\Language\AST\NodeList $directives
-    ): array {
-        $db = [];
-
-        foreach ($directives as $directive) {
-            $name = $directive->name->value;
-            switch ($name) {
-            case 'event':
-                $this->eventClass = $directive->arguments[0]->value->value;
-                break;
-            default:
-            }
-        }
+        $this->events = new GeneratedCollection();
         
-        return $db;
+        foreach ($this->type->getFields() as $field) {
+            $directives = $field->astNode->directives;
+            $this->processDirectives($directives);
+        }
+        return $this->events;
     }
 
-    public function generateString(): string
+    protected function makeEventClass(string $name): GeneratedItem
     {
-        return $this->stubToString('event', function ($stub) {
-            /**
-             * @var Type
-             */
-            $modelData = $this->model->getSchema()->getType('Mutation');
-            assert($modelData !== null);
-
-            foreach ($modelData->getFields() as $field) {
-                $this->processDirectives($modelData->astNode->directives);
-
-                assert($this->eventClass !== null);
-                $eventTokens = explode('\\', $this->eventClass);
+        return new GeneratedItem(
+            $name,
+            $this->stubToString('migration', function ($stub) use ($name) {
+                $eventTokens = explode('\\', $name);
                 $eventClassName = array_pop($eventTokens);
                 $eventNamespace = implode('\\', $eventTokens);
                 $stub = str_replace(
@@ -65,14 +43,29 @@ class EventGenerator extends BaseGenerator
                     $eventClassName,
                     $stub
                 );
-            }
-
-            return $stub;
-        });
+                return $stub;
+            }),
+            $this->getGenerateFilename($name)
+        );
     }
 
-    public function getGenerateFilename(): string
+    public function processDirectives(
+        \GraphQL\Language\AST\NodeList $directives
+    ): void {
+        foreach ($directives as $directive) {
+            $name = $directive->name->value;
+            switch ($name) {
+            case 'event':
+                $dispatch = '';
+                $this->events->push($this->makeEventClass($dispatch));
+                break;
+            default:
+            }
+        }
+    }
+
+    public function getGenerateFilename(string $name): string
     {
-        return $this->getBasePath(str_replace('\\', '/', $this->eventClass) . '.php');
+        return $this->getBasePath(str_replace('\\', '/', $name) . '.php');
     }
 }

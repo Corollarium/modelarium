@@ -41,7 +41,7 @@ class MigrationGenerator extends BaseGenerator
         } else {
             $type = $field->type;
         }
-        $basetype = $type->name;
+        $basetype = $type->name; /** @phpstan-ignore-line */
 
         $base = '';
         switch ($basetype) {
@@ -111,7 +111,7 @@ class MigrationGenerator extends BaseGenerator
         } else {
             $type = $field->type;
         }
-        $typeName = $type->name;
+        $typeName = $type->name; /** @phpstan-ignore-line */
 
         $fieldName = $lowerName . '_id';
         

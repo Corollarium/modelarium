@@ -92,8 +92,6 @@ abstract class BaseGenerator
         return $basepath;
     }
 
-    abstract public function getGenerateFilename(): string;
-
     abstract public function generate(): GeneratedCollection;
 
     /**

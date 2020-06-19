@@ -6,6 +6,7 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use Modelarium\GeneratedCollection;
 use Modelarium\GeneratedItem;
+use Modelarium\Laravel\Targets\EventGenerator;
 use Modelarium\Laravel\Targets\FactoryGenerator;
 use Modelarium\Laravel\Targets\MigrationGenerator;
 use Modelarium\Laravel\Targets\ModelGenerator;
@@ -39,7 +40,8 @@ class Processor extends ModelariumProcessor
             }
         }
 
-        // TODO $this->processMutation($schema->getMutationType());
+        $data = $this->processMutation($schema->getMutationType());
+
         return $data;
     }
 
@@ -59,6 +61,7 @@ class Processor extends ModelariumProcessor
 
     protected function processMutation(?Type $object):  GeneratedCollection
     {
-        return new GeneratedCollection();
+        $collection = (new EventGenerator($this->parser, 'Mutation', $object))->generate();
+        return $collection;
     }
 }

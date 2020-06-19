@@ -17,13 +17,6 @@ use Modelarium\Parser;
 class ModelariumCommand extends Command
 {
     /**
-     * Undocumented variable
-     *
-     * @var Formularium\Model
-     */
-    protected $model;
-
-    /**
      * The name and signature of the console command.
      *
      * @var string
@@ -87,7 +80,7 @@ class ModelariumCommand extends Command
         $this->info('Finished. You might want to run `composer dump-autoload`');
     }
 
-    protected function _handle($name)
+    protected function _handle(string $name): void
     {
         // TODO
         // // setup stuff
@@ -108,20 +101,16 @@ class ModelariumCommand extends Command
 
         // make stuff
         if ($this->option('model') || $this->option('all')) {
-            (new ModelGenerator($name, $parser))->generateFile();
         }
         if ($this->option('migration') || $this->option('all')) {
-            (new MigrationGenerator($name))->generateFile();
         }
         if ($this->option('factory') || $this->option('all')) {
-            (new FactoryGenerator($name))->generateFile();
         }
         if ($this->option('seed') || $this->option('all')) {
-            (new SeedGenerator($name))->generateFile();
         }
-        // if ($this->option('policy') || $this->option('all')) {
-        //     $this->makePolicy();
-        // }
+        if ($this->option('policy') || $this->option('all')) {
+            //     $this->makePolicy();
+        }
         // if ($this->option('frontend') || $this->option('all')) {
         //     if ($vue) {
         //         $this->makeVueScaffold();

@@ -2,11 +2,22 @@
 
 namespace Modelarium\Laravel\Targets;
 
+use GraphQL\Type\Definition\ObjectType;
 use Modelarium\GeneratedCollection;
 use Modelarium\GeneratedItem;
 
 class PolicyGenerator extends BaseGenerator
 {
+    /**
+     * @var ObjectType
+     */
+    protected $type = null;
+
+    /**
+     * @var array
+     */
+    protected $policies = [];
+
     public function generate(): GeneratedCollection
     {
         return new GeneratedCollection(
@@ -20,7 +31,7 @@ class PolicyGenerator extends BaseGenerator
 
     public function processDirectives(
         \GraphQL\Language\AST\NodeList $directives
-    ) {
+    ): void {
         foreach ($directives as $directive) {
             $name = $directive->name->value;
             switch ($name) {
@@ -59,12 +70,12 @@ class PolicyGenerator extends BaseGenerator
      * 
      *
      * @param \App\User \$user
-     * @param \App\{$this->model} \${$this->lowerName}
+     * @param \App\{$model} \${$this->lowerName}
      * @return mixed
      */
     public function {$ability}(User \$user, {$model} \${$this->lowerName}):bool
     {
-        return false; // TODO
+        return false; // TODO: fill with your logic
     }
 EOF;
                 } elseif ($args || $injected) {
@@ -77,7 +88,7 @@ EOF;
      */
     public function {$ability}(User \$user $injected $args):bool
     {
-        return false; // TODO
+        return false; // TODO: fill with your logic
     }
 EOF;
                 } else {
@@ -89,10 +100,11 @@ EOF;
      */
     public function {$ability}(User \$user):bool
     {
-        return false; // TODO
+        return false; // TODO: fill with your logic
     }
 EOF;
                 }
+                $this->policies[] = $stub;
                 break;
             default:
             break;
@@ -103,11 +115,17 @@ EOF;
     public function generateString(): string
     {
         return $this->stubToString('policy', function ($stub) {
-            $this->processDirectives($this->type->astNode->directives);
+            /**
+             * @var \GraphQL\Language\AST\NodeList|null
+             */
+            $directives = $this->type->astNode->directives;
+            if ($directives) {
+                $this->processDirectives($directives);
+            }
 
             $stub = str_replace(
                 '{{dummyCode}}',
-                join("\n", $this->code),
+                join("\n", $this->policies),
                 $stub
             );
             return $stub;

@@ -32,7 +32,7 @@ class ModelGenerator extends BaseGenerator
 
     /**
      *
-     * @var string
+     * @var array
      */
     protected $traits = [];
 
@@ -84,7 +84,6 @@ class ModelGenerator extends BaseGenerator
         } else {
             $type = $field->type;
         }
-        $typeName = $type->name;
 
         $extra = [];
         $targetClass = 'App\\\\' . Str::studly($field->name);
