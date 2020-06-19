@@ -1,0 +1,9 @@
+type User {
+  id: ID!
+  phone: Phone @hasOne @foreign
+}
+
+type Phone {
+  id: ID!
+  user: User @belongsTo
+}

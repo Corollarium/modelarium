@@ -2,14 +2,28 @@
 
 namespace Modelarium\Laravel\Targets;
 
+use Modelarium\GeneratedCollection;
+use Modelarium\GeneratedItem;
+
 class SeedGenerator extends BaseGenerator
 {
+    public function generate(): GeneratedCollection
+    {
+        return new GeneratedCollection(
+            [ new GeneratedItem(
+                GeneratedItem::TYPE_SEED,
+                $this->generateString(),
+                $this->getGenerateFilename()
+            )]
+        );
+    }
+    
     public function generateString(): string
     {
         return $this->stubToString('seed');
     }
 
-    protected function getGenerateFilename(): string
+    public function getGenerateFilename(): string
     {
         return $this->getBasePath('database/seeds/'. $this->studlyName . 'Seeder.php');
     }

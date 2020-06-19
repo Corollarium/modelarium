@@ -29,6 +29,12 @@ directive @spatialIndex(
 ) on OBJECT
 
 """
+Generate rememberToken
+"""
+directive @rememberToken(
+) on OBJECT
+
+"""
 Specifies a soft delete mode for this type
 """
 directive @softDeletes(

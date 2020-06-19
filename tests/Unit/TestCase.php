@@ -6,8 +6,13 @@ use Modelarium\Parser;
 
 class TestCase extends \PHPUnit\Framework\TestCase
 {
+    protected function getPathGraphql($name)
+    {
+        return __DIR__ . '/data/' . $name . '.graphql';
+    }
+
     protected function getParser($name)
     {
-        return Parser::fromPath(__DIR__ . '/data/' . $name . '.graphql');
+        return Parser::fromPath($this->getPathGraphql($name));
     }
 }

@@ -3,6 +3,7 @@
 namespace Modelarium;
 
 use GraphQL\Utils\AST;
+use GraphQL\Type\Definition\Type;
 
 class Parser
 {
@@ -86,10 +87,15 @@ class Parser
     /**
      * Get the value of schema
      *
-     * @return  \GraphQL\Type\Schema
+     * @return GraphQL\Type\Definition\Type
      */
     public function getSchema()
     {
         return $this->schema;
+    }
+
+    public function getType($name) : ?Type
+    {
+        return $this->schema->getType($name);
     }
 }

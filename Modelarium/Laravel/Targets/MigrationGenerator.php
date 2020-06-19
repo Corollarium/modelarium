@@ -2,22 +2,42 @@
 
 namespace Modelarium\Laravel\Targets;
 
+use GraphQL\Type\Definition\NonNull;
+use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
+use Modelarium\GeneratedCollection;
+use Modelarium\GeneratedItem;
 use Modelarium\Laravel\FieldParameter;
 use Modelarium\Laravel\ModelParameter;
 
 class MigrationGenerator extends BaseGenerator
 {
+    public function generate(): GeneratedCollection
+    {
+        return new GeneratedCollection(
+            [ new GeneratedItem(
+                GeneratedItem::TYPE_MIGRATION,
+                $this->generateString(),
+                $this->getGenerateFilename()
+            )]
+        );
+    }
+
     protected function processBasetype(
         \GraphQL\Type\Definition\FieldDefinition $field,
-        \GraphQL\Type\Definition\Type $type,
         \GraphQL\Language\AST\NodeList $directives
     ): array {
         $fieldName = $field->name;
-        $basetype = $type->name;
+        $extra = [];
+
         // TODO: scalars
 
-        $extra = [];
+        if ($field->type instanceof NonNull) {
+            $type = $field->type->getWrappedType();
+        } else {
+            $type = $field->type;
+        }
+        $basetype = $type->name;
 
         switch ($basetype) {
         case Type::ID:
@@ -44,24 +64,17 @@ class MigrationGenerator extends BaseGenerator
         case 'datetime':
             $base = '$table->dateTime("' . $fieldName . '")';
         break;
-        case 'association':
-            $base = '$table->unsignedInteger("' . $fieldName . '_id")';
-            /*   TODO if ($field->getExtension(FieldParameter::FOREIGN_KEY, false)) {
-                $base = '$table->foreign("' . $fieldName . '_id")->references("id")->on("' . $fieldName . '");';
-            } */
-        break;
         case 'url':
             $base = '$table->string("' . $fieldName . '")';
         break;
         default:
-            // @hasMany
-            // @hasOne
-            // @foreignKey
             $base = '$table->' . $basetype . '("' . $fieldName . '")';
         break;
         }
         
-        // TODO: ->nullable()
+        if (!($field->type instanceof NonNull)) {
+            $base .= '->nullable()';
+        }
         
         foreach ($directives as $directive) {
             $name = $directive->name->value;
@@ -87,7 +100,41 @@ class MigrationGenerator extends BaseGenerator
         return $extra;
     }
 
-    public function processDirectives(
+    protected function processRelationship(
+        \GraphQL\Type\Definition\FieldDefinition $field,
+        \GraphQL\Type\Definition\Type $type,
+        \GraphQL\Language\AST\NodeList $directives
+    ): array {
+        $lowerName = mb_strtolower($field->name);
+        $lowerNamePlural = $this->inflector->pluralize($lowerName);
+
+        $fieldName = mb_strtolower($lowerName) . '_id';
+        
+        $extra = [];
+        $base = '$table->unsignedBigInteger("' . $fieldName . '")';
+
+        foreach ($directives as $directive) {
+            $name = $directive->name->value;
+            switch ($name) {
+            case 'uniqueIndex':
+                $extra[] = '$table->unique("' . $fieldName . '");';
+                break;
+            case 'index':
+                $extra[] = '$table->index("' . $fieldName . '");';
+                break;
+            case 'foreign':
+                $extra[] = '$table->foreign("' . $fieldName . '")->references("id")->on("' . $lowerNamePlural . '");';
+                break;
+            }
+        }
+
+        $base .= ';';
+
+        array_unshift($extra, $base);
+        return $extra;
+    }
+
+    protected function processDirectives(
         \GraphQL\Language\AST\NodeList $directives
     ): array {
         $db = [];
@@ -110,6 +157,12 @@ class MigrationGenerator extends BaseGenerator
             case 'spatialIndex':
                 $db[] = '$table->spatialIndex("' . $directive->arguments[0]->value->value .'");';
                 break;
+            case 'rememberToken':
+                $db[] = '$table->rememberToken();';
+                break;
+            case 'timestamps':
+                $db[] = '$table->timestamps();';
+                break;
             default:
             }
         }
@@ -120,23 +173,21 @@ class MigrationGenerator extends BaseGenerator
     public function generateString(): string
     {
         return $this->stubToString('migration', function ($stub) {
-            /**
-             * @var GraphQL\Type\Definition\Type
-             */
-            $modelData = $this->model->getSchema()->getType($this->targetName);
-            assert($modelData !== null);
+            $db = [];
 
-            $db = [
-                '$table->timestamps();'
-            ];
-            foreach ($modelData->getFields() as $field) {
+            foreach ($this->type->getFields() as $field) {
                 // TODO if (NonNull)
-                $type = $field->type->getWrappedType();
+
                 $directives = $field->astNode->directives;
-                $db = array_merge($db, $this->processBasetype($field, $type, $directives));
+                if ($field->type instanceof ObjectType) {
+                    // relationship
+                    $db = array_merge($db, $this->processRelationship($field, $field->type, $directives));
+                } else {
+                    $db = array_merge($db, $this->processBasetype($field, $directives, true));
+                }
             }
 
-            $db = array_merge($db, $this->processDirectives($modelData->astNode->directives));
+            $db = array_merge($db, $this->processDirectives($this->type->astNode->directives));
 
             $stub = str_replace(
                 '// dummyCode',
@@ -146,14 +197,14 @@ class MigrationGenerator extends BaseGenerator
 
             $stub = str_replace(
                 'modelSchemaCode',
-                $modelData->toString(), // TODO: ->source
+                $this->type->toString(), // TODO: ->source
                 $stub
             );
             return $stub;
         });
     }
 
-    protected function getGenerateFilename(): string
+    public function getGenerateFilename(): string
     {
         // TODO: check if a migration '_create_'. $this->lowerName exists, generate a diff from model(), generate new migration with diff
   

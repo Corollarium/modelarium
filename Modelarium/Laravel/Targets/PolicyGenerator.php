@@ -2,8 +2,22 @@
 
 namespace Modelarium\Laravel\Targets;
 
+use Modelarium\GeneratedCollection;
+use Modelarium\GeneratedItem;
+
 class PolicyGenerator extends BaseGenerator
 {
+    public function generate(): GeneratedCollection
+    {
+        return new GeneratedCollection(
+            [ new GeneratedItem(
+                GeneratedItem::TYPE_POLICY,
+                $this->generateString(),
+                $this->getGenerateFilename()
+            )]
+        );
+    }
+
     public function processDirectives(
         \GraphQL\Language\AST\NodeList $directives
     ): array {
@@ -53,7 +67,7 @@ class PolicyGenerator extends BaseGenerator
         });
     }
 
-    protected function getGenerateFilename(): string
+    public function getGenerateFilename(): string
     {
         return $this->getBasePath('app/Policies/'. $this->studlyName . 'Policy.php');
     }

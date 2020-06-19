@@ -3,8 +3,11 @@
 namespace Modelarium\Laravel\Targets;
 
 use Doctrine\Inflector\InflectorFactory;
+use GraphQL\Type\Definition\Type;
 use Illuminate\Support\Str;
 use Modelarium\Exception\Exception;
+use Modelarium\GeneratedCollection;
+use Modelarium\GeneratedItem;
 use Modelarium\Parser;
 
 abstract class BaseGenerator
@@ -22,11 +25,11 @@ abstract class BaseGenerator
     protected $inflector = null;
 
     /**
-     * @var Parser
+     * @var Type
      */
-    protected $model = null;
+    protected $type = null;
 
-    public function __construct($name, $model = null)
+    public function __construct($name, $type = null)
     {
         $this->inflector = InflectorFactory::create()->build();
 
@@ -34,14 +37,14 @@ abstract class BaseGenerator
         $this->studlyName = Str::studly($this->targetName);
         $this->lowerName = mb_strtolower($this->targetName);
         $this->lowerNamePlural = $this->inflector->pluralize($this->lowerName);
-        if ($model instanceof Parser) {
-            // ok
-        } elseif ($model instanceof string) {
-            $parser = Parser::fromString($model);
+        if ($type instanceof Type) {
+            $this->type = $type;
+        } elseif ($type instanceof string) {
+            $parser = Parser::fromString($type);
+            $this->type = $parser->getSchema()->getType($name);
         } else {
             throw new Exception('Invalid model');
         }
-        $this->model = $model;
     }
 
     /**
@@ -59,67 +62,14 @@ abstract class BaseGenerator
         return $basepath;
     }
 
-    abstract protected function getGenerateFilename(): string;
+    abstract public function getGenerateFilename(): string;
 
     /**
      * Undocumented function
      *
      * @return string
      */
-    abstract public function generateString(): string;
-
-    public function generateFile($overwrite = true)
-    {
-        $data = $this->generateString();
-        $path = $this->getGenerateFilename(); // order matters, after $generateString
-        return $this->writeStub($path, $overwrite, $path);
-    }
-
-    /**
-     * Prints a warning message.
-     *
-     * @param string $message
-     * @return void
-     */
-    protected function warning(string $message)
-    {
-        echo 'WARNING: ' . $message;
-    }
-
-    protected function error(string $message)
-    {
-        echo 'ERROR: ' . $message;
-    }
-
-    protected function line(string $message)
-    {
-        echo $message;
-    }
-
-    /**
-     * Takes a stub file and generates the target file with replacements.
-     *
-     * @param string $targetPath The path for the stub file.
-     * @param boolean $overwrite
-     * @param string $stubName The name for the stub file.
-     * @return void
-     */
-    public function writeStub(string $targetPath, bool $overwrite, string $stubData)
-    {
-        if (file_exists($targetPath) && !$overwrite) {
-            $this->warning("File $targetPath already exists.");
-            return;
-        }
-
-        mkdir(dirname($targetPath), 0777, true);
-
-        $ret = file_put_contents($targetPath, $stubData);
-        if (!$ret) {
-            $this->error("Cannot write to $targetPath");
-            throw new \Exception("Cannot write to $targetPath");
-        }
-        $this->line("Generated $targetPath");
-    }
+    abstract public function generate(): GeneratedCollection;
 
     /**
      * Stubs from a stub file.
