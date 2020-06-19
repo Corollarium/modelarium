@@ -14,8 +14,6 @@ final class LaravelProcessorTest extends TestCase
         $processor = new LaravelProcessor();
         $data = $processor->processString(file_get_contents($this->getPathGraphql('oneToOne')));
 
-        $this->assertEquals(2, $data->count());
-        
         $userMigration = $data->filter(
             function (GeneratedItem $i) {
                 return $i->type = GeneratedItem::TYPE_MIGRATION &&

@@ -8,8 +8,6 @@ use GraphQL\Type\Definition\Type;
 use Modelarium\Exception\Exception;
 use Modelarium\GeneratedCollection;
 use Modelarium\GeneratedItem;
-use Modelarium\Laravel\FieldParameter;
-use Modelarium\Laravel\ModelParameter;
 
 class MigrationGenerator extends BaseGenerator
 {
@@ -115,7 +113,7 @@ class MigrationGenerator extends BaseGenerator
         }
         $typeName = $type->name;
 
-        $fieldName = mb_strtolower($lowerName) . '_id';
+        $fieldName = $lowerName . '_id';
         
         $base = null;
         $extra = [];
