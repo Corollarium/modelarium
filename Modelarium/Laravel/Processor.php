@@ -66,6 +66,9 @@ class Processor extends ModelariumProcessor
         $data = new GeneratedCollection();
         foreach ($typeMap as $name => $object) {
             if ($object instanceof ObjectType) {
+                if ($name === 'Query') {
+                    continue;
+                }
                 $g = $this->processType($name, $object);
                 $data = $data->merge($g);
             }

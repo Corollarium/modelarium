@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Modelarium\Laravel\ModelariumServiceProvider;
+namespace Modelarium\Laravel;
 
-use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\ServiceProvider as LaravelServiceProvider;
 
-class ModelariumServiceProvider extends ServiceProvider
+class ServiceProvider extends LaravelServiceProvider
 {
     /**
      * Bootstrap the application services.

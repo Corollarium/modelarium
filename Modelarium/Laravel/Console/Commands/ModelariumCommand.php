@@ -16,13 +16,13 @@ class ModelariumCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'formularium:scaffold
+    protected $signature = 'modelarium:scaffold
         {name : The model name}
         {--framework=* : The frameworks to use}
         {--overwrite : overwrite files if they exist}
         {--all : make everything}
         {--model : make model}
-        {--controller : make controller}
+        {--event : make event}
         {--migration : make migration}
         {--factory : make factory}
         {--seed : make seed}
@@ -34,7 +34,7 @@ class ModelariumCommand extends Command
      *
      * @var string
      */
-    protected $description = 'Creates scaffolding using Formularium';
+    protected $description = 'Creates scaffolding using Modelarium';
 
     /**
      * Create a new command instance.
@@ -123,6 +123,7 @@ class ModelariumCommand extends Command
         $processor->setRunEvent($this->option('event') || $this->option('all'));
 
         $data = $processor->processString($data);
+        $data->writeFiles(base_path(), $this->option('overwrite'));
 
         // if ($this->option('frontend') || $this->option('all')) {
         //     if ($vue) {

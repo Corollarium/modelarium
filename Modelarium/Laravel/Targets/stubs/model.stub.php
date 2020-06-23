@@ -15,5 +15,9 @@ class DummyClass extends {{ParentDummyModel}}
     
     protected $hidden = {{dummyHidden}};
 
+    public function getRandom(): array {
+        
+    }
+
 {{dummyMethods}}
 }

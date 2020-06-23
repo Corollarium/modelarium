@@ -32,5 +32,12 @@
         "stan": "vendor/bin/phpstan analyse Modelarium",
         "coverage": "./vendor/bin/phpunit --configuration phpunit.xml --coverage-html docs/coverage-report tests/",
         "test": "./vendor/bin/phpunit --configuration phpunit.xml tests/"
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Modelarium\\Laravel\\ServiceProvider"
+            ]
+        }
     }
 }

@@ -25,6 +25,6 @@ class FactoryGenerator extends BaseGenerator
 
     public function getGenerateFilename(): string
     {
-        return $this->getBasePath('database/seeds/'. $this->studlyName . 'Factory.php');
+        return $this->getBasePath('database/factories/'. $this->studlyName . 'Factory.php');
     }
 }

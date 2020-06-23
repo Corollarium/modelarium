@@ -226,6 +226,6 @@ EOF;
 
     public function getGenerateFilename(): string
     {
-        return $this->getBasePath('app/Models/Base'. $this->studlyName . '.php');
+        return $this->getBasePath('app/Base'. $this->studlyName . '.php');
     }
 }
