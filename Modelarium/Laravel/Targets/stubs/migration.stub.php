@@ -16,7 +16,7 @@ class CreateDummyNameTable extends Migration
      */
     public function up()
     {
-        Schema::create('dummynameplural', function (Blueprint $table) {
+        Schema::create('dummytablename', function (Blueprint $table) {
             // dummyCode
         });
     }
@@ -28,7 +28,7 @@ class CreateDummyNameTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('dummynameplural');
+        Schema::dropIfExists('dummytablename');
     }
 
     public function model(): string

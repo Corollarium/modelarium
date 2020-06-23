@@ -5,5 +5,5 @@ type Post {
 
 type Comment {
   id: ID!
-  post: Post! @belongsTo
+  post: Post! @belongsTo @foreign(onDelete: "cascade", onUpdate: "cascade")
 }

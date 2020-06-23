@@ -1,7 +1,9 @@
 type User {
+  id: ID!
   roles: [Role!]! @belongsToMany
 }
 
 type Role {
+  id: ID!
   users: [User!]! @belongsToMany
 }

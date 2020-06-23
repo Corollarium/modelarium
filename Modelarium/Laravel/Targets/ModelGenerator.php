@@ -2,6 +2,7 @@
 
 namespace Modelarium\Laravel\Targets;
 
+use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ObjectType;
 use Illuminate\Support\Str;
@@ -86,7 +87,7 @@ class ModelGenerator extends BaseGenerator
         \GraphQL\Type\Definition\FieldDefinition $field,
         \GraphQL\Language\AST\NodeList $directives
     ): array {
-        $lowerName = mb_strtolower($field->name);
+        $lowerName = mb_strtolower($this->inflector->singularize($field->name));
         $lowerNamePlural = $this->inflector->pluralize($lowerName);
 
         if ($field->type instanceof NonNull) {
@@ -96,7 +97,7 @@ class ModelGenerator extends BaseGenerator
         }
 
         $extra = [];
-        $targetClass = 'App\\\\' . Str::studly($field->name);
+        $targetClass = 'App\\\\' . Str::studly($this->inflector->singularize($field->name));
 
         foreach ($directives as $directive) {
             $name = $directive->name->value;
@@ -109,6 +110,16 @@ class ModelGenerator extends BaseGenerator
     }
 EOF;
                 break;
+
+            case 'belongsToMany':
+                $extra[] = <<<EOF
+    public function $lowerNamePlural()
+    {
+        return \$this->belongsToMany($targetClass::class);
+    }
+EOF;
+                break;
+    
             case 'hasOne':
                 $extra[] = <<<EOF
     public function $lowerName()
@@ -118,6 +129,7 @@ EOF;
 EOF;
                 break;
             case 'hasMany':
+                $targetClass = $this->inflector->singularize($targetClass);
                 $extra[] = <<<EOF
     public function $lowerNamePlural()
     {
@@ -157,8 +169,11 @@ EOF;
 
                 $directives = $field->astNode->directives;
                 if (
-                    $field->type instanceof ObjectType ||
-                    ($field->type instanceof NonNull && $field->type->getWrappedType() instanceof ObjectType)
+                    ($field->type instanceof ObjectType) ||
+                    ($field->type instanceof NonNull) && (
+                        ($field->type->getWrappedType() instanceof ObjectType) ||
+                        ($field->type->getWrappedType() instanceof ListOfType)
+                    )
                 ) {
                     // relationship
                     $db = array_merge($db, $this->processRelationship($field, $directives));

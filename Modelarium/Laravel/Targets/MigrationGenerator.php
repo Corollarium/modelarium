@@ -2,6 +2,7 @@
 
 namespace Modelarium\Laravel\Targets;
 
+use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
@@ -44,6 +45,7 @@ class MigrationGenerator extends BaseGenerator
         } else {
             $type = $field->type;
         }
+
         $basetype = $type->name; /** @phpstan-ignore-line */
 
         $base = '';
@@ -70,7 +72,7 @@ class MigrationGenerator extends BaseGenerator
             $base = '$table->string("' . $fieldName . '")';
         break;
         default:
-            throw new Exception("Unsupported type " . $basetype);
+            throw new Exception("Unsupported type $basetype for {$field->name}");
             // $base = '$table->' . $basetype . '("' . $fieldName . '")';
         }
         
@@ -106,7 +108,7 @@ class MigrationGenerator extends BaseGenerator
         \GraphQL\Type\Definition\FieldDefinition $field,
         \GraphQL\Language\AST\NodeList $directives
     ): array {
-        $lowerName = mb_strtolower($field->name);
+        $lowerName = mb_strtolower($this->inflector->singularize($field->name));
         $lowerNamePlural = $this->inflector->pluralize($lowerName);
 
         if ($field->type instanceof NonNull) {
@@ -114,6 +116,11 @@ class MigrationGenerator extends BaseGenerator
         } else {
             $type = $field->type;
         }
+
+        if ($field->type instanceof ListOfType) {
+            $type = $field->type->getWrappedType();
+        }
+
         $typeName = $type->name; /** @phpstan-ignore-line */
 
         $fieldName = $lowerName . '_id';
@@ -137,7 +144,12 @@ class MigrationGenerator extends BaseGenerator
                 } elseif (!($targetType instanceof ObjectType)) {
                     throw new Exception("{$typeName} is not a type for a relationship to {$this->name}");
                 }
-                $targetField = $targetType->getField($this->lowerName); // TODO: might have another name than lowerName
+                try {
+                    $targetField = $targetType->getField($this->lowerName); // TODO: might have another name than lowerName
+                } catch (\GraphQL\Error\InvariantViolation $e) {
+                    $targetField = $targetType->getField($this->lowerNamePlural);
+                }
+
                 $targetDirectives = $targetField->astNode->directives;
                 foreach ($targetDirectives as $targetDirective) {
                     switch ($targetDirective->name->value) {
@@ -150,12 +162,12 @@ class MigrationGenerator extends BaseGenerator
                 break;
             case 'belongsToMany':
                 $type1 = $this->lowerName;
-                $type2 = $this->lowerName;
+                $type2 = $lowerName;
 
                 // we only generate once, so use a comparison for that
-                if (strcasecmp($type1, $type2) > 0) {
+                if (strcasecmp($type1, $type2) < 0) {
                     $item = $this->generateManyToManyTable($type1, $type2);
-                    $this->collection->append($item);
+                    $this->collection->push($item);
                 }
                 break;
             case 'foreign':
@@ -193,6 +205,10 @@ class MigrationGenerator extends BaseGenerator
                     ';';
                 break;
             }
+        }
+
+        if (!($field->type instanceof NonNull)) {
+            $base .= '->nullable()';
         }
 
         if ($base) {
@@ -245,12 +261,13 @@ class MigrationGenerator extends BaseGenerator
             $db = [];
 
             foreach ($this->type->getFields() as $field) {
-                // TODO if (NonNull)
-
                 $directives = $field->astNode->directives;
                 if (
-                    $field->type instanceof ObjectType ||
-                    ($field->type instanceof NonNull && $field->type->getWrappedType() instanceof ObjectType)
+                    ($field->type instanceof ObjectType) ||
+                    ($field->type instanceof NonNull) && (
+                        ($field->type->getWrappedType() instanceof ObjectType) ||
+                        ($field->type->getWrappedType() instanceof ListOfType)
+                    )
                 ) {
                     // relationship
                     $db = array_merge($db, $this->processRelationship($field, $directives));
@@ -274,6 +291,12 @@ class MigrationGenerator extends BaseGenerator
             );
 
             $stub = str_replace(
+                'dummytablename',
+                $this->lowerNamePlural,
+                $stub
+            );
+
+            $stub = str_replace(
                 'modelSchemaCode',
                 $this->type->toString(), // TODO: ->source
                 $stub
@@ -284,7 +307,36 @@ class MigrationGenerator extends BaseGenerator
 
     public function generateManyToManyTable($type1, $type2): GeneratedItem
     {
-        $contents = ''; // TODO
+        $contents = $this->stubToString('migration', function ($stub) use ($type1, $type2) {
+            $code = <<<EOF
+
+            \$table->increments("id");
+            \$table->unsignedBigInteger("{$type1}_id");
+            \$table->unsignedBigInteger("{$type2}_id");
+EOF;
+
+            // TODO: index
+
+            $stub = str_replace(
+                '// dummyCode',
+                $code,
+                $stub
+            );
+
+            $stub = str_replace(
+                'dummytablename',
+                "{$type1}_{$type2}",
+                $stub
+            );
+
+            $stub = str_replace(
+                'modelSchemaCode',
+                '',
+                $stub
+            );
+            return $stub;
+        });
+
         $item = new GeneratedItem(
             GeneratedItem::TYPE_MIGRATION,
             $contents,
