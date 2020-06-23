@@ -14,6 +14,6 @@ Modelarium generates scaffolding for your project based on a GraphQL description
 
 TODO
 
-## Contributing
+## Contributing [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/dwyl/esta/issues)
 
 Any contributions are welcome. Please send a PR.
