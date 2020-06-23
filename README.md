@@ -1,8 +1,6 @@
 <h1 align="center">Modelarium - Scaffolding for PHP and JS</h1>
 
-<p align="center">
-    [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-</p>
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ---
 
