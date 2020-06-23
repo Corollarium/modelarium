@@ -3,6 +3,7 @@
 namespace Modelarium\Laravel\Targets;
 
 use GraphQL\Language\AST\DirectiveNode;
+use GraphQL\Type\Definition\ObjectType;
 use Modelarium\Exception\Exception;
 use Modelarium\GeneratedCollection;
 use Modelarium\GeneratedItem;
@@ -14,6 +15,10 @@ class PolicyGenerator extends BaseGenerator
      */
     protected $type = null;
 
+    /**
+     *
+     * @var string
+     */
     protected $modelName = '';
 
     /**
@@ -61,21 +66,15 @@ class PolicyGenerator extends BaseGenerator
         foreach ($directive->arguments as $arg) {
             switch ($arg->name->value) {
                 case 'ability':
-                    /**
-                     * @var \GraphQL\Language\AST\ArgumentNode $arg
-                     */
+                    // @phpstan-ignore-next-line
                     $ability = $arg->value->value;
                 break;
                 case 'find':
-                    /**
-                     * @var \GraphQL\Language\AST\ArgumentNode $arg
-                     */
+                    // @phpstan-ignore-next-line
                     $find = $arg->value->value;
                 break;
                 case 'model':
-                    /**
-                     * @var \GraphQL\Language\AST\ArgumentNode $arg
-                     */
+                    // @phpstan-ignore-next-line
                     $model = $arg->value->value;
                 break;
                 case 'injectArgs':

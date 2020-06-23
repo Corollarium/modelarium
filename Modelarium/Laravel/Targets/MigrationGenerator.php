@@ -17,6 +17,9 @@ class MigrationGenerator extends BaseGenerator
      */
     protected $type = null;
 
+    /**
+     * @var GeneratedCollection
+     */
     protected $collection = null;
 
     public function generate(): GeneratedCollection
@@ -305,7 +308,7 @@ class MigrationGenerator extends BaseGenerator
         });
     }
 
-    public function generateManyToManyTable($type1, $type2): GeneratedItem
+    public function generateManyToManyTable(string $type1, string $type2): GeneratedItem
     {
         $contents = $this->stubToString('migration', function ($stub) use ($type1, $type2) {
             $code = <<<EOF
@@ -345,7 +348,7 @@ EOF;
         return $item;
     }
 
-    public function getGenerateFilename($basename): string
+    public function getGenerateFilename(string $basename): string
     {
         // TODO: check if a migration '_create_'. $this->lowerName exists, generate a diff from model(), generate new migration with diff
   

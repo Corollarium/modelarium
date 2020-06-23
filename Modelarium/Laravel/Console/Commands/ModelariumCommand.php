@@ -2,17 +2,12 @@
 
 namespace Modelarium\Laravel\Console\Commands;
 
-use App\Console\Commands\base_path;
 use Illuminate\Console\Command;
-use Modelarium\Laravel\Targets\FactoryGenerator;
-use Modelarium\Laravel\Targets\SeedGenerator;
+use Modelarium\Laravel\Processor as LaravelProcessor;
 
 // use Formularium\FrameworkComposer;
 // use Formularium\Frontend\Blade\Framework as FrameworkBlade;
 // use Formularium\Frontend\Vue\Framework as FrameworkVue;
-use Modelarium\Laravel\Targets\MigrationGenerator;
-use Modelarium\Laravel\Targets\ModelGenerator;
-use Modelarium\Parser;
 
 class ModelariumCommand extends Command
 {
@@ -60,6 +55,7 @@ class ModelariumCommand extends Command
     {
         $name = $this->argument('name');
         if ($name === '*') {
+            // @phpstan-ignore-next-line
             $path = base_path('graphql');
             $dir = scandir($path);
             if ($dir === false) {
@@ -72,15 +68,34 @@ class ModelariumCommand extends Command
                 if (mb_strpos($n, '.php') === false) {
                     continue;
                 }
-                $this->_handle(str_replace('.php', '', $n));
+                $data = file_get_contents($n);
+                if ($data) {
+                    $this->_handle($data);
+                } else {
+                    $this->error("Cannot open $n");
+                }
             }
+        } elseif (!$name || is_array($name)) {
+            $this->error('Invalid name parameter');
+            return;
         } else {
-            $this->_handle($name);
+            $data = file_get_contents($this->getPathGraphql($name));
+            if ($data) {
+                $this->_handle($data);
+            } else {
+                $this->error("Cannot open model $name");
+            }
         }
         $this->info('Finished. You might want to run `composer dump-autoload`');
     }
 
-    protected function _handle(string $name): void
+    protected function getPathGraphql(string $name): string
+    {
+        // @phpstan-ignore-next-line
+        return base_path('graphql/' . $name . '.graphql');
+    }
+
+    protected function _handle(string $data): void
     {
         // TODO
         // // setup stuff
@@ -93,24 +108,22 @@ class ModelariumCommand extends Command
         // $vue = FrameworkComposer::getByName('Vue');
         // $blade = FrameworkComposer::getByName('Blade');
 
-        if ($this->hasOption('stubdir')) {
-            $this->stubDir = $this->option('stubdir');
-        }
+        // if ($this->hasOption('stubdir')) {
+        //     $this->stubDir = $this->option('stubdir');
+        // }
 
-        $parser = Parser::fromPath(base_path($name . '.graphql'));
+        $processor = new LaravelProcessor();
 
         // make stuff
-        if ($this->option('model') || $this->option('all')) {
-        }
-        if ($this->option('migration') || $this->option('all')) {
-        }
-        if ($this->option('factory') || $this->option('all')) {
-        }
-        if ($this->option('seed') || $this->option('all')) {
-        }
-        if ($this->option('policy') || $this->option('all')) {
-            //     $this->makePolicy();
-        }
+        $processor->setRunModel($this->option('model') || $this->option('all'));
+        $processor->setRunMigration($this->option('migration') || $this->option('all'));
+        $processor->setRunFactory($this->option('factory') || $this->option('all'));
+        $processor->setRunSeed($this->option('seed') || $this->option('all'));
+        $processor->setRunPolicy($this->option('policy') || $this->option('all'));
+        $processor->setRunEvent($this->option('event') || $this->option('all'));
+
+        $data = $processor->processString($data);
+
         // if ($this->option('frontend') || $this->option('all')) {
         //     if ($vue) {
         //         $this->makeVueScaffold();
