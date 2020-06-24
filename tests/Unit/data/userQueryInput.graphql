@@ -1,0 +1,15 @@
+type User {
+  id: ID!
+  name: String!
+  email: String!
+}
+
+type Query {
+  greetings(input: HelloInput!): String!
+}
+
+input HelloInput {
+  id: ID!
+  firstName: String!
+  lastName: String
+}

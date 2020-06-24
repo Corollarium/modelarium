@@ -24,4 +24,10 @@ EOF
         );
         $this->assertNotNull($parser);
     }
+
+    public function testParseFromFile()
+    {
+        $parser = Parser::fromFile(__DIR__ . '/data/userQueryInput.graphql');
+        $this->assertNotNull($parser);
+    }
 }

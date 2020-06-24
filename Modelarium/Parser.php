@@ -93,7 +93,7 @@ class Parser
 
     /**
      *
-     * @param string[] $files
+     * @param string[] $sources
      * @return self
      */
     public static function fromStrings(array $sources): self
@@ -105,8 +105,8 @@ class Parser
         ]);
 
         foreach ($sources as &$s) {
-            $s = preg_replace('/^type Mutation/m', 'extend type Mutation', $s);
-            $s = preg_replace('/^type Query/m', 'extend type Query', $s);
+            $s = \Safe\preg_replace('/^type Mutation/m', 'extend type Mutation', $s);
+            $s = \Safe\preg_replace('/^type Query/m', 'extend type Query', $s);
         }
         $extensionSource = implode("\n", $sources);
         $p->ast = \GraphQL\Language\Parser::parse($extensionSource);

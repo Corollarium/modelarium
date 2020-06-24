@@ -19,6 +19,6 @@ final class ModelGeneratorTest extends TestCase
         $gen = new ModelGenerator($this->getParser('userBaseDirectives'), 'User');
         $data = $gen->generateString();
         $this->assertNotNull($data);
-        $this->assertStringContainsString('use SoftDeletes;', $data);
+        $this->assertStringContainsString('use \Illuminate\Database\Eloquent\SoftDeletes;', $data);
     }
 }

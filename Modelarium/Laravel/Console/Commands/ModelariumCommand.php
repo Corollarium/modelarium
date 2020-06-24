@@ -4,6 +4,7 @@ namespace Modelarium\Laravel\Console\Commands;
 
 use Illuminate\Console\Command;
 use Modelarium\GeneratedCollection;
+use Modelarium\GeneratedItem;
 use Modelarium\Laravel\Processor as LaravelProcessor;
 use Symfony\Component\Console\Output\BufferedOutput;
 
@@ -22,6 +23,7 @@ class ModelariumCommand extends Command
         {name : The model name}
         {--framework=* : The frameworks to use}
         {--overwrite : overwrite files if they exist}
+        {--lighthouse : use lighthouse directives}
         {--everything : make everything}
         {--model : make model}
         {--event : make event}
@@ -67,11 +69,19 @@ class ModelariumCommand extends Command
         $processor->setRunPolicy($this->option('policy') || $this->option('everything'));
         $processor->setRunEvent($this->option('event') || $this->option('everything'));
 
-        // TODO: see issue #2
-        // generate lighthouse directives
-        // $output = new BufferedOutput();
-        // $this->call('lighthouse:ide-helper');
-        // $output->fetch();
+        $files = [
+            __DIR__ . '/../../Graphql/definitions.graphql'
+        ];
+
+        if ($this->option('lighthouse')) {
+            // TODO: see issue #2
+            // generate lighthouse directives
+            // $output = new BufferedOutput();
+            // $this->call('lighthouse:ide-helper');
+            // $output->fetch();
+            // @phpstan-ignore-next-line
+            $files[] = base_path('schema-directives.graphql');
+        }
 
         if ($name === '*' || $name === 'all') {
             // @phpstan-ignore-next-line
@@ -80,10 +90,6 @@ class ModelariumCommand extends Command
 
             // parse directives from lighthouse
             $modelNames = array_diff($dir, array('.', '..'));
-            $files = [
-                base_path('schema-directives.graphql'),
-                __DIR__ . '/../../Graphql/definitions.graphql'
-            ];
             
             foreach ($modelNames as $n) {
                 if (mb_strpos($n, '.graphql') === false) {

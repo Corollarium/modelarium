@@ -65,7 +65,7 @@ class Processor extends ModelariumProcessor
 
     /**
      *
-     * @param array $data
+     * @param string[] $files
      * @return GeneratedCollection
      */
     public function processFiles(array $files): GeneratedCollection
@@ -98,7 +98,6 @@ class Processor extends ModelariumProcessor
 
     /**
      *
-     * @param string $data
      * @return GeneratedCollection
      */
     public function process(): GeneratedCollection
