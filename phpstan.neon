@@ -9,3 +9,5 @@ parameters:
   excludes_analyse:
     - Modelarium/Laravel/Targets/stubs/*
   checkMissingIterableValueType: false
+includes:
+  - vendor/thecodingmachine/phpstan-safe-rule/phpstan-safe-rule.neon
