@@ -230,7 +230,7 @@ class MigrationGenerator extends BaseGenerator
         foreach ($directives as $directive) {
             $name = $directive->name->value;
             switch ($name) {
-            case 'softDeletes':
+            case 'softDeletesDB':
                 $db[] = '$table->softDeletes();';
                 break;
             case 'index':
@@ -279,6 +279,7 @@ class MigrationGenerator extends BaseGenerator
                 }
             }
 
+            assert($this->type->astNode !== null);
             /**
              * @var \GraphQL\Language\AST\NodeList|null
              */

@@ -101,13 +101,11 @@ abstract class BaseGenerator
      * @param Callable $f
      * @return string
      * @see BaseGenerator::stubFile()
+     * @throws \Safe\Exceptions\FilesystemException
      */
     public function stubToString(string $stubName, callable $f = null): string
     {
-        $stub = file_get_contents($this->stubDir . "/$stubName.stub.php");
-        if ($stub === false) {
-            throw new \Exception('Stub file not found');
-        }
+        $stub = \Safe\file_get_contents($this->stubDir . "/$stubName.stub.php");
         return $this->replaceStub($stub, $f);
     }
 

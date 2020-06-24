@@ -46,13 +46,20 @@ class ModelGenerator extends BaseGenerator
 
     public function generate(): GeneratedCollection
     {
-        return new GeneratedCollection(
-            [ new GeneratedItem(
+        $x = new GeneratedCollection([
+            new GeneratedItem(
                 GeneratedItem::TYPE_MODEL,
                 $this->generateString(),
                 $this->getGenerateFilename()
-            )]
-        );
+            ),
+            new GeneratedItem(
+                GeneratedItem::TYPE_MODEL,
+                $this->stubToString('model'),
+                $this->getGenerateFilename(false),
+                true
+            )
+        ]);
+        return $x;
     }
 
     protected function processBasetype(
@@ -151,8 +158,8 @@ EOF;
         foreach ($directives as $directive) {
             $name = $directive->name->value;
             switch ($name) {
-            case 'softDeletes':
-                $this->traits[] = 'SoftDeletes';
+            case 'softDeletesDB':
+                $this->traits[] = '\Illuminate\Database\Eloquent\SoftDeletes';
                 break;
             }
         }
@@ -161,7 +168,7 @@ EOF;
 
     public function generateString(): string
     {
-        return $this->stubToString('model', function ($stub) {
+        return $this->stubToString('modelbase', function ($stub) {
             $db = [];
 
             foreach ($this->type->getFields() as $field) {
@@ -224,8 +231,8 @@ EOF;
         });
     }
 
-    public function getGenerateFilename(): string
+    public function getGenerateFilename(bool $base = true): string
     {
-        return $this->getBasePath('app/Base'. $this->studlyName . '.php');
+        return $this->getBasePath('app/' . ($base ? 'Base' : '') . $this->studlyName . '.php');
     }
 }

@@ -26,10 +26,16 @@ class GeneratedItem
      */
     public $contents;
 
-    public function __construct(string $type, string $contents, string $filename)
+    /**
+     * @var boolean
+     */
+    public $onlyIfNewFile;
+
+    public function __construct(string $type, string $contents, string $filename, bool $onlyIfNewFile = false)
     {
         $this->type = $type;
         $this->contents = $contents;
         $this->filename = $filename;
+        $this->onlyIfNewFile = $onlyIfNewFile;
     }
 }

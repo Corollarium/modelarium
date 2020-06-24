@@ -53,6 +53,28 @@ class Processor extends ModelariumProcessor
     protected $runEvent = true;
 
     /**
+     * Returns directives defined by Modelarium.
+     *
+     * @return string
+     * @throws \Safe\Exceptions\FilesystemException
+     */
+    public static function getDirectives(): string
+    {
+        return \Safe\file_get_contents(__DIR__ . '/Graphql/definitions.graphql');
+    }
+
+    /**
+     *
+     * @param array $data
+     * @return GeneratedCollection
+     */
+    public function processFiles(array $files): GeneratedCollection
+    {
+        $this->parser = Parser::fromFiles($files);
+        return $this->process();
+    }
+
+    /**
      *
      * @param string $data
      * @return GeneratedCollection
@@ -60,23 +82,47 @@ class Processor extends ModelariumProcessor
     public function processString(string $data): GeneratedCollection
     {
         $this->parser = Parser::fromString($data);
+        return $this->process();
+    }
+
+    /**
+     *
+     * @param string[] $data
+     * @return GeneratedCollection
+     */
+    public function processStrings(array $data): GeneratedCollection
+    {
+        $this->parser = Parser::fromStrings($data);
+        return $this->process();
+    }
+
+    /**
+     *
+     * @param string $data
+     * @return GeneratedCollection
+     */
+    public function process(): GeneratedCollection
+    {
         $schema = $this->parser->getSchema();
         $typeMap = $schema->getTypeMap();
 
-        $data = new GeneratedCollection();
+        $this->collection = new GeneratedCollection();
         foreach ($typeMap as $name => $object) {
             if ($object instanceof ObjectType) {
                 if ($name === 'Query') {
                     continue;
                 }
-                $g = $this->processType($name, $object);
-                $data = $data->merge($g);
+                if ($name === 'Mutation') {
+                    continue;
+                }
+                $g = $this->processType((string)$name, $object);
+                $this->collection = $this->collection->merge($g);
             }
         }
 
-        $data = $data->merge($this->processMutation($schema->getMutationType()));
+        $this->collection->merge($this->processMutation($schema->getMutationType()));
 
-        return $data;
+        return $this->collection;
     }
 
     protected function processType(string $name, ObjectType $object): GeneratedCollection

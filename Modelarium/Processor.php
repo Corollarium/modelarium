@@ -11,8 +11,24 @@ abstract class Processor
 {
     /**
      *
+     * @var GeneratedCollection
+     */
+    protected $collection = null;
+
+    /**
+     *
      * @param string $data
      * @return GeneratedCollection
      */
     abstract public function processString(string $data): GeneratedCollection;
+    
+    /**
+     * Get the value of generated data
+     *
+     * @return GeneratedCollection
+     */
+    public function getCollection()
+    {
+        return $this->collection;
+    }
 }

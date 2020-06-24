@@ -2,6 +2,7 @@
 
 namespace ModelariumTests\Laravel;
 
+use Modelarium\GeneratedCollection;
 use Modelarium\GeneratedItem;
 use Modelarium\Laravel\Processor as LaravelProcessor;
 use ModelariumTests\TestCase;
@@ -12,7 +13,12 @@ final class LaravelProcessorTest extends TestCase
     {
         $processor = new LaravelProcessor();
         $data = $processor->processString(file_get_contents($this->getPathGraphql('oneToOne')));
+        $this->_checkOneToMany($data);
+    }
 
+    protected function _checkOneToMany(GeneratedCollection $data)
+    {
+        $this->assertNotNull($data);
         $userMigration = $data->filter(
             function (GeneratedItem $i) {
                 return $i->type == GeneratedItem::TYPE_MIGRATION &&
@@ -184,5 +190,40 @@ final class LaravelProcessorTest extends TestCase
         $this->assertStringContainsString('return $this->belongsToMany(App\\\\Role::class);', $userModel->contents);
         $this->assertStringContainsString('public function users()', $roleModel->contents);
         $this->assertStringContainsString('return $this->belongsToMany(App\\\\User::class);', $roleModel->contents);
+    }
+
+    public function testSplitStrings()
+    {
+        $strings = [
+            LaravelProcessor::getDirectives(),
+            \Safe\file_get_contents(__DIR__ . '/../data/lighthouse-schema-directives.graphql')
+        ];
+        $strings[] = <<< EOF
+type User {
+    id: ID!
+    phone: Phone! @hasOne
+}
+
+type Query {
+    users: [User!]! @paginate(defaultCount: 10)
+    user(id: ID @eq): User @find
+}
+EOF;
+
+        $strings[] = <<< EOF
+type Phone {
+    id: ID!
+    user: User! @belongsTo @foreign(onDelete: "cascade", onUpdate: "cascade")
+}
+
+type Query {
+    phones: [User!]! @paginate(defaultCount: 10)
+    phone(id: ID @eq): Phone @find
+}
+EOF;
+
+        $processor = new LaravelProcessor();
+        $data = $processor->processStrings($strings);
+        $this->_checkOneToMany($data);
     }
 }

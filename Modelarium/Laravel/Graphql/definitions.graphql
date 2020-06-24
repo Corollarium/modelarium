@@ -2,86 +2,88 @@
 Default value for database column
 """
 directive @defaultValue(
-    """
-    The value
-    """
-    value: Mixed!
+  """
+  The value
+  """
+  value: String!
 ) on FIELD_DEFINITION
 
 """
 Default value for database column
 """
 directive @foreign(
-    """
-    What field it references
-    """
-    references: String
+  """
+  What field it references
+  """
+  references: String
 
-    """
-    What table it references
-    """
-    on: String
+  """
+  What table it references
+  """
+  on: String
 
-    """
-    What to do onDelete
-    """
-    onDelete: String
+  """
+  What to do onDelete
+  """
+  onDelete: String
 
-    """
-    What to do on Update
-    """
-    onUpdate: String
+  """
+  What to do on Update
+  """
+  onUpdate: String
 ) on FIELD_DEFINITION
-
 
 """
 Field is hidden from API.
 """
-directive @hidden(
-) on FIELD_DEFINITION
+directive @hidden on FIELD_DEFINITION
 
+"""
+Field is hidden from API.
+"""
+directive @hidden on FIELD_DEFINITION
 
 """
 Generates a composed index on the database for a type
 """
 directive @index(
-    """
-    The list of fields to compose in the index
-    """
-    fields: [String]!
+  """
+  The list of fields to compose in the index
+  """
+  fields: [String]!
 ) on OBJECT
-
 
 """
 Generate rememberToken
 """
-directive @rememberToken(
-) on OBJECT
+directive @rememberToken on OBJECT
 
 """
 Specifies a soft delete mode for this type
 """
-directive @softDeletes(
-) on OBJECT
+directive @softDeletesDB on OBJECT
 
 """
 Generates a spatialIndex
 """
 directive @spatialIndex(
-    """
-    The list of fields to compose in the index
-    """
-    field: String!
+  """
+  The list of fields to compose in the index
+  """
+  field: String!
 ) on OBJECT
 
 """
-Generates a unique index on the database for that field
+Generates a timestamps columns for a type
 """
-directive @uniqueIndex(
-) on FIELD_DEFINITION
+directive @timestamps on OBJECT
 
 """
 Generates a unique index on the database for that field
 """
-directive @unsigned(
-) on FIELD_DEFINITION
+directive @uniqueIndex on FIELD_DEFINITION
+
+"""
+Generates a unique index on the database for that field
+"""
+directive @unsigned on FIELD_DEFINITION

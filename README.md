@@ -14,8 +14,29 @@ Modelarium generates scaffolding for your project based on a GraphQL description
 
 ## Documentation
 
-TODO
+## Creating a project from scratch
 
-## Contributing [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/dwyl/esta/issues)
+Creating a project using Modelarium, Lighthouse and Laravel.
+
+```shell
+
+# Create a laravel project
+composer create-project --prefer-dist laravel/laravel myproject
+
+# Add Modelarium and Lighthouse
+composer require corollarium/modelarium
+composer require nuwave/lighthouse
+composer install
+
+# Create your schemas in graphql/
+
+#
+
+
+```
+
+ODO
+
+## Contributing [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/Corollarium/modelarium/issues)
 
 Any contributions are welcome. Please send a PR.

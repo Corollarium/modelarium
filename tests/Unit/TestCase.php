@@ -13,6 +13,6 @@ class TestCase extends \PHPUnit\Framework\TestCase
 
     protected function getParser($name)
     {
-        return Parser::fromPath($this->getPathGraphql($name));
+        return Parser::fromFile($this->getPathGraphql($name));
     }
 }

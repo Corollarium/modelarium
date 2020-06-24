@@ -1,4 +1,4 @@
-type User @softDeletes @rememberToken @timestamps {
+type User @softDeletesDB @rememberToken @timestamps {
   id: ID!
   name: String!
   email: String!

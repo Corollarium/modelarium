@@ -3,7 +3,9 @@
 namespace Modelarium\Laravel\Console\Commands;
 
 use Illuminate\Console\Command;
+use Modelarium\GeneratedCollection;
 use Modelarium\Laravel\Processor as LaravelProcessor;
+use Symfony\Component\Console\Output\BufferedOutput;
 
 // use Formularium\FrameworkComposer;
 // use Formularium\Frontend\Blade\Framework as FrameworkBlade;
@@ -20,7 +22,7 @@ class ModelariumCommand extends Command
         {name : The model name}
         {--framework=* : The frameworks to use}
         {--overwrite : overwrite files if they exist}
-        {--all : make everything}
+        {--everything : make everything}
         {--model : make model}
         {--event : make event}
         {--migration : make migration}
@@ -54,38 +56,62 @@ class ModelariumCommand extends Command
     public function handle()
     {
         $name = $this->argument('name');
-        if ($name === '*') {
+
+        $processor = new LaravelProcessor();
+
+        // parse args
+        $processor->setRunModel($this->option('model') || $this->option('everything'));
+        $processor->setRunMigration($this->option('migration') || $this->option('everything'));
+        $processor->setRunFactory($this->option('factory') || $this->option('everything'));
+        $processor->setRunSeed($this->option('seed') || $this->option('everything'));
+        $processor->setRunPolicy($this->option('policy') || $this->option('everything'));
+        $processor->setRunEvent($this->option('event') || $this->option('everything'));
+
+        // TODO: see issue #2
+        // generate lighthouse directives
+        // $output = new BufferedOutput();
+        // $this->call('lighthouse:ide-helper');
+        // $output->fetch();
+
+        if ($name === '*' || $name === 'all') {
             // @phpstan-ignore-next-line
             $path = base_path('graphql');
-            $dir = scandir($path);
-            if ($dir === false) {
-                $this->error("Cannot find model dir $path");
-                return 1;
-            }
+            $dir = \Safe\scandir($path);
 
+            // parse directives from lighthouse
             $modelNames = array_diff($dir, array('.', '..'));
+            $files = [
+                base_path('schema-directives.graphql'),
+                __DIR__ . '/../../Graphql/definitions.graphql'
+            ];
+            
             foreach ($modelNames as $n) {
-                if (mb_strpos($n, '.php') === false) {
+                if (mb_strpos($n, '.graphql') === false) {
                     continue;
                 }
-                $data = file_get_contents($n);
-                if ($data) {
-                    $this->_handle($data);
-                } else {
-                    $this->error("Cannot open $n");
-                }
+                // @phpstan-ignore-next-line
+                $files[] = base_path('graphql/' . $n);
             }
+            $processor->processFiles($files);
         } elseif (!$name || is_array($name)) {
             $this->error('Invalid name parameter');
             return;
         } else {
-            $data = file_get_contents($this->getPathGraphql($name));
-            if ($data) {
-                $this->_handle($data);
-            } else {
+            try {
+                $data = \Safe\file_get_contents($this->getPathGraphql($name));
+                $processor->processString($data);
+            } catch (\Safe\Exceptions\FilesystemException $e) {
                 $this->error("Cannot open model $name");
             }
         }
+
+        $this->writeFiles(
+            $processor->getCollection(),
+            // @phpstan-ignore-next-line
+            base_path(),
+            (bool)$this->option('overwrite')
+        );
+
         $this->info('Finished. You might want to run `composer dump-autoload`');
     }
 
@@ -112,20 +138,9 @@ class ModelariumCommand extends Command
         //     $this->stubDir = $this->option('stubdir');
         // }
 
-        $processor = new LaravelProcessor();
 
-        // make stuff
-        $processor->setRunModel($this->option('model') || $this->option('all'));
-        $processor->setRunMigration($this->option('migration') || $this->option('all'));
-        $processor->setRunFactory($this->option('factory') || $this->option('all'));
-        $processor->setRunSeed($this->option('seed') || $this->option('all'));
-        $processor->setRunPolicy($this->option('policy') || $this->option('all'));
-        $processor->setRunEvent($this->option('event') || $this->option('all'));
 
-        $data = $processor->processString($data);
-        $data->writeFiles(base_path(), $this->option('overwrite'));
-
-        // if ($this->option('frontend') || $this->option('all')) {
+        // if ($this->option('frontend') || $this->option('everything')) {
         //     if ($vue) {
         //         $this->makeVueScaffold();
         //         $this->makeVue($vue, 'Base', 'viewable');
@@ -143,5 +158,49 @@ class ModelariumCommand extends Command
         //         // TODO: react?
         //     }
         // }
+    }
+
+    public function writeFiles(GeneratedCollection $collection, string $basepath, bool $overwrite = true): self
+    {
+        foreach ($collection as $element) {
+            /**
+             * @var GeneratedItem $element
+             */
+            $path = $basepath . '/' . $element->filename;
+            $this->writeFile(
+                $path,
+                ($element->onlyIfNewFile ? false : $overwrite),
+                $element->contents
+            );
+        }
+        return $this;
+    }
+
+    /**
+     * Takes a stub file and generates the target file with replacements.
+     *
+     * @param string $targetPath The path for the stub file.
+     * @param boolean $overwrite
+     * @param string $data The data to write
+     * @return void
+     */
+    protected function writeFile(string $targetPath, bool $overwrite, string $data)
+    {
+        if (file_exists($targetPath) && !$overwrite) {
+            $this->comment("File $targetPath already exists, not overwriting.");
+            return;
+        }
+
+        $dir = dirname($targetPath);
+        if (!is_dir($dir)) {
+            \Safe\mkdir($dir, 0777, true);
+        }
+
+        $ret = \Safe\file_put_contents($targetPath, $data);
+        if (!$ret) {
+            $this->error("Cannot write to $targetPath");
+            return;
+        }
+        $this->line("Wrote $targetPath");
     }
 }
