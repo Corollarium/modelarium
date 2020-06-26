@@ -10,8 +10,14 @@ use Modelarium\Exception\Exception;
 use Modelarium\GeneratedCollection;
 use Modelarium\GeneratedItem;
 
+function endsWith($haystack, $needle)
+{
+    return substr_compare($haystack, $needle, -strlen($needle)) === 0;
+}
 class MigrationGenerator extends BaseGenerator
 {
+    public static $counter = 0;
+
     /**
      * @var ObjectType
      */
@@ -302,7 +308,9 @@ class MigrationGenerator extends BaseGenerator
 
             $stub = str_replace(
                 'modelSchemaCode',
-                $this->type->toString(), // TODO: ->source
+                "# start graphql\n" .
+                \GraphQL\Language\Printer::doPrint($this->type->astNode),
+                "# end graphql\n" .
                 $stub
             );
             return $stub;
@@ -318,8 +326,6 @@ class MigrationGenerator extends BaseGenerator
             \$table->unsignedBigInteger("{$type1}_id");
             \$table->unsignedBigInteger("{$type2}_id");
 EOF;
-
-            // TODO: index
 
             $stub = str_replace(
                 '// dummyCode',
@@ -351,8 +357,35 @@ EOF;
 
     public function getGenerateFilename(string $basename): string
     {
-        // TODO: check if a migration '_create_'. $this->lowerName exists, generate a diff from model(), generate new migration with diff
+        $type = '_create_';
+        
+        /* TODO:
+         * check if a migration '_create_'. $this->lowerName exists,
+         * generate a diff from model(), generate new migration with diff
+         * /
+        $migrationFiles = \Safe\scandir($this->getBasePath('database/migrations/'));
+        $match = '_create_' . $basename . '_table.php';
+        foreach ($migrationFiles as $m) {
+            if (!endsWith($m, $match)) {
+                continue;
+            }
+            // get source
+
+            // compare with this source
+
+            // if equal ignore and don't output file
+
+            // else generate a diff and patch
+            $type = '_patch_';
+        }
+        */
   
-        return $this->getBasePath('database/migrations/' . date('Y_m_d_His') . '_create_'. $basename . '_table.php');
+        return $this->getBasePath(
+            'database/migrations/' .
+            date('Y_m_d_His') .
+            static::$counter++ . // so we keep the same order of types in schema
+            $type .
+            $basename . '_table.php'
+        );
     }
 }

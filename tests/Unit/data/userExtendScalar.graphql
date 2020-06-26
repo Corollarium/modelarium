@@ -1,7 +1,16 @@
-scalar UserType
+scalar TestScalarType @scalar(class: "ModelariumTests\\TestScalarType")
 
-type User {
-  id: ID!
-  name: String!
-  userType: UserType!
+schema {
+  query: TestType
+}
+
+input TestInputObject {
+  t: TestScalarType
+}
+
+type TestType {
+  fieldWithObjectInput(input: TestInputObject): String
+  fieldWithNullableStringInput(input: String): String
+  fieldWithNonNullableStringInput(input: String!): String
+  fieldWithScalarInput(input: TestScalarType): TestScalarType
 }

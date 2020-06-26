@@ -2,12 +2,17 @@
 
 namespace Modelarium;
 
-use Exception;
+use GraphQL\Language\AST\DocumentNode;
+use GraphQL\Language\AST\Node;
+use GraphQL\Language\AST\NodeKind;
+use GraphQL\Language\AST\ScalarTypeDefinitionNode;
+use GraphQL\Language\Visitor;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Utils\AST;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\SchemaExtender;
+use Modelarium\Exception\ScalarNotFoundException;
 
 class Parser
 {
@@ -20,6 +25,13 @@ class Parser
      * @var \GraphQL\Type\Schema
      */
     protected $schema;
+
+    protected $scalars = [];
+
+    protected function __construct()
+    {
+        // empty
+    }
 
     public static function extendDatatypes(array $typeConfig, $typeDefinitionNode): array
     {
@@ -38,11 +50,6 @@ class Parser
             ]);
         } */
         return $typeConfig;
-    }
-
-    protected function __construct()
-    {
-        // empty
     }
 
     /**
@@ -77,18 +84,97 @@ class Parser
      *
      * @param string $data the string
      * @return Parser
-     * @throws Exception If parsing fails.
      */
     public static function fromString(string $data): self
     {
         $p = new self();
         $p->ast = \GraphQL\Language\Parser::parse($data);
+        $p->processAst();
         $schemaBuilder = new \GraphQL\Utils\BuildSchema(
             $p->ast,
             [__CLASS__, 'extendDatatypes']
         );
+        
         $p->schema = $schemaBuilder->buildSchema();
+        $p->processSchema();
         return $p;
+    }
+
+    protected function processSchema(): void
+    {
+        $originalTypeLoader = $this->schema->getConfig()->typeLoader;
+
+        $this->schema->getConfig()->typeLoader = function ($typeName) use ($originalTypeLoader) {
+            $type = $originalTypeLoader($typeName);
+            if ($type instanceof \GraphQL\Type\Definition\CustomScalarType) {
+                $scalarName = $type->name;
+                $className = $this->scalars[$scalarName];
+                return new $className($type->config);
+            }
+            return $type;
+        };
+    }
+
+    protected function processAst(): void
+    {
+        $this->ast = Visitor::visit($this->ast, [
+            // load the scalar type classes
+            NodeKind::SCALAR_TYPE_DEFINITION => function ($node) {
+                $scalarName = $node->name->value;
+
+                // load classes
+                /**
+                 * @var $astNode ScalarTypeDefinitionNode
+                 */
+
+                $className = null;
+                foreach ($node->directives as $directive) {
+                    switch ($directive->name->value) {
+                    case 'scalar':
+                        foreach ($directive->arguments as $arg) {
+                            /**
+                             * @var \GraphQL\Language\AST\ArgumentNode $arg
+                             */
+        
+                            $value = $arg->value->value;
+        
+                            switch ($arg->name->value) {
+                            case 'class':
+                                $className = $value;
+                            break;
+                            }
+                        }
+                    break;
+                    }
+                }
+
+                // Require special handler class for custom scalars:
+                if (!class_exists($className, true)) {
+                    throw new \Modelarium\Exception\Exception(
+                        "Custom scalar must have corresponding handler class $className"
+                    );
+                }
+
+                $this->scalars[$scalarName] = $className;
+
+                // return
+                //   null: no action
+                //   Visitor::skipNode(): skip visiting this node
+                //   Visitor::stop(): stop visiting altogether
+                //   Visitor::removeNode(): delete this node
+                //   any value: replace this node with the returned value
+                return null;
+            },
+            NodeKind::NAMED_TYPE  => function ($node) {
+                return null;
+            },
+            NodeKind::OBJECT_TYPE_DEFINITION  => function ($node) {
+                return null;
+            },
+            'enter' => function ($node) {
+                return null;
+            }
+        ]);
     }
 
     /**
@@ -122,6 +208,7 @@ class Parser
         // );
 
         // $p->schema = $schemaBuilder->buildSchema();
+        $p->processAst();
         return $p;
     }
 
@@ -134,5 +221,23 @@ class Parser
     public function getType(string $name) : ?Type
     {
         return $this->schema->getType($name);
+    }
+
+    /**
+     * Factory.
+     *
+     * @param string $datatype
+     * @return ScalarType
+     */
+    public function getScalarType(string $datatype): ?ScalarType
+    {
+        $className = $this->scalars[$datatype] ?? null;
+        if (!$className) {
+            return null;
+        }
+        if (!class_exists($className)) {
+            throw new ScalarNotFoundException("Class not found for $datatype");
+        }
+        return new $className();
     }
 }

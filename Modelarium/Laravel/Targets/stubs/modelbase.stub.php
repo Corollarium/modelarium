@@ -15,7 +15,16 @@ class BaseDummyClass extends {{ParentDummyModel}}
     
     protected $hidden = {{dummyHidden}};
 
-    public function getRandom(): array {
+    public function getFormularium(): \Formularium\Model
+    {
+        $model = new \Formularium\Model('DummyClass');
+{{fieldsCode}}
+        $model->appendFields($fields);
+        return $model;
+    }
+
+    public function getRandom(): array 
+    {
         return [];
     }
 

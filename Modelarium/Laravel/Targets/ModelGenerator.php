@@ -2,6 +2,7 @@
 
 namespace Modelarium\Laravel\Targets;
 
+use Formularium\Datatype;
 use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ObjectType;
@@ -65,29 +66,58 @@ class ModelGenerator extends BaseGenerator
     protected function processBasetype(
         \GraphQL\Type\Definition\FieldDefinition $field,
         \GraphQL\Language\AST\NodeList $directives
-    ): array {
+    ): void {
         $fieldName = $field->name;
         $extra = [];
 
+        $isRequired = false;
+
         if ($field->type instanceof NonNull) {
+            $isRequired = true;
             $type = $field->type->getWrappedType();
         } else {
             $type = $field->type;
         }
 
+        $validators = [];
+        if ($isRequired) {
+            $validators = [
+                Datatype::REQUIRED => true
+            ];
+        }
+
         foreach ($directives as $directive) {
             $name = $directive->name->value;
             switch ($name) {
-            case 'fillable':
+            case 'fillableAPI':
                 $this->fillable[] = $name;
                 break;
-            case 'hidden':
+            case 'hiddenAPI':
                 $this->hidden[] = $name;
                 break;
             }
         }
 
-        return $extra;
+        $typeName = $type->name; /** @phpstan-ignore-line */
+        switch ($typeName) {
+        case 'ID':
+        case 'String':
+        case 'Integer':
+        case 'Float':
+        case 'Boolean':
+        }
+    
+        $scalarType = $this->parser->getScalarType($typeName);
+
+        if ($scalarType) {
+            // TODO
+            $validDirectives = $scalarType->getDatatype()->getValidatorMetadata();
+            foreach ($directives as $directive) {
+                $name = $directive->name->value;
+                if (array_key_exists($name, $validDirectives)) {
+                }
+            }
+        }
     }
 
     protected function processRelationship(
@@ -166,6 +196,25 @@ EOF;
         return [];
     }
 
+    protected function formulariumModel(
+
+    ): string {
+        $fields = [];
+        foreach ($this->fields as $f) {
+            $string = <<<EOF
+            new \Formularium\Field(
+                'name',
+                'datatype',
+                [ // extensions
+                ],
+                [ // validators
+                ]
+            ),
+EOF;
+        }
+        return '';
+    }
+
     public function generateString(): string
     {
         return $this->stubToString('modelbase', function ($stub) {
@@ -185,7 +234,7 @@ EOF;
                     // relationship
                     $db = array_merge($db, $this->processRelationship($field, $directives));
                 } else {
-                    // $db = array_merge($db, $this->processBasetype($field, $directives));
+                    $this->processBasetype($field, $directives);
                 }
             }
 

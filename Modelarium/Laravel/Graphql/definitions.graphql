@@ -36,12 +36,12 @@ directive @foreign(
 """
 Field is hidden from API.
 """
-directive @hidden on FIELD_DEFINITION
+directive @fillableAPI on FIELD_DEFINITION
 
 """
 Field is hidden from API.
 """
-directive @hidden on FIELD_DEFINITION
+directive @hiddenAPI on FIELD_DEFINITION
 
 """
 Generates a composed index on the database for a type
