@@ -17,11 +17,12 @@
     "require": {
         "php": ">=7.2.0",
         "doctrine/inflector": "^2.0",
+        "illuminate/console": "^7.16",
         "illuminate/support": "^7.16",
         "composer/composer": "^1.10",
         "webonyx/graphql-php": "^0.13.8",
-        "illuminate/console": "^7.16",
-        "thecodingmachine/safe": "^1.1"
+        "thecodingmachine/safe": "^1.1",
+        "corollarium/formularium": "^0.2.0"
     },
     "require-dev": {
         "phpunit/phpunit": "^7",
@@ -33,7 +34,8 @@
         "format": "vendor/bin/ecs check Modelarium/ --level clean-code --fix && vendor/bin/ecs check Modelarium/ --level psr12 --fix",
         "stan": "vendor/bin/phpstan analyse Modelarium",
         "coverage": "./vendor/bin/phpunit --configuration phpunit.xml --coverage-html docs/coverage-report tests/",
-        "test": "./vendor/bin/phpunit --configuration phpunit.xml tests/"
+        "test": "./vendor/bin/phpunit --configuration phpunit.xml tests/",
+        "generateDatatypes": "php util/FormulariumDatatypes.php"
     },
     "extra": {
         "laravel": {
@@ -41,5 +43,8 @@
                 "Modelarium\\Laravel\\ServiceProvider"
             ]
         }
+    },
+    "suggest": {
+        "corollarium/formularium": "Generate frontend, your own datatypes and validators easily"
     }
 }
