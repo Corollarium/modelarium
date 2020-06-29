@@ -40,6 +40,13 @@ class ModelGenerator extends BaseGenerator
     protected $parentClassName = 'Model';
 
     /**
+     * fields
+     *
+     * @var array
+     */
+    protected $fields = [];
+
+    /**
      *
      * @var array
      */
@@ -101,10 +108,17 @@ class ModelGenerator extends BaseGenerator
         $typeName = $type->name; /** @phpstan-ignore-line */
         switch ($typeName) {
         case 'ID':
+        break;
         case 'String':
         case 'Integer':
         case 'Float':
         case 'Boolean':
+            $this->fields[$fieldName] = [
+                'name' => $fieldName,
+                'type' => $typeName,
+                'validators' => [],
+                'extensions' => [],
+            ];
         }
     
         $scalarType = $this->parser->getScalarType($typeName);
@@ -115,6 +129,7 @@ class ModelGenerator extends BaseGenerator
             foreach ($directives as $directive) {
                 $name = $directive->name->value;
                 if (array_key_exists($name, $validDirectives)) {
+                    $this->fields[$fieldName]['validators'][] = [];
                 }
             }
         }
@@ -203,8 +218,8 @@ EOF;
         foreach ($this->fields as $f) {
             $string = <<<EOF
             new \Formularium\Field(
-                'name',
-                'datatype',
+                '{$f->name}',
+                '',
                 [ // extensions
                 ],
                 [ // validators

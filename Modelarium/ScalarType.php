@@ -35,8 +35,7 @@ abstract class ScalarType extends GraphQLScalarType
      */
     public function serialize($value)
     {
-        $field = new Field($this->name, $this->getDatatype()); // TODO: review if we need field
-        return $this->datatype->format($value, $field);
+        return $this->datatype->format($value, $this->validators);
     }
 
     /**
@@ -47,8 +46,7 @@ abstract class ScalarType extends GraphQLScalarType
      */
     public function parseValue($value)
     {
-        $field = new Field($this->name, $this->getDatatype()); // TODO: review if we need field
-        return $this->datatype->validate($value, $field);
+        return $this->datatype->validate($value, $this->validators);
     }
 
     /**
@@ -66,9 +64,6 @@ abstract class ScalarType extends GraphQLScalarType
      */
     public function parseLiteral($valueNode, array $variables = null)
     {
-        if (!$valueNode instanceof StringValueNode) {
-            throw new Exception('Query error: Can only parse strings got: ' . $valueNode->kind, [$valueNode]);
-        }
         return $this->parseValue($valueNode->value);
     }
 

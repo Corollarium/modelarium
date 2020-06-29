@@ -165,9 +165,6 @@ class Parser
                 //   any value: replace this node with the returned value
                 return null;
             },
-            NodeKind::NAMED_TYPE  => function ($node) {
-                return null;
-            },
             NodeKind::OBJECT_TYPE_DEFINITION  => function ($node) {
                 return null;
             },
@@ -221,6 +218,11 @@ class Parser
     public function getType(string $name) : ?Type
     {
         return $this->schema->getType($name);
+    }
+
+    public function getScalars()
+    {
+        return $this->scalars;
     }
 
     /**

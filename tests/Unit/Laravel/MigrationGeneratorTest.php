@@ -5,6 +5,56 @@ namespace ModelariumTests\Laravel;
 use Modelarium\Laravel\Targets\MigrationGenerator;
 use ModelariumTests\TestCase;
 
+class ScalarTestText extends \Modelarium\ScalarType
+{
+    public $name = 'ScalarTestText';
+
+    /**
+     * Serializes an internal value to include in a response.
+     *
+     * @param string $value
+     * @return string
+     */
+    public function serialize($value)
+    {
+        return $this->parseValue($value);
+    }
+
+    /**
+     * Parses an externally provided value (query variable) to use as an input
+     *
+     * @param mixed $value
+     * @return mixed
+     */
+    public function parseValue($value)
+    {
+        return $value;
+    }
+
+    /**
+     * Parses an externally provided literal value (hardcoded in GraphQL query) to use as an input.
+     *
+     * E.g.
+     * {
+     *   user(email: "user@example.com")
+     * }
+     *
+     * @param \GraphQL\Language\AST\Node $valueNode
+     * @param array|null $variables
+     * @return string
+     * @throws Error
+     */
+    public function parseLiteral($valueNode, array $variables = null)
+    {
+        return $valueNode->value;
+    }
+
+    public function getLaravelSQLType(): string
+    {
+        return 'text';
+    }
+}
+
 final class MigrationGeneratorTest extends TestCase
 {
     public function testGenerate()
@@ -99,5 +149,13 @@ final class MigrationGeneratorTest extends TestCase
         $this->assertStringContainsString('$table->float("afloat");', $data);
         $this->assertStringContainsString('$table->string("astring");', $data);
         $this->assertStringContainsString('$table->bool("aboolean");', $data);
+    }
+
+    public function testExtendedTypes()
+    {
+        $gen = new MigrationGenerator($this->getParser('userExtendedScalar'), 'User');
+        $data = $gen->generateString();
+        $this->assertNotNull($data);
+        $this->assertStringContainsString('$table->text("description");', $data);
     }
 }

@@ -1,0 +1,7 @@
+scalar TestText @scalar(class: "ModelariumTests\\Laravel\\ScalarTestText")
+
+type User {
+  id: ID!
+  name: String!
+  description: TestText!
+}

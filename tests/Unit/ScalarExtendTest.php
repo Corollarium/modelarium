@@ -74,13 +74,13 @@ final class ScalarExtendTest extends TestCase
 {
     public function testCustomScalarParserLoad()
     {
-        $parser = Parser::fromFile(__DIR__ . '/data/userExtendScalar.graphql');
+        $parser = Parser::fromFile(__DIR__ . '/data/queryExtendScalar.graphql');
         $this->assertNotNull($parser);
     }
 
     public function testObjectParserQuery()
     {
-        $parser = Parser::fromFile(__DIR__ . '/data/userExtendScalar.graphql');
+        $parser = Parser::fromFile(__DIR__ . '/data/queryExtendScalar.graphql');
         $this->assertNotNull($parser);
 
         $result = $this->executeQuery(
@@ -100,7 +100,7 @@ final class ScalarExtendTest extends TestCase
 
     public function testCustomScalarParserQuery()
     {
-        $parser = Parser::fromFile(__DIR__ . '/data/userExtendScalar.graphql');
+        $parser = Parser::fromFile(__DIR__ . '/data/queryExtendScalar.graphql');
         $this->assertNotNull($parser);
 
         // executes with complex input:
@@ -127,7 +127,7 @@ final class ScalarExtendTest extends TestCase
         }'
         );
 
-        $parser = Parser::fromFile(__DIR__ . '/data/userExtendScalar.graphql');
+        $parser = Parser::fromFile(__DIR__ . '/data/queryExtendScalar.graphql');
         $this->assertNotNull($parser);
 
         $result = Executor::execute($parser->getSchema(), $document, null, null, ['input' => 'valid']);
@@ -141,7 +141,7 @@ final class ScalarExtendTest extends TestCase
 
     public function xxtestObjectScalarParserQuery()
     {
-        $parser = Parser::fromFile(__DIR__ . '/data/userExtendScalar.graphql');
+        $parser = Parser::fromFile(__DIR__ . '/data/queryExtendScalar.graphql');
         $this->assertNotNull($parser);
         // executes with complex input:
         $document = GParser::parse(

@@ -2,13 +2,20 @@
 
 namespace Modelarium\Laravel\Targets;
 
+use GraphQL\Type\Definition\BooleanType;
+use GraphQL\Type\Definition\CustomScalarType;
+use GraphQL\Type\Definition\EnumType;
+use GraphQL\Type\Definition\FloatType;
+use GraphQL\Type\Definition\IDType;
+use GraphQL\Type\Definition\IntType;
 use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ObjectType;
-use GraphQL\Type\Definition\Type;
+use GraphQL\Type\Definition\StringType;
 use Modelarium\Exception\Exception;
 use Modelarium\GeneratedCollection;
 use Modelarium\GeneratedItem;
+use Modelarium\ScalarType as ModelariumScalarType;
 
 function endsWith($haystack, $needle)
 {
@@ -55,34 +62,29 @@ class MigrationGenerator extends BaseGenerator
             $type = $field->type;
         }
 
-        $basetype = $type->name; /** @phpstan-ignore-line */
-
         $base = '';
-        switch ($basetype) {
-        case Type::ID:
+        if ($type instanceof IDType) {
             $base = '$table->bigIncrements("id")';
-            break;
-        case Type::STRING:
+        } elseif ($type instanceof StringType) {
             $base = '$table->string("' . $fieldName . '")';
-            break;
-        case Type::INT:
+        } elseif ($type instanceof IntType) {
             $base = '$table->integer("' . $fieldName . '")';
-            break;
-        case Type::BOOLEAN:
+        } elseif ($type instanceof BooleanType) {
             $base = '$table->bool("' . $fieldName . '")';
-            break;
-        case Type::FLOAT:
+        } elseif ($type instanceof FloatType) {
             $base = '$table->float("' . $fieldName . '")';
-            break;
-        case 'datetime':
-            $base = '$table->dateTime("' . $fieldName . '")';
-        break;
-        case 'url':
-            $base = '$table->string("' . $fieldName . '")';
-        break;
-        default:
-            throw new Exception("Unsupported type $basetype for {$field->name}");
-            // $base = '$table->' . $basetype . '("' . $fieldName . '")';
+        } elseif ($type instanceof EnumType) {
+            throw new Exception("Enum is not supported here as a type field");
+        } elseif ($type instanceof ModelariumScalarType) {
+            $base = '$table->' . $type->getLaravelSQLType() . '("' . $fieldName . '")';
+        } elseif ($type instanceof CustomScalarType) {
+            $ourType = $this->parser->getScalarType($type->name);
+            if (!$ourType) {
+                throw new Exception("Invalid extended scalar type: " . get_class($type));
+            }
+            $base = '$table->' . $ourType->getLaravelSQLType() . '("' . $fieldName . '")';
+        } else {
+            throw new Exception("Invalid field type: " . get_class($type));
         }
         
         if (!($field->type instanceof NonNull)) {

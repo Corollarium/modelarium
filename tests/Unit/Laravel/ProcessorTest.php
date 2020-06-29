@@ -7,7 +7,7 @@ use Modelarium\GeneratedItem;
 use Modelarium\Laravel\Processor as LaravelProcessor;
 use ModelariumTests\TestCase;
 
-final class LaravelProcessorTest extends TestCase
+final class ProcessorTest extends TestCase
 {
     public function testParseRelationshipOneToOne()
     {
