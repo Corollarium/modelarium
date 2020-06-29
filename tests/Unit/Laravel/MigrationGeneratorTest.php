@@ -5,7 +5,7 @@ namespace ModelariumTests\Laravel;
 use Modelarium\Laravel\Targets\MigrationGenerator;
 use ModelariumTests\TestCase;
 
-class ScalarTestText extends \Modelarium\ScalarType
+class ScalarTestText extends \Modelarium\Types\ScalarType
 {
     public $name = 'ScalarTestText';
 
@@ -32,26 +32,24 @@ class ScalarTestText extends \Modelarium\ScalarType
     }
 
     /**
-     * Parses an externally provided literal value (hardcoded in GraphQL query) to use as an input.
+     * Returns the suggested SQL type for this datatype, such as 'TEXT'.
      *
-     * E.g.
-     * {
-     *   user(email: "user@example.com")
-     * }
-     *
-     * @param \GraphQL\Language\AST\Node $valueNode
-     * @param array|null $variables
+     * @param string $database The database
      * @return string
-     * @throws Error
      */
-    public function parseLiteral($valueNode, array $variables = null)
+    public function getSQLType(string $database = '', array $options = []): string
     {
-        return $valueNode->value;
+        return 'TEXT';
     }
 
-    public function getLaravelSQLType(): string
+    /**
+     * Returns the suggested Laravel Database type for this datatype.
+     *
+     * @return string
+     */
+    public function getLaravelSQLType(string $name, array $options = []): string
     {
-        return 'text';
+        return "text('$name')";
     }
 }
 
@@ -152,6 +150,14 @@ final class MigrationGeneratorTest extends TestCase
     }
 
     public function testExtendedTypes()
+    {
+        $gen = new MigrationGenerator($this->getParser('userExtendedScalar'), 'User');
+        $data = $gen->generateString();
+        $this->assertNotNull($data);
+        $this->assertStringContainsString('$table->text("description");', $data);
+    }
+
+    public function testFormulariumExtendedTypes()
     {
         $gen = new MigrationGenerator($this->getParser('userExtendedScalar'), 'User');
         $data = $gen->generateString();

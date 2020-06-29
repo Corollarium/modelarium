@@ -1,14 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Modelarium;
+namespace Modelarium\Types;
 
 use Formularium\Datatype;
-use Formularium\Exception\Exception;
-use Formularium\Field;
-use GraphQL\Language\AST\StringValueNode;
-use GraphQL\Type\Definition\CustomScalarType as GraphQLScalarType;
 
-abstract class ScalarType extends GraphQLScalarType
+abstract class FormulariumScalarType extends ScalarType
 {
     /**
      * @var Datatype
@@ -21,10 +17,12 @@ abstract class ScalarType extends GraphQLScalarType
     public function __construct(array $config = [])
     {
         parent::__construct($config);
-        try {
-            $this->datatype = Datatype::factory($this->name);
-        } catch (\Formularium\Exception\ClassNotFoundException $e) {
-        }
+        $this->datatype = Datatype::factory($this->name);
+    }
+
+    public function getDatatype(): Datatype
+    {
+        return $this->datatype;
     }
 
     /**
@@ -67,13 +65,24 @@ abstract class ScalarType extends GraphQLScalarType
         return $this->parseValue($valueNode->value);
     }
 
-    public function getDatatype(): ?Datatype
+    /**
+     * Returns the suggested SQL type for this datatype, such as 'TEXT'.
+     *
+     * @param string $database The database
+     * @return string
+     */
+    public function getSQLType(string $database = '', array $options = []): string
     {
-        return $this->datatype;
+        return $this->datatype->getSQLType($database, $options);
     }
 
-    public function getLaravelSQLType(): string
+    /**
+     * Returns the suggested Laravel Database type for this datatype.
+     *
+     * @return string
+     */
+    public function getLaravelSQLType(string $name, array $options = []): string
     {
-        return 'string';
+        return $this->datatype->getLaravelSQLType($name, $options);
     }
 }

@@ -16,6 +16,7 @@ use Modelarium\Exception\Exception;
 use Modelarium\GeneratedCollection;
 use Modelarium\GeneratedItem;
 use Modelarium\ScalarType as ModelariumScalarType;
+use Modelarium\Types\FormulariumScalarType;
 
 function endsWith($haystack, $needle)
 {
@@ -82,7 +83,8 @@ class MigrationGenerator extends BaseGenerator
             if (!$ourType) {
                 throw new Exception("Invalid extended scalar type: " . get_class($type));
             }
-            $base = '$table->' . $ourType->getLaravelSQLType() . '("' . $fieldName . '")';
+            $options = []; // TODO: from directives
+            $base = '$table->' . $ourType->getLaravelSQLType($fieldName, $options);
         } else {
             throw new Exception("Invalid field type: " . get_class($type));
         }

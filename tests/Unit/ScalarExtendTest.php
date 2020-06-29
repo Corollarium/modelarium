@@ -14,7 +14,7 @@ use GraphQL\Language\AST\StringValueNode;
 use GraphQL\Language\Parser as LanguageParser;
 use GraphQL\Utils\Utils;
 
-class TestScalarType extends \Modelarium\ScalarType
+class TestScalarType extends \Modelarium\Types\ScalarType
 {
     public $name = 'TestScalarType';
 
@@ -67,6 +67,27 @@ class TestScalarType extends \Modelarium\ScalarType
             throw new Error("Not a valid test value", [$valueNode]);
         }
         return $valueNode->value;
+    }
+
+    /**
+     * Returns the suggested SQL type for this datatype, such as 'TEXT'.
+     *
+     * @param string $database The database
+     * @return string
+     */
+    public function getSQLType(string $database = '', array $options = []): string
+    {
+        return 'TEXT';
+    }
+
+    /**
+     * Returns the suggested Laravel Database type for this datatype.
+     *
+     * @return string
+     */
+    public function getLaravelSQLType(string $name, array $options = []): string
+    {
+        return "text('$name')";
     }
 }
 
