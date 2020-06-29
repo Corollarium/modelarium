@@ -19,6 +19,7 @@ class CreateDummyNameTable extends Migration
         Schema::create('dummytablename', function (Blueprint $table) {
             // dummyCode
         });
+        // dummyPostCreateCode
     }
 
     /**

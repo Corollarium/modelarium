@@ -68,7 +68,7 @@ Generates a spatialIndex
 """
 directive @spatialIndex(
   """
-  The list of fields to compose in the index
+  The field for the index
   """
   field: String!
 ) on OBJECT

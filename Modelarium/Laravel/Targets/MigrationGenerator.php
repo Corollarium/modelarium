@@ -36,6 +36,20 @@ class MigrationGenerator extends BaseGenerator
      */
     protected $collection = null;
 
+    /**
+     * Code used in the create() call
+     *
+     * @var string[]
+     */
+    protected $createCode = [];
+
+    /**
+     * Code used post the create() call
+     *
+     * @var string[]
+     */
+    protected $postCreateCode = [];
+
     public function generate(): GeneratedCollection
     {
         $this->collection = new GeneratedCollection();
@@ -51,7 +65,7 @@ class MigrationGenerator extends BaseGenerator
     protected function processBasetype(
         \GraphQL\Type\Definition\FieldDefinition $field,
         \GraphQL\Language\AST\NodeList $directives
-    ): array {
+    ): void {
         $fieldName = $field->name;
         $extra = [];
 
@@ -111,14 +125,14 @@ class MigrationGenerator extends BaseGenerator
         }
         $base .= ';';
 
-        array_unshift($extra, $base);
-        return $extra;
+        $this->createCode[] = $base;
+        $this->createCode = array_merge($this->createCode, $extra);
     }
 
     protected function processRelationship(
         \GraphQL\Type\Definition\FieldDefinition $field,
         \GraphQL\Language\AST\NodeList $directives
-    ): array {
+    ): void {
         $lowerName = mb_strtolower($this->inflector->singularize($field->name));
         $lowerNamePlural = $this->inflector->pluralize($lowerName);
 
@@ -224,22 +238,23 @@ class MigrationGenerator extends BaseGenerator
 
         if ($base) {
             $base .= ';';
-            array_unshift($extra, $base);
+            $this->createCode[] = $base;
         }
-
-        return $extra;
+        $this->createCode = array_merge($this->createCode, $extra);
     }
 
     protected function processDirectives(
         \GraphQL\Language\AST\NodeList $directives
-    ): array {
-        $db = [];
-
+    ): void {
         foreach ($directives as $directive) {
             $name = $directive->name->value;
             switch ($name) {
             case 'softDeletesDB':
-                $db[] = '$table->softDeletes();';
+                $this->createCode[] ='$table->softDeletes();';
+                break;
+            case 'primaryIndex':
+                // TODO
+                throw new Exception("Primary index is not implemented yet");
                 break;
             case 'index':
                 $values = $directive->arguments[0]->value->values;
@@ -248,29 +263,40 @@ class MigrationGenerator extends BaseGenerator
                 foreach ($values as $value) {
                     $indexFields[] = $value->value;
                 }
-                $db[] = '$table->index("' . implode('", "', $indexFields) .'");';
+                $this->createCode[] ='$table->index("' . implode('", "', $indexFields) .'");';
                 break;
             case 'spatialIndex':
-                $db[] = '$table->spatialIndex("' . $directive->arguments[0]->value->value .'");';
+                $this->createCode[] ='$table->spatialIndex("' . $directive->arguments[0]->value->value .'");';
+                break;
+
+            case 'fulltextIndex':
+                $values = $directive->arguments[0]->value->values;
+                
+                $indexFields = [];
+                foreach ($values as $value) {
+                    $indexFields[] = $value->value;
+                }
+
+                $this->postCreate[] = "DB::statement('ALTER TABLE " .
+                    $this->lowerNamePlural .
+                    " ADD FULLTEXT fulltext_index (" .
+                    implode('", "', $indexFields) .
+                    ")');";
                 break;
             case 'rememberToken':
-                $db[] = '$table->rememberToken();';
+                $this->createCode[] ='$table->rememberToken();';
                 break;
             case 'timestamps':
-                $db[] = '$table->timestamps();';
+                $this->createCode[] ='$table->timestamps();';
                 break;
             default:
             }
         }
-
-        return $db;
     }
 
     public function generateString(): string
     {
         return $this->stubToString('migration', function ($stub) {
-            $db = [];
-
             foreach ($this->type->getFields() as $field) {
                 $directives = $field->astNode->directives;
                 if (
@@ -281,9 +307,9 @@ class MigrationGenerator extends BaseGenerator
                     )
                 ) {
                     // relationship
-                    $db = array_merge($db, $this->processRelationship($field, $directives));
+                    $this->processRelationship($field, $directives);
                 } else {
-                    $db = array_merge($db, $this->processBasetype($field, $directives));
+                    $this->processBasetype($field, $directives);
                 }
             }
 
@@ -293,12 +319,18 @@ class MigrationGenerator extends BaseGenerator
              */
             $directives = $this->type->astNode->directives;
             if ($directives) {
-                $db = array_merge($db, $this->processDirectives($directives));
+                $this->processDirectives($directives);
             }
 
             $stub = str_replace(
                 '// dummyCode',
-                join("\n            ", $db),
+                join("\n            ", $this->createCode),
+                $stub
+            );
+
+            $stub = str_replace(
+                '// dummyPostCreateCode',
+                join("\n            ", $this->postCreateCode),
                 $stub
             );
 
