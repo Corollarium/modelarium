@@ -1,0 +1,7 @@
+#import "formularium.graphql"
+
+type User {
+  id: ID!
+  name: String!
+  year: Year!
+}

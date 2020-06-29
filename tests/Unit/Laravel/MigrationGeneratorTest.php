@@ -49,7 +49,7 @@ class ScalarTestText extends \Modelarium\Types\ScalarType
      */
     public function getLaravelSQLType(string $name, array $options = []): string
     {
-        return "text('$name')";
+        return "text(\"$name\")";
     }
 }
 
@@ -159,9 +159,9 @@ final class MigrationGeneratorTest extends TestCase
 
     public function testFormulariumExtendedTypes()
     {
-        $gen = new MigrationGenerator($this->getParser('userExtendedScalar'), 'User');
+        $gen = new MigrationGenerator($this->getParser('userFormulariumScalar'), 'User');
         $data = $gen->generateString();
         $this->assertNotNull($data);
-        $this->assertStringContainsString('$table->text("description");', $data);
+        $this->assertStringContainsString('$table->year(\'year\');', $data);
     }
 }

@@ -17,7 +17,7 @@ abstract class FormulariumScalarType extends ScalarType
     public function __construct(array $config = [])
     {
         parent::__construct($config);
-        $this->datatype = Datatype::factory($this->name);
+        $this->datatype = Datatype::factory(str_replace('Datatype_', '', $this->name));
     }
 
     public function getDatatype(): Datatype

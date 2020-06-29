@@ -1,70 +1,69 @@
-scalar Alpha @scalar(class: "Formularium\\Datatype\\Datatype_alpha")
+scalar Alpha @scalar(class: "Modelarium\\Types\\Datatype_alpha")
 
-scalar Alphanum @scalar(class: "Formularium\\Datatype\\Datatype_alphanum")
+scalar Alphanum @scalar(class: "Modelarium\\Types\\Datatype_alphanum")
 
-scalar Alphanumdash
-  @scalar(class: "Formularium\\Datatype\\Datatype_alphanumdash")
+scalar Alphanumdash @scalar(class: "Modelarium\\Types\\Datatype_alphanumdash")
 
-scalar Bool @scalar(class: "Formularium\\Datatype\\Datatype_bool")
+scalar Bool @scalar(class: "Modelarium\\Types\\Datatype_bool")
 
-scalar Boolean @scalar(class: "Formularium\\Datatype\\Datatype_boolean")
+scalar Boolean @scalar(class: "Modelarium\\Types\\Datatype_boolean")
 
-scalar Cnpj @scalar(class: "Formularium\\Datatype\\Datatype_cnpj")
+scalar Cnpj @scalar(class: "Modelarium\\Types\\Datatype_cnpj")
 
-scalar Color @scalar(class: "Formularium\\Datatype\\Datatype_color")
+scalar Color @scalar(class: "Modelarium\\Types\\Datatype_color")
 
-scalar Constant @scalar(class: "Formularium\\Datatype\\Datatype_constant")
+scalar Constant @scalar(class: "Modelarium\\Types\\Datatype_constant")
 
-scalar Countrycode @scalar(class: "Formularium\\Datatype\\Datatype_countrycode")
+scalar Countrycode @scalar(class: "Modelarium\\Types\\Datatype_countrycode")
 
-scalar Cpf @scalar(class: "Formularium\\Datatype\\Datatype_cpf")
+scalar Cpf @scalar(class: "Modelarium\\Types\\Datatype_cpf")
 
-scalar Currency @scalar(class: "Formularium\\Datatype\\Datatype_currency")
+scalar Currency @scalar(class: "Modelarium\\Types\\Datatype_currency")
 
-scalar Date @scalar(class: "Formularium\\Datatype\\Datatype_date")
+scalar Date @scalar(class: "Modelarium\\Types\\Datatype_date")
 
-scalar Datetime @scalar(class: "Formularium\\Datatype\\Datatype_datetime")
+scalar Datetime @scalar(class: "Modelarium\\Types\\Datatype_datetime")
 
-scalar Domain @scalar(class: "Formularium\\Datatype\\Datatype_domain")
+scalar Domain @scalar(class: "Modelarium\\Types\\Datatype_domain")
 
-scalar Email @scalar(class: "Formularium\\Datatype\\Datatype_email")
+scalar Email @scalar(class: "Modelarium\\Types\\Datatype_email")
 
-scalar File @scalar(class: "Formularium\\Datatype\\Datatype_file")
+scalar File @scalar(class: "Modelarium\\Types\\Datatype_file")
 
-scalar Float @scalar(class: "Formularium\\Datatype\\Datatype_float")
+scalar Float @scalar(class: "Modelarium\\Types\\Datatype_float")
 
-scalar Html @scalar(class: "Formularium\\Datatype\\Datatype_html")
+scalar Html @scalar(class: "Modelarium\\Types\\Datatype_html")
 
-scalar Integer @scalar(class: "Formularium\\Datatype\\Datatype_integer")
+scalar Integer @scalar(class: "Modelarium\\Types\\Datatype_integer")
 
-scalar Ip @scalar(class: "Formularium\\Datatype\\Datatype_ip")
+scalar Ip @scalar(class: "Modelarium\\Types\\Datatype_ip")
 
-scalar Ipv4 @scalar(class: "Formularium\\Datatype\\Datatype_ipv4")
+scalar Ipv4 @scalar(class: "Modelarium\\Types\\Datatype_ipv4")
 
-scalar Ipv6 @scalar(class: "Formularium\\Datatype\\Datatype_ipv6")
+scalar Ipv6 @scalar(class: "Modelarium\\Types\\Datatype_ipv6")
 
-scalar Json @scalar(class: "Formularium\\Datatype\\Datatype_json")
+scalar Json @scalar(class: "Modelarium\\Types\\Datatype_json")
 
-scalar Language @scalar(class: "Formularium\\Datatype\\Datatype_language")
+scalar Language @scalar(class: "Modelarium\\Types\\Datatype_language")
 
-scalar Pagination @scalar(class: "Formularium\\Datatype\\Datatype_pagination")
+scalar Pagination @scalar(class: "Modelarium\\Types\\Datatype_pagination")
 
-scalar Phone @scalar(class: "Formularium\\Datatype\\Datatype_phone")
+scalar Phone @scalar(class: "Modelarium\\Types\\Datatype_phone")
 
-scalar String @scalar(class: "Formularium\\Datatype\\Datatype_string")
+scalar String @scalar(class: "Modelarium\\Types\\Datatype_string")
 
-scalar Text @scalar(class: "Formularium\\Datatype\\Datatype_text")
+scalar Text @scalar(class: "Modelarium\\Types\\Datatype_text")
 
-scalar Time @scalar(class: "Formularium\\Datatype\\Datatype_time")
+scalar Time @scalar(class: "Modelarium\\Types\\Datatype_time")
 
-scalar Timezone @scalar(class: "Formularium\\Datatype\\Datatype_timezone")
+scalar Timezone @scalar(class: "Modelarium\\Types\\Datatype_timezone")
 
-scalar Uinteger @scalar(class: "Formularium\\Datatype\\Datatype_uinteger")
+scalar Uinteger @scalar(class: "Modelarium\\Types\\Datatype_uinteger")
 
-scalar Url @scalar(class: "Formularium\\Datatype\\Datatype_url")
+scalar Url @scalar(class: "Modelarium\\Types\\Datatype_url")
 
-scalar Usmall @scalar(class: "Formularium\\Datatype\\Datatype_usmall")
+scalar Usmall @scalar(class: "Modelarium\\Types\\Datatype_usmall")
 
-scalar Uuid @scalar(class: "Formularium\\Datatype\\Datatype_uuid")
+scalar Uuid @scalar(class: "Modelarium\\Types\\Datatype_uuid")
 
-scalar Year @scalar(class: "Formularium\\Datatype\\Datatype_year")
+scalar Year @scalar(class: "Modelarium\\Types\\Datatype_year")

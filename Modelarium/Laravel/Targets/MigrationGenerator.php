@@ -76,8 +76,6 @@ class MigrationGenerator extends BaseGenerator
             $base = '$table->float("' . $fieldName . '")';
         } elseif ($type instanceof EnumType) {
             throw new Exception("Enum is not supported here as a type field");
-        } elseif ($type instanceof ModelariumScalarType) {
-            $base = '$table->' . $type->getLaravelSQLType() . '("' . $fieldName . '")';
         } elseif ($type instanceof CustomScalarType) {
             $ourType = $this->parser->getScalarType($type->name);
             if (!$ourType) {

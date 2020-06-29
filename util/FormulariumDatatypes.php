@@ -27,7 +27,7 @@ EOF;
     \Safe\file_put_contents($filename, $stub);
 
     $graphql[] = "scalar $typeName @scalar(class: \"" .
-        str_replace('\\', '\\\\', get_class(Datatype::factory($name))) .
+        str_replace('\\', '\\\\', 'Modelarium\\Types\\Datatype_' . $name) .
         "\")";
 }
 

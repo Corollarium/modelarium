@@ -2,17 +2,14 @@
 
 namespace Modelarium;
 
-use GraphQL\Language\AST\DocumentNode;
-use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeKind;
-use GraphQL\Language\AST\ScalarTypeDefinitionNode;
 use GraphQL\Language\Visitor;
 use GraphQL\Type\Definition\ObjectType;
-use GraphQL\Utils\AST;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\SchemaExtender;
 use Modelarium\Exception\ScalarNotFoundException;
+use Modelarium\Types\ScalarType;
 
 class Parser
 {
@@ -76,7 +73,9 @@ class Parser
     public static function fromFile(string $path): self
     {
         $data = \Safe\file_get_contents($path);
-        return self::fromString($data);
+        $imports = static::processImports($data, dirname($path));
+        // TODO: recurse imports
+        return self::fromString(implode("\n", $imports) . $data);
     }
 
     /**
@@ -164,12 +163,6 @@ class Parser
                 //   Visitor::removeNode(): delete this node
                 //   any value: replace this node with the returned value
                 return null;
-            },
-            NodeKind::OBJECT_TYPE_DEFINITION  => function ($node) {
-                return null;
-            },
-            'enter' => function ($node) {
-                return null;
             }
         ]);
     }
@@ -209,6 +202,27 @@ class Parser
         return $p;
     }
 
+    /**
+     * @param string $data
+     * @return string[]
+     */
+    protected static function processImports(string $data, string $basedir): array
+    {
+        $matches = [];
+        $imports = preg_match_all('/^#import\s+\"([^"]+)\"$/m', $data, $matches, PREG_SET_ORDER, 0);
+        if (!$imports) {
+            return [];
+        }
+        return array_map(
+            function ($i) use ($basedir) {
+                if ($i[1] === 'formularium.graphql') {
+                    return \Safe\file_get_contents(__DIR__ . '/Types/Graphql/scalars.graphql');
+                }
+                return \Safe\file_get_contents($basedir . '/' . $i[1]);
+            },
+            $matches
+        );
+    }
 
     public function getSchema(): Schema
     {
