@@ -263,6 +263,9 @@ class MigrationGenerator extends BaseGenerator
                 foreach ($values as $value) {
                     $indexFields[] = $value->value;
                 }
+                if (!count($indexFields)) {
+                    throw new Exception("You must provide at least one field to an index");
+                }
                 $this->createCode[] ='$table->index("' . implode('", "', $indexFields) .'");';
                 break;
             case 'spatialIndex':
@@ -277,11 +280,14 @@ class MigrationGenerator extends BaseGenerator
                     $indexFields[] = $value->value;
                 }
 
-                $this->postCreate[] = "DB::statement('ALTER TABLE " .
+                if (!count($indexFields)) {
+                    throw new Exception("You must provide at least one field to a full text index");
+                }
+                $this->postCreateCode[] = "DB::statement('ALTER TABLE " .
                     $this->lowerNamePlural .
-                    " ADD FULLTEXT fulltext_index (" .
+                    " ADD FULLTEXT fulltext_index (\"" .
                     implode('", "', $indexFields) .
-                    ")');";
+                    "\")');";
                 break;
             case 'rememberToken':
                 $this->createCode[] ='$table->rememberToken();';

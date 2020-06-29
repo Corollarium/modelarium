@@ -113,6 +113,17 @@ final class MigrationGeneratorTest extends TestCase
         $this->assertStringContainsString('$table->spatialIndex("location");', $data);
     }
 
+    public function testGenerateWithFulltextIndex()
+    {
+        $gen = new MigrationGenerator($this->getParser('userFullTextIndex'), 'User');
+        $data = $gen->generateString();
+        $this->assertNotNull($data);
+        $this->assertStringContainsString(
+            'DB::statement(\'ALTER TABLE users ADD FULLTEXT fulltext_index ("name", "description")\');',
+            $data
+        );
+    }
+    
     public function testGenerateWithUnsigned()
     {
         $gen = new MigrationGenerator($this->getParser('userUnsigned'), 'User');
