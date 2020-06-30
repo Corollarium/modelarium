@@ -3,6 +3,7 @@
 namespace Modelarium\Types;
 
 use Formularium\Datatype;
+use Formularium\Field;
 
 abstract class FormulariumScalarType extends ScalarType
 {
@@ -33,7 +34,9 @@ abstract class FormulariumScalarType extends ScalarType
      */
     public function serialize($value)
     {
-        return $this->datatype->format($value, $this->validators);
+        // $field = new Field(); // TODO
+        // return $this->datatype->format($value, $field);
+        return '';
     }
 
     /**
@@ -44,7 +47,7 @@ abstract class FormulariumScalarType extends ScalarType
      */
     public function parseValue($value)
     {
-        return $this->datatype->validate($value, $this->validators);
+        return $this->datatype->validate($value);
     }
 
     /**

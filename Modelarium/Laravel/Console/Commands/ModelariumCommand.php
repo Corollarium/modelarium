@@ -80,9 +80,11 @@ class ModelariumCommand extends Command
             // $output = new BufferedOutput();
             // $this->call('lighthouse:ide-helper');
             // $output->fetch();
+
             // @phpstan-ignore-next-line
             $files[] = base_path('schema-directives.graphql');
         } else {
+            // @phpstan-ignore-next-line
             $files[] = base_path(__DIR__ . '/../../Graphql/definitionsLighthouse.graphql');
         }
 
@@ -123,7 +125,7 @@ class ModelariumCommand extends Command
         $this->info('Finished. You might want to run `composer dump-autoload`');
     }
 
-    protected function frontend()
+    protected function frontend(): void
     {
         // TODO
         // // setup stuff

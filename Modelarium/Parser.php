@@ -24,6 +24,9 @@ class Parser
      */
     protected $schema;
 
+    /**
+     * @var string[]
+     */
     protected $scalars = [];
 
     protected function __construct()
@@ -215,7 +218,7 @@ class Parser
     protected static function processImports(string $data, string $basedir): array
     {
         $matches = [];
-        $imports = preg_match_all('/^#import\s+\"([^"]+)\"$/m', $data, $matches, PREG_SET_ORDER, 0);
+        $imports = \Safe\preg_match_all('/^#import\s+\"([^"]+)\"$/m', $data, $matches, PREG_SET_ORDER, 0);
         if (!$imports) {
             return [];
         }
@@ -240,7 +243,7 @@ class Parser
         return $this->schema->getType($name);
     }
 
-    public function getScalars()
+    public function getScalars(): array
     {
         return $this->scalars;
     }

@@ -18,12 +18,17 @@ use Modelarium\GeneratedItem;
 use Modelarium\ScalarType as ModelariumScalarType;
 use Modelarium\Types\FormulariumScalarType;
 
-function endsWith($haystack, $needle)
+function endsWith(string $haystack, string $needle): bool
 {
     return substr_compare($haystack, $needle, -strlen($needle)) === 0;
 }
 class MigrationGenerator extends BaseGenerator
 {
+    /**
+     * Unique counter
+     *
+     * @var integer
+     */
     public static $counter = 0;
 
     /**
@@ -352,8 +357,8 @@ class MigrationGenerator extends BaseGenerator
             $stub = str_replace(
                 'modelSchemaCode',
                 "# start graphql\n" .
-                \GraphQL\Language\Printer::doPrint($this->type->astNode),
-                "# end graphql\n" .
+                \GraphQL\Language\Printer::doPrint($this->type->astNode) .
+                "# end graphql\n",
                 $stub
             );
             return $stub;
