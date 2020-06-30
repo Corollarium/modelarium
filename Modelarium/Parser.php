@@ -166,10 +166,6 @@ class Parser
                 $scalarName = $node->name->value;
 
                 // load classes
-                /**
-                 * @var $astNode ScalarTypeDefinitionNode
-                 */
-
                 $className = null;
                 foreach ($node->directives as $directive) {
                     switch ($directive->name->value) {

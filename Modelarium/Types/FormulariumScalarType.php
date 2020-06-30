@@ -61,7 +61,7 @@ abstract class FormulariumScalarType extends ScalarType
      * @param \GraphQL\Language\AST\Node $valueNode
      * @param array|null $variables
      * @return string
-     * @throws Error
+     * @throws \Throwable
      */
     public function parseLiteral($valueNode, array $variables = null)
     {
