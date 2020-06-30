@@ -86,6 +86,10 @@ class ModelGenerator extends BaseGenerator
             $type = $field->type;
         }
 
+        if ($field->type instanceof ListOfType) {
+            $type = $field->type->getWrappedType();
+        }
+
         $validators = [];
         if ($isRequired) {
             $validators = [
@@ -121,18 +125,19 @@ class ModelGenerator extends BaseGenerator
             ];
         }
     
-        $scalarType = $this->parser->getScalarType($typeName);
-
-        if ($scalarType) {
-            // TODO
-            $validDirectives = $scalarType->getDatatype()->getValidatorMetadata();
-            foreach ($directives as $directive) {
-                $name = $directive->name->value;
-                if (array_key_exists($name, $validDirectives)) {
-                    $this->fields[$fieldName]['validators'][] = [];
-                }
-            }
+        if (!$typeName) {
+            // TODO: bug
+            var_dump($field);
         }
+        // $scalarType = $this->parser->getScalarType($typeName);
+
+        // if ($scalarType) {
+        //     // TODO
+        //     foreach ($directives as $directive) {
+        //         $name = $directive->name->value;
+        //         // TODO
+        //     }
+        // }
     }
 
     protected function processRelationship(
@@ -149,7 +154,7 @@ class ModelGenerator extends BaseGenerator
         }
 
         $extra = [];
-        $targetClass = 'App\\\\' . Str::studly($this->inflector->singularize($field->name));
+        $targetClass = 'App\\' . Str::studly($this->inflector->singularize($field->name));
 
         foreach ($directives as $directive) {
             $name = $directive->name->value;
@@ -160,6 +165,7 @@ class ModelGenerator extends BaseGenerator
     {
         return \$this->belongsTo($targetClass::class);
     }
+
 EOF;
                 break;
 
@@ -169,6 +175,7 @@ EOF;
     {
         return \$this->belongsToMany($targetClass::class);
     }
+
 EOF;
                 break;
     
@@ -178,6 +185,7 @@ EOF;
     {
         return \$this->hasOne($targetClass::class);
     }
+
 EOF;
                 break;
             case 'hasMany':
@@ -187,6 +195,7 @@ EOF;
     {
         return \$this->hasMany($targetClass::class);
     }
+
 EOF;
                 break;
             default:
@@ -268,8 +277,14 @@ EOF;
             );
 
             $stub = str_replace(
+                '{{fieldsCode}}',
+                '', // TODO join("\n", $this->fields),
+                $stub
+            );
+
+            $stub = str_replace(
                 '{{dummyMethods}}',
-                join("\n            ", $db),
+                join("\n", $db),
                 $stub
             );
 

@@ -70,7 +70,8 @@ class ModelariumCommand extends Command
         $processor->setRunEvent($this->option('event') || $this->option('everything'));
 
         $files = [
-            __DIR__ . '/../../Graphql/definitions.graphql'
+            __DIR__ . '/../../Graphql/definitions.graphql',
+            __DIR__ . '/../../../Types/Graphql/scalars.graphql'
         ];
 
         if ($this->option('lighthouse')) {
@@ -81,6 +82,8 @@ class ModelariumCommand extends Command
             // $output->fetch();
             // @phpstan-ignore-next-line
             $files[] = base_path('schema-directives.graphql');
+        } else {
+            $files[] = base_path(__DIR__ . '/../../Graphql/definitionsLighthouse.graphql');
         }
 
         if ($name === '*' || $name === 'all') {

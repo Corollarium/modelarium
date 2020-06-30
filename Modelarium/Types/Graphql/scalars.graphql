@@ -1,12 +1,18 @@
+"""
+This file is auto generated.
+"""
+
 scalar Alpha @scalar(class: "Modelarium\\Types\\Datatype_alpha")
 
 scalar Alphanum @scalar(class: "Modelarium\\Types\\Datatype_alphanum")
 
 scalar Alphanumdash @scalar(class: "Modelarium\\Types\\Datatype_alphanumdash")
 
+scalar Association @scalar(class: "Modelarium\\Types\\Datatype_association")
+
 scalar Bool @scalar(class: "Modelarium\\Types\\Datatype_bool")
 
-scalar Boolean @scalar(class: "Modelarium\\Types\\Datatype_boolean")
+scalar Choice @scalar(class: "Modelarium\\Types\\Datatype_choice")
 
 scalar Cnpj @scalar(class: "Modelarium\\Types\\Datatype_cnpj")
 
@@ -15,6 +21,12 @@ scalar Color @scalar(class: "Modelarium\\Types\\Datatype_color")
 scalar Constant @scalar(class: "Modelarium\\Types\\Datatype_constant")
 
 scalar Countrycode @scalar(class: "Modelarium\\Types\\Datatype_countrycode")
+
+scalar CountrycodeISO2 @scalar(class: "Modelarium\\Types\\Datatype_countrycodeISO2")
+
+scalar CountrycodeISO3 @scalar(class: "Modelarium\\Types\\Datatype_countrycodeISO3")
+
+scalar CountrycodeNumeric @scalar(class: "Modelarium\\Types\\Datatype_countrycodeNumeric")
 
 scalar Cpf @scalar(class: "Modelarium\\Types\\Datatype_cpf")
 
@@ -30,11 +42,7 @@ scalar Email @scalar(class: "Modelarium\\Types\\Datatype_email")
 
 scalar File @scalar(class: "Modelarium\\Types\\Datatype_file")
 
-scalar Float @scalar(class: "Modelarium\\Types\\Datatype_float")
-
 scalar Html @scalar(class: "Modelarium\\Types\\Datatype_html")
-
-scalar Integer @scalar(class: "Modelarium\\Types\\Datatype_integer")
 
 scalar Ip @scalar(class: "Modelarium\\Types\\Datatype_ip")
 
@@ -46,11 +54,11 @@ scalar Json @scalar(class: "Modelarium\\Types\\Datatype_json")
 
 scalar Language @scalar(class: "Modelarium\\Types\\Datatype_language")
 
+scalar Number @scalar(class: "Modelarium\\Types\\Datatype_number")
+
 scalar Pagination @scalar(class: "Modelarium\\Types\\Datatype_pagination")
 
 scalar Phone @scalar(class: "Modelarium\\Types\\Datatype_phone")
-
-scalar String @scalar(class: "Modelarium\\Types\\Datatype_string")
 
 scalar Text @scalar(class: "Modelarium\\Types\\Datatype_text")
 

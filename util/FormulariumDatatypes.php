@@ -6,10 +6,23 @@ use Formularium\Datatype;
 use Formularium\Formularium;
 use Illuminate\Support\Str;
 
-$graphql = [];
+$graphql = [
+    '"""
+This file is auto generated.
+"""'
+];
 $datatypes = Formularium::getDatatypeNames();
 foreach ($datatypes as $name) {
     $typeName = Str::studly($name);
+
+    if ($typeName === 'String' ||
+        $typeName === 'Boolean' ||
+        $typeName === 'Int' ||
+        $typeName === 'Float'
+    ) {
+        // base types
+        continue;
+    }
 
     $stub = <<<EOF
 <?php declare(strict_types=1);

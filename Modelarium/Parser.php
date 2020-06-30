@@ -2,6 +2,7 @@
 
 namespace Modelarium;
 
+use Formularium\Formularium;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\Visitor;
 use GraphQL\Type\Definition\ObjectType;
@@ -50,6 +51,27 @@ class Parser
     }
 
     /**
+     * Returns a Parser from a string
+     *
+     * @param string $data the string
+     * @return Parser
+     */
+    public static function fromString(string $data): self
+    {
+        $p = new self();
+        $p->ast = \GraphQL\Language\Parser::parse($data);
+        $p->processAst();
+        $schemaBuilder = new \GraphQL\Utils\BuildSchema(
+            $p->ast,
+            [__CLASS__, 'extendDatatypes']
+        );
+        
+        $p->schema = $schemaBuilder->buildSchema();
+        $p->processSchema();
+        return $p;
+    }
+
+    /**
      *
      * @param string[] $sources
      * @return self
@@ -66,7 +88,7 @@ class Parser
             $s = \Safe\preg_replace('/^type Mutation/m', 'extend type Mutation', $s);
             $s = \Safe\preg_replace('/^type Query/m', 'extend type Query', $s);
         }
-        $extensionSource = implode("\n", $sources);
+        $extensionSource = implode("\n\n", $sources);
         $p->ast = \GraphQL\Language\Parser::parse($extensionSource);
 
         // TODO: extendDatatypes
@@ -92,10 +114,13 @@ class Parser
      */
     public static function fromFiles(array $files): self
     {
-        $sources = [];
+        $sources = [
+            Formularium::validatorGraphqlDirectives()
+        ];
         foreach ($files as $f) {
             $data = \Safe\file_get_contents($f);
             $sources = array_merge($sources, static::processImports($data, dirname($f)));
+            $sources[] = $data;
         }
         return static::fromStrings($sources);
     }
@@ -113,27 +138,6 @@ class Parser
         $imports = static::processImports($data, dirname($path));
         // TODO: recurse imports
         return self::fromString(implode("\n", $imports) . $data);
-    }
-
-    /**
-     * Returns a Parser from a string
-     *
-     * @param string $data the string
-     * @return Parser
-     */
-    public static function fromString(string $data): self
-    {
-        $p = new self();
-        $p->ast = \GraphQL\Language\Parser::parse($data);
-        $p->processAst();
-        $schemaBuilder = new \GraphQL\Utils\BuildSchema(
-            $p->ast,
-            [__CLASS__, 'extendDatatypes']
-        );
-        
-        $p->schema = $schemaBuilder->buildSchema();
-        $p->processSchema();
-        return $p;
     }
 
     protected function processSchema(): void

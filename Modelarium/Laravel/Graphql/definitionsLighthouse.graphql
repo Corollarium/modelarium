@@ -1,0 +1,13 @@
+"""
+Definitions shared with lighthouse
+"""
+
+"""
+Generates a composed index on the database for a type
+"""
+directive @scalar(
+  """
+  The list of fields to compose in the index
+  """
+  class: String!
+) on SCALAR

@@ -97,6 +97,8 @@ class MigrationGenerator extends BaseGenerator
             }
             $options = []; // TODO: from directives
             $base = '$table->' . $ourType->getLaravelSQLType($fieldName, $options);
+        } elseif ($type instanceof ListOfType) {
+            // relationship
         } else {
             throw new Exception("Invalid field type: " . get_class($type));
         }
@@ -307,6 +309,7 @@ class MigrationGenerator extends BaseGenerator
                 $directives = $field->astNode->directives;
                 if (
                     ($field->type instanceof ObjectType) ||
+                    ($field->type instanceof ListOfType) ||
                     ($field->type instanceof NonNull) && (
                         ($field->type->getWrappedType() instanceof ObjectType) ||
                         ($field->type->getWrappedType() instanceof ListOfType)
