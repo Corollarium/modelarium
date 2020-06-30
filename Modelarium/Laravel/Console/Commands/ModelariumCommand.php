@@ -117,17 +117,10 @@ class ModelariumCommand extends Command
             base_path(),
             (bool)$this->option('overwrite')
         );
-
         $this->info('Finished. You might want to run `composer dump-autoload`');
     }
 
-    protected function getPathGraphql(string $name): string
-    {
-        // @phpstan-ignore-next-line
-        return base_path('graphql/' . $name . '.graphql');
-    }
-
-    protected function _handle(string $data): void
+    protected function frontend()
     {
         // TODO
         // // setup stuff
@@ -164,6 +157,12 @@ class ModelariumCommand extends Command
         //         // TODO: react?
         //     }
         // }
+    }
+
+    protected function getPathGraphql(string $name): string
+    {
+        // @phpstan-ignore-next-line
+        return base_path('graphql/' . $name . '.graphql');
     }
 
     public function writeFiles(GeneratedCollection $collection, string $basepath, bool $overwrite = true): self

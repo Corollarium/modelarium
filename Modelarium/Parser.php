@@ -51,17 +51,54 @@ class Parser
 
     /**
      *
+     * @param string[] $sources
+     * @return self
+     */
+    public static function fromStrings(array $sources): self
+    {
+        $p = new self();
+        $schema = new Schema([
+            'query' => new ObjectType(['name' => 'Query']),
+            'mutation' => new ObjectType(['name' => 'Mutation']),
+        ]);
+
+        foreach ($sources as &$s) {
+            $s = \Safe\preg_replace('/^type Mutation/m', 'extend type Mutation', $s);
+            $s = \Safe\preg_replace('/^type Query/m', 'extend type Query', $s);
+        }
+        $extensionSource = implode("\n", $sources);
+        $p->ast = \GraphQL\Language\Parser::parse($extensionSource);
+
+        // TODO: extendDatatypes
+        $p->schema = SchemaExtender::extend(
+            $schema,
+            $p->ast
+        );
+        // $schemaBuilder = new \GraphQL\Utils\BuildSchema(
+        //     $p->ast,
+        //     [__CLASS__, 'extendDatatypes']
+        // );
+
+        // $p->schema = $schemaBuilder->buildSchema();
+        $p->processAst();
+        return $p;
+    }
+
+    /**
+     *
      * @param array $files
      * @return self
      * @throws \Safe\Exceptions\FilesystemException
      */
     public static function fromFiles(array $files): self
     {
-        $p = new self();
-        $sources = array_map('\Safe\file_get_contents', $files);
+        $sources = [];
+        foreach ($files as $f) {
+            $data = \Safe\file_get_contents($f);
+            $sources = array_merge($sources, static::processImports($data, dirname($f)));
+        }
         return static::fromStrings($sources);
     }
-
 
     /**
      * Returns a Parser from a file path
@@ -165,41 +202,6 @@ class Parser
                 return null;
             }
         ]);
-    }
-
-    /**
-     *
-     * @param string[] $sources
-     * @return self
-     */
-    public static function fromStrings(array $sources): self
-    {
-        $p = new self();
-        $schema = new Schema([
-            'query' => new ObjectType(['name' => 'Query']),
-            'mutation' => new ObjectType(['name' => 'Mutation']),
-        ]);
-
-        foreach ($sources as &$s) {
-            $s = \Safe\preg_replace('/^type Mutation/m', 'extend type Mutation', $s);
-            $s = \Safe\preg_replace('/^type Query/m', 'extend type Query', $s);
-        }
-        $extensionSource = implode("\n", $sources);
-        $p->ast = \GraphQL\Language\Parser::parse($extensionSource);
-
-        // TODO: extendDatatypes
-        $p->schema = SchemaExtender::extend(
-            $schema,
-            $p->ast
-        );
-        // $schemaBuilder = new \GraphQL\Utils\BuildSchema(
-        //     $p->ast,
-        //     [__CLASS__, 'extendDatatypes']
-        // );
-
-        // $p->schema = $schemaBuilder->buildSchema();
-        $p->processAst();
-        return $p;
     }
 
     /**
