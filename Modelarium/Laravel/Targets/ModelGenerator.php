@@ -3,14 +3,13 @@
 namespace Modelarium\Laravel\Targets;
 
 use Formularium\Datatype;
+use Illuminate\Support\Str;
 use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ObjectType;
-use Illuminate\Support\Str;
-use GraphQL\Type\Definition\Type;
-use Modelarium\Exception\Exception;
 use Modelarium\GeneratedCollection;
 use Modelarium\GeneratedItem;
+use Symfony\Component\VarExporter\VarExporter;
 
 class ModelGenerator extends BaseGenerator
 {
@@ -70,6 +69,30 @@ class ModelGenerator extends BaseGenerator
         return $x;
     }
 
+    protected function processField(
+        string $typeName,
+        \GraphQL\Type\Definition\FieldDefinition $field,
+        \GraphQL\Language\AST\NodeList $directives
+    ) {
+        $fieldName = $field->name;
+        $scalarType = $this->parser->getScalarType($typeName);
+        if ($scalarType) {
+            $validators = [];
+            $extensions = [];
+            foreach ($directives as $directive) {
+                $name = $directive->name->value;
+                // TODO
+            }
+
+            $this->fields[$fieldName] = [
+                'name' => $fieldName,
+                'type' => $scalarType->name,
+                'validators' => $validators,
+                'extensions' => $extensions,
+            ];
+        }
+    }
+
     protected function processBasetype(
         \GraphQL\Type\Definition\FieldDefinition $field,
         \GraphQL\Language\AST\NodeList $directives
@@ -125,19 +148,7 @@ class ModelGenerator extends BaseGenerator
             ];
         }
     
-        if (!$typeName) {
-            // TODO: bug
-            var_dump($field);
-        }
-        // $scalarType = $this->parser->getScalarType($typeName);
-
-        // if ($scalarType) {
-        //     // TODO
-        //     foreach ($directives as $directive) {
-        //         $name = $directive->name->value;
-        //         // TODO
-        //     }
-        // }
+        $this->processField($typeName, $field, $directives);
     }
 
     protected function processRelationship(
@@ -146,12 +157,6 @@ class ModelGenerator extends BaseGenerator
     ): array {
         $lowerName = mb_strtolower($this->inflector->singularize($field->name));
         $lowerNamePlural = $this->inflector->pluralize($lowerName);
-
-        if ($field->type instanceof NonNull) {
-            $type = $field->type->getWrappedType();
-        } else {
-            $type = $field->type;
-        }
 
         $extra = [];
         $targetClass = 'App\\' . Str::studly($this->inflector->singularize($field->name));
@@ -203,6 +208,21 @@ EOF;
             }
         }
 
+        if ($field->type instanceof NonNull) {
+            $type = $field->type->getWrappedType();
+        } else {
+            $type = $field->type;
+        }
+
+        if ($field->type instanceof ListOfType) {
+            $type = $field->type->getWrappedType();
+        }
+
+        $typeName = $type->name; /** @phpstan-ignore-line */
+        if ($typeName) {
+            $this->processField($typeName, $field, $directives);
+        }
+
         return $extra;
     }
 
@@ -250,6 +270,7 @@ EOF;
                 $directives = $field->astNode->directives;
                 if (
                     ($field->type instanceof ObjectType) ||
+                    ($field->type instanceof ListOfType) ||
                     ($field->type instanceof NonNull) && (
                         ($field->type->getWrappedType() instanceof ObjectType) ||
                         ($field->type->getWrappedType() instanceof ListOfType)
@@ -278,7 +299,7 @@ EOF;
 
             $stub = str_replace(
                 '{{fieldsCode}}',
-                '', // TODO join("\n", $this->fields),
+                '$fields = ' . VarExporter::export($this->fields) . ';',
                 $stub
             );
 
@@ -290,13 +311,13 @@ EOF;
 
             $stub = str_replace(
                 '{{dummyFillable}}',
-                var_export($this->fillable, true),
+                VarExporter::export($this->fillable),
                 $stub
             );
 
             $stub = str_replace(
                 '{{dummyHidden}}',
-                var_export($this->hidden, true),
+                VarExporter::export($this->hidden),
                 $stub
             );
 

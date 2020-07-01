@@ -25,7 +25,7 @@ class BaseDummyClass extends {{ParentDummyModel}}
 
     public function getRandom(): array 
     {
-        return $this->getFormularium->getRandom();
+        return $this->getFormularium()->getRandom();
     }
 
 {{dummyMethods}}
