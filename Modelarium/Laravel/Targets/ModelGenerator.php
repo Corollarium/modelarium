@@ -93,6 +93,11 @@ class ModelGenerator extends BaseGenerator
         \GraphQL\Language\AST\NodeList $directives
     ): void {
         $fieldName = $field->name;
+
+        if ($typeName === 'ID') {
+            return;
+        }
+
         $scalarType = $this->parser->getScalarType($typeName);
 
         if ($scalarType) {
@@ -102,6 +107,8 @@ class ModelGenerator extends BaseGenerator
                     $directives
                 )->toString();
             }
+        } else {
+            var_dump("no scalarty $typeName");
         }
     }
 
@@ -158,21 +165,6 @@ class ModelGenerator extends BaseGenerator
         }
 
         $typeName = $type->name; /** @phpstan-ignore-line */
-        switch ($typeName) {
-        case 'ID':
-        break;
-        case 'String':
-        case 'Integer':
-        case 'Float':
-        case 'Boolean':
-            $this->fields[$fieldName] = [
-                'name' => $fieldName,
-                'type' => $typeName,
-                'validators' => [],
-                'extensions' => [],
-            ];
-        }
-
         $this->processField($typeName, $field, $directives);
     }
 

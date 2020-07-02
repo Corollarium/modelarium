@@ -31,7 +31,12 @@ class Parser
 
     protected function __construct()
     {
-        // empty
+        $this->scalars = [
+            'String' => 'Modelarium\\Types\\Datatype_string',
+            'Int' => 'Modelarium\\Types\\Datatype_integer',
+            'Float' => 'Modelarium\\Types\\Datatype_float',
+            'Boolean' => 'Modelarium\\Types\\Datatype_bool',
+        ];
     }
 
     public static function extendDatatypes(array $typeConfig, $typeDefinitionNode): array
@@ -257,7 +262,7 @@ class Parser
             return null;
         }
         if (!class_exists($className)) {
-            throw new ScalarNotFoundException("Class not found for $datatype");
+            throw new ScalarNotFoundException("Class not found for $datatype ($className)");
         }
         return new $className();
     }
