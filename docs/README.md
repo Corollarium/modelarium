@@ -1,4 +1,4 @@
-# Formularium
+# Modelarium
 
 [Check the published docs.](https://corollarium.github.io/modelarium/)
 
