@@ -12,11 +12,11 @@ Modelarium generates scaffolding for your project based on a GraphQL description
 
 What it does?
 
-- generates scaffolding for you: model, database migration, seed, factory, events, policies. Everything from your graphql descriptions. No more tedious creation of files and repeated code.
-- datatypes: your data is more than strings. You have models for your structures, so have datatypes for your fields. Create the correct database fields without thinking about it.
-- validation: transparent data validation made automatically based on your datatypes. Your data is always safely validated.
-- frontend generation: get HTML forms generated for you automatically with your favorite CSS framework, as well as basic cards and lists. Get Vue and React components if you use them.
-- integration with Laravel and Lighthouse. Get GraphQL endpoints automatically.
+- **generates scaffolding for you**: model, database migration, seed, factory, events, policies. Everything from your graphql descriptions. No more tedious creation of files and repeated code.
+- **datatypes**: your data is more than strings. You have models for your structures, so have datatypes for your fields. Create the correct database fields without thinking about it.
+- **validation**: transparent data validation made automatically based on your datatypes. Your data is always safely validated.
+- **frontend generation**: get HTML forms generated for you automatically with your favorite CSS framework, as well as basic cards and lists. Get Vue and React components if you use them.
+- **integration with Laravel and Lighthouse**. Get GraphQL endpoints automatically.
 
 What it doesn't do:
 
@@ -29,7 +29,40 @@ What it doesn't do:
 
 [![Corollarium](https://modelarium.github.com/logo-horizontal-400px.png)](https://corollarium.com)
 
+## Overview
+
+This a Graphql file that reproduces Laravel's default `User` model. Notice the Email and
+
+```graphql
+type User
+  @timestamps
+  @softDeletesDB
+  @extends(class: "Illuminate\\Foundation\\Auth\\User")
+  @notifiable
+  @rememberToken {
+  id: ID!
+  name: String! @fillableAPI
+  password: String! @hiddenAPI @fillableAPI
+  email_verified_at: Timestamp @casts(type: "datetime")
+  email: Email! @uniqueIndex @fillableAPI
+  posts: [Post!] @hasMany
+}
+```
+
+Here's a sample `Post` Model, with validation of the length of the fields and foreign keys:
+
+```graphql
+type Post @timestamps {
+  id: ID!
+  title: String! @MinLength(value: 5) @MaxLength(value: 25)
+  description: Text! @MinLength(value: 15) @MaxLength(value: 1000)
+  user: User! @belongsTo @foreign(onDelete: "cascade", onUpdate: "cascade")
+}
+```
+
 ## Documentation
+
+See...
 
 ## Contributing [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/Corollarium/modelarium/issues)
 

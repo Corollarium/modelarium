@@ -105,7 +105,7 @@ class ModelGenerator extends BaseGenerator
                 $this->fields[$fieldName] = $scalarType->processDirectives(
                     $fieldName,
                     $directives
-                )->__toString();
+                )->toArray();
             }
         }
     }
