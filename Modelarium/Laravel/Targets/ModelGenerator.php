@@ -107,8 +107,6 @@ class ModelGenerator extends BaseGenerator
                     $directives
                 )->toString();
             }
-        } else {
-            var_dump("no scalarty $typeName");
         }
     }
 
