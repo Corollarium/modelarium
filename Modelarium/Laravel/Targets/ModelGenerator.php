@@ -44,6 +44,13 @@ class ModelGenerator extends BaseGenerator
     protected $hidden = [];
 
     /**
+     * cast attributes
+     *
+     * @var array
+     */
+    protected $casts = [];
+
+    /**
      *
      * @var string
      */
@@ -128,10 +135,24 @@ class ModelGenerator extends BaseGenerator
             $name = $directive->name->value;
             switch ($name) {
             case 'fillableAPI':
-                $this->fillable[] = $name;
+                $this->fillable[] = $fieldName;
                 break;
             case 'hiddenAPI':
-                $this->hidden[] = $name;
+                $this->hidden[] = $fieldName;
+                break;
+            case 'casts':
+                foreach ($directive->arguments as $arg) {
+                    /**
+                     * @var \GraphQL\Language\AST\ArgumentNode $arg
+                     */
+
+                    $value = $arg->value->value;
+
+                    switch ($arg->name->value) {
+                    case 'type':
+                        $this->casts[$fieldName] = $value;
+                    }
+                }
                 break;
             }
         }
@@ -221,6 +242,28 @@ class ModelGenerator extends BaseGenerator
             case 'softDeletesDB':
                 $this->traits[] = '\Illuminate\Database\Eloquent\SoftDeletes';
                 break;
+            case 'notifiable':
+                $this->traits[] = '\Illuminate\Notifications\Notifiable';
+                break;
+            case 'mustVerifyEmail':
+                $this->traits[] = '\Illuminate\Notifications\MustVerifyEmail';
+                break;
+            case 'rememberToken':
+                $this->hidden[] = 'remember_token';
+                break;
+            case 'extends':
+                foreach ($directive->arguments as $arg) {
+                    /**
+                     * @var \GraphQL\Language\AST\ArgumentNode $arg
+                     */
+
+                    $value = $arg->value->value;
+
+                    switch ($arg->name->value) {
+                    case 'class':
+                        $this->parentClassName = $value;
+                    }
+                }
             }
         }
     }
@@ -253,18 +296,26 @@ EOF;
 
         $this->processGraphql();
 
-        $this->class->addProperty('fillable')
-            ->setProtected()
-            ->setValue($this->fillable)
-            ->setInitialized();
-
         foreach ($this->traits as $trait) {
             $this->class->addTrait($trait);
         }
 
+        $this->class->addProperty('fillable')
+            ->setProtected()
+            ->setValue($this->fillable)
+            ->setComment("The attributes that are mass assignable.\n@var array")
+            ->setInitialized();
+
         $this->class->addProperty('hidden')
             ->setProtected()
             ->setValue($this->hidden)
+            ->setComment("The attributes that should be hidden for arrays.\n@var array")
+            ->setInitialized();
+
+        $this->class->addProperty('casts')
+            ->setProtected()
+            ->setValue($this->casts)
+            ->setComment("The attributes that should be cast to native types.\n@var array")
             ->setInitialized();
 
         $this->class->addMethod('getFormularium')

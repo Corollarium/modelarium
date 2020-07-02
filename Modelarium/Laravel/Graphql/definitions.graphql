@@ -1,6 +1,16 @@
 """
 Default value for database column
 """
+directive @casts(
+  """
+  The value
+  """
+  type: String!
+) on FIELD_DEFINITION
+
+"""
+Default value for database column
+"""
 directive @defaultValue(
   """
   The value
@@ -44,6 +54,16 @@ Field is hidden from API.
 directive @hiddenAPI on FIELD_DEFINITION
 
 """
+Base class to extend on model.
+"""
+directive @extends(
+  """
+  The base class name with namespace
+  """
+  class: String!
+) on OBJECT
+
+"""
 Generates a composed index on the database for a type
 """
 directive @index(
@@ -52,6 +72,16 @@ directive @index(
   """
   fields: [String]!
 ) on OBJECT
+
+"""
+Use a Notifiable trait on a model
+"""
+directive @notifiable on OBJECT
+
+"""
+Use a MustVerifyEmail trait on a model
+"""
+directive @mustVerifyEmail on OBJECT
 
 """
 Generate rememberToken

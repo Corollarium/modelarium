@@ -81,7 +81,11 @@ abstract class FormulariumScalarType extends ScalarType
             $name = $directive->name->value;
 
             $validator = null;
-            $validator = Validator::class($name);
+            try {
+                $validator = Validator::class($name);
+            } catch (ClassNotFoundException $e) {
+                continue;
+            }
 
             /**
              * @var ValidatorMetadata $metadata

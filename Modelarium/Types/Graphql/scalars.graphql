@@ -44,6 +44,8 @@ scalar File @scalar(class: "Modelarium\\Types\\Datatype_file")
 
 scalar Html @scalar(class: "Modelarium\\Types\\Datatype_html")
 
+scalar Integer @scalar(class: "Modelarium\\Types\\Datatype_integer")
+
 scalar Ip @scalar(class: "Modelarium\\Types\\Datatype_ip")
 
 scalar Ipv4 @scalar(class: "Modelarium\\Types\\Datatype_ipv4")
@@ -63,6 +65,8 @@ scalar Phone @scalar(class: "Modelarium\\Types\\Datatype_phone")
 scalar Text @scalar(class: "Modelarium\\Types\\Datatype_text")
 
 scalar Time @scalar(class: "Modelarium\\Types\\Datatype_time")
+
+scalar Timestamp @scalar(class: "Modelarium\\Types\\Datatype_timestamp")
 
 scalar Timezone @scalar(class: "Modelarium\\Types\\Datatype_timezone")
 
