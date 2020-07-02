@@ -190,7 +190,12 @@ class Processor extends ModelariumProcessor
         return $collection;
     }
 
-    protected function createSeederClass()
+    /**
+     * Generates the DatabaseSeeder class.
+     *
+     * @return void
+     */
+    protected function createSeederClass(): void
     {
         $this->seederClass = new \Nette\PhpGenerator\ClassType('DatabaseSeeder');
         $this->seederClass->setExtends('Illuminate\Database\Seeder')

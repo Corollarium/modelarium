@@ -6,6 +6,7 @@ use Formularium\Datatype;
 use Formularium\Exception\ClassNotFoundException;
 use Formularium\Field;
 use Formularium\Validator;
+use Formularium\ValidatorMetadata;
 use Modelarium\Exception\Exception;
 
 abstract class FormulariumScalarType extends ScalarType
@@ -68,7 +69,7 @@ abstract class FormulariumScalarType extends ScalarType
      */
     public function parseLiteral($valueNode, array $variables = null)
     {
-        return $this->parseValue($valueNode->value);
+        return $this->parseValue($valueNode->value); /** @phpstan-ignore-line */
     }
 
     public function processDirectives(
@@ -99,7 +100,7 @@ abstract class FormulariumScalarType extends ScalarType
                  */
 
                 $argName = $arg->name->value;
-                $argValue = $arg->value->value;
+                $argValue = $arg->value->value; /** @phpstan-ignore-line */
                 $argValidator = $metadata->argument($argName);
                 if (!$argValidator) {
                     throw new Exception("Directive $validator does not have argument $argName");

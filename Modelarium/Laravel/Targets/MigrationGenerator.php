@@ -19,7 +19,7 @@ use Modelarium\ScalarType as ModelariumScalarType;
 use Modelarium\Types\FormulariumScalarType;
 use Safe\Exceptions\DirException;
 
-function getStringBetween($string, $start, $end)
+function getStringBetween(string $string, string $start, string $end): string
 {
     $ini = mb_strpos($string, $start);
     if ($ini === false) {
@@ -296,7 +296,6 @@ class MigrationGenerator extends BaseGenerator
             case 'primaryIndex':
                 // TODO
                 throw new Exception("Primary index is not implemented yet");
-                break;
             case 'index':
                 $values = $directive->arguments[0]->value->values;
 

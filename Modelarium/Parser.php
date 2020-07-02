@@ -39,6 +39,7 @@ class Parser
         ];
     }
 
+    /** @phpstan-ignore-next-line */
     public static function extendDatatypes(array $typeConfig, $typeDefinitionNode): array
     {
         /* TODO: extended datatypes
