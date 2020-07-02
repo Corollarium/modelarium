@@ -7,5 +7,5 @@
 use Faker\Generator as Faker;
 
 $factory->define(App\DummyName::class, function (Faker $faker) {
-    return (new App\DummyName())->getRandom();
+    return App\DummyName::getRandomData();
 });

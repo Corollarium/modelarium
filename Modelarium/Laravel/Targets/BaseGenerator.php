@@ -83,7 +83,7 @@ abstract class BaseGenerator
      * @param string $file The filename
      * @return string
      */
-    public function getBasePath(string $file = null): string
+    public static function getBasePath(string $file = null): string
     {
         $basepath = dirname(\Composer\Factory::getComposerFile());
         if ($file) {
@@ -154,5 +154,25 @@ abstract class BaseGenerator
             $str
         );
         return $str;
+    }
+
+    /**
+     * Get the value of name
+     *
+     * @return  string
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
+
+    /**
+     * Get the value of studlyName
+     *
+     * @return  string
+     */
+    public function getStudlyName()
+    {
+        return $this->studlyName;
     }
 }

@@ -3,12 +3,18 @@
 namespace Modelarium\Laravel\Targets;
 
 use Formularium\Datatype;
+use Formularium\Exception\ClassNotFoundException;
+use Formularium\Formularium;
+use Formularium\Validator;
+use Formularium\ValidatorMetadata;
 use Illuminate\Support\Str;
 use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ObjectType;
+use Modelarium\Exception\Exception;
 use Modelarium\GeneratedCollection;
 use Modelarium\GeneratedItem;
+use Modelarium\Types\FormulariumScalarType;
 use Symfony\Component\VarExporter\VarExporter;
 
 class ModelGenerator extends BaseGenerator
@@ -17,6 +23,11 @@ class ModelGenerator extends BaseGenerator
      * @var ObjectType
      */
     protected $type = null;
+
+    /**
+     * @var \Nette\PhpGenerator\ClassType
+     */
+    protected $class = null;
 
     /**
      * fillable attributes
@@ -36,7 +47,7 @@ class ModelGenerator extends BaseGenerator
      *
      * @var string
      */
-    protected $parentClassName = 'Model';
+    protected $parentClassName = '\Illuminate\Database\Eloquent\Model';
 
     /**
      * fields
@@ -73,23 +84,17 @@ class ModelGenerator extends BaseGenerator
         string $typeName,
         \GraphQL\Type\Definition\FieldDefinition $field,
         \GraphQL\Language\AST\NodeList $directives
-    ) {
+    ): void {
         $fieldName = $field->name;
         $scalarType = $this->parser->getScalarType($typeName);
-        if ($scalarType) {
-            $validators = [];
-            $extensions = [];
-            foreach ($directives as $directive) {
-                $name = $directive->name->value;
-                // TODO
-            }
 
-            $this->fields[$fieldName] = [
-                'name' => $fieldName,
-                'type' => $scalarType->name,
-                'validators' => $validators,
-                'extensions' => $extensions,
-            ];
+        if ($scalarType) {
+            if ($scalarType instanceof FormulariumScalarType) {
+                $this->fields[$fieldName] = $scalarType->processDirectives(
+                    $fieldName,
+                    $directives
+                )->toString();
+            }
         }
     }
 
@@ -98,7 +103,6 @@ class ModelGenerator extends BaseGenerator
         \GraphQL\Language\AST\NodeList $directives
     ): void {
         $fieldName = $field->name;
-        $extra = [];
 
         $isRequired = false;
 
@@ -147,61 +151,45 @@ class ModelGenerator extends BaseGenerator
                 'extensions' => [],
             ];
         }
-    
+
         $this->processField($typeName, $field, $directives);
     }
 
     protected function processRelationship(
         \GraphQL\Type\Definition\FieldDefinition $field,
         \GraphQL\Language\AST\NodeList $directives
-    ): array {
+    ): void {
         $lowerName = mb_strtolower($this->inflector->singularize($field->name));
         $lowerNamePlural = $this->inflector->pluralize($lowerName);
 
-        $extra = [];
         $targetClass = 'App\\' . Str::studly($this->inflector->singularize($field->name));
 
         foreach ($directives as $directive) {
             $name = $directive->name->value;
             switch ($name) {
             case 'belongsTo':
-                $extra[] = <<<EOF
-    public function $lowerName()
-    {
-        return \$this->belongsTo($targetClass::class);
-    }
-
-EOF;
+                $this->class->addMethod($lowerName)
+                    ->setPublic()
+                    ->setBody("return \$this->belongsTo($targetClass::class);");
                 break;
 
             case 'belongsToMany':
-                $extra[] = <<<EOF
-    public function $lowerNamePlural()
-    {
-        return \$this->belongsToMany($targetClass::class);
-    }
-
-EOF;
+                $this->class->addMethod($lowerNamePlural)
+                    ->setPublic()
+                    ->setBody("return \$this->belongsToMany($targetClass::class);");
                 break;
-    
+
             case 'hasOne':
-                $extra[] = <<<EOF
-    public function $lowerName()
-    {
-        return \$this->hasOne($targetClass::class);
-    }
-
-EOF;
+                $this->class->addMethod($lowerName)
+                    ->setPublic()
+                    ->setBody("return \$this->hasOne($targetClass::class);");
                 break;
-            case 'hasMany':
-                $targetClass = $this->inflector->singularize($targetClass);
-                $extra[] = <<<EOF
-    public function $lowerNamePlural()
-    {
-        return \$this->hasMany($targetClass::class);
-    }
 
-EOF;
+            case 'hasMany':
+                $target = $this->inflector->singularize($targetClass);
+                $this->class->addMethod($lowerNamePlural)
+                    ->setPublic()
+                    ->setBody("return \$this->hasMany($target::class);");
                 break;
             default:
                 break;
@@ -222,13 +210,11 @@ EOF;
         if ($typeName) {
             $this->processField($typeName, $field, $directives);
         }
-
-        return $extra;
     }
 
     protected function processDirectives(
         \GraphQL\Language\AST\NodeList $directives
-    ): array {
+    ): void {
         foreach ($directives as $directive) {
             $name = $directive->name->value;
             switch ($name) {
@@ -237,13 +223,11 @@ EOF;
                 break;
             }
         }
-        return [];
     }
 
     protected function formulariumModel(
 
     ): string {
-        $fields = [];
         foreach ($this->fields as $f) {
             $string = <<<EOF
             new \Formularium\Field(
@@ -261,74 +245,80 @@ EOF;
 
     public function generateString(): string
     {
-        return $this->stubToString('modelbase', function ($stub) {
-            $db = [];
+        $namespace = new \Nette\PhpGenerator\PhpNamespace('App');
 
-            foreach ($this->type->getFields() as $field) {
-                // TODO if (NonNull)
+        $this->class = $namespace->addClass('Base' . $this->studlyName);
+        $this->class->setExtends($this->parentClassName)
+            ->addComment("This file was automatically generated by Modelarium.");
 
-                $directives = $field->astNode->directives;
-                if (
-                    ($field->type instanceof ObjectType) ||
-                    ($field->type instanceof ListOfType) ||
-                    ($field->type instanceof NonNull) && (
-                        ($field->type->getWrappedType() instanceof ObjectType) ||
-                        ($field->type->getWrappedType() instanceof ListOfType)
-                    )
-                ) {
-                    // relationship
-                    $db = array_merge($db, $this->processRelationship($field, $directives));
-                } else {
-                    $this->processBasetype($field, $directives);
-                }
+        $this->processGraphql();
+
+        $this->class->addProperty('fillable')
+            ->setProtected()
+            ->setValue($this->fillable)
+            ->setInitialized();
+
+        foreach ($this->traits as $trait) {
+            $this->class->addTrait($trait);
+        }
+
+        $this->class->addProperty('hidden')
+            ->setProtected()
+            ->setValue($this->hidden)
+            ->setInitialized();
+
+        $this->class->addMethod('getFormularium')
+            ->setPublic()
+            ->setStatic()
+            ->setReturnType('\Formularium\Model')
+            ->addComment('@return \Formularium\Model')
+            ->addBody(
+                '$fields = ?;' . "\n" .
+                '$model = \Formularium\Model::create(?, $fields);' . "\n" .
+                'return $model;',
+                [
+                    $this->fields,
+                    $this->studlyName,
+                ]
+            );
+
+        $this->class->addMethod('getRandomData')
+            ->addComment('@return array')
+            ->setPublic()
+            ->setStatic()
+            ->setReturnType('array')
+            ->addBody('return static::getFormularium()->getRandom();');
+
+        $printer = new \Nette\PhpGenerator\PsrPrinter;
+        return "<?php declare(strict_types=1);\n\n" . $printer->printNamespace($namespace);
+    }
+
+    protected function processGraphql(): void
+    {
+        foreach ($this->type->getFields() as $field) {
+            $directives = $field->astNode->directives;
+            if (
+                ($field->type instanceof ObjectType) ||
+                ($field->type instanceof ListOfType) ||
+                ($field->type instanceof NonNull) && (
+                    ($field->type->getWrappedType() instanceof ObjectType) ||
+                    ($field->type->getWrappedType() instanceof ListOfType)
+                )
+            ) {
+                // relationship
+                $this->processRelationship($field, $directives);
+            } else {
+                $this->processBasetype($field, $directives);
             }
+        }
 
-            /**
-             * @var \GraphQL\Language\AST\NodeList|null
-             */
-            $directives = $this->type->astNode->directives;
-            if ($directives) {
-                $db = array_merge($db, $this->processDirectives($directives));
-            }
-
-            $stub = str_replace(
-                '{{traitsCode}}',
-                $this->traits ? 'use ' . join(', ', $this->traits) . ';' : '',
-                $stub
-            );
-
-            $stub = str_replace(
-                '{{fieldsCode}}',
-                '$fields = ' . VarExporter::export($this->fields) . ';',
-                $stub
-            );
-
-            $stub = str_replace(
-                '{{dummyMethods}}',
-                join("\n", $db),
-                $stub
-            );
-
-            $stub = str_replace(
-                '{{dummyFillable}}',
-                VarExporter::export($this->fillable),
-                $stub
-            );
-
-            $stub = str_replace(
-                '{{dummyHidden}}',
-                VarExporter::export($this->hidden),
-                $stub
-            );
-
-            $stub = str_replace(
-                '{{ParentDummyModel}}',
-                $this->parentClassName,
-                $stub
-            );
-
-            return $stub;
-        });
+        /**
+         * @var \GraphQL\Language\AST\NodeList|null
+         */
+        $directives = $this->type->astNode->directives;
+        if ($directives) {
+            $this->processDirectives($directives);
+        }
     }
 
     public function getGenerateFilename(bool $base = true): string

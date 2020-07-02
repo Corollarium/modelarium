@@ -17,6 +17,18 @@ use Modelarium\GeneratedCollection;
 use Modelarium\GeneratedItem;
 use Modelarium\ScalarType as ModelariumScalarType;
 use Modelarium\Types\FormulariumScalarType;
+use Safe\Exceptions\DirException;
+
+function getStringBetween($string, $start, $end)
+{
+    $ini = mb_strpos($string, $start);
+    if ($ini === false) {
+        return '';
+    }
+    $ini += mb_strlen($start);
+    $len = mb_strpos($string, $end, $ini) - $ini;
+    return mb_substr($string, $ini, $len);
+}
 
 function endsWith(string $haystack, string $needle): bool
 {
@@ -24,6 +36,10 @@ function endsWith(string $haystack, string $needle): bool
 }
 class MigrationGenerator extends BaseGenerator
 {
+    protected const MODE_CREATE = 'create';
+    protected const MODE_PATCH = 'patch';
+    protected const MODE_NO_CHANGE = 'nochange';
+
     /**
      * Unique counter
      *
@@ -55,15 +71,34 @@ class MigrationGenerator extends BaseGenerator
      */
     protected $postCreateCode = [];
 
+    /**
+     * 'create' or 'patch'
+     *
+     * @var string
+     */
+    protected $mode = self::MODE_CREATE;
+
+    /**
+     * Code used in the create() call
+     *
+     * @var string
+     */
+    protected $currentModel = '';
+
     public function generate(): GeneratedCollection
     {
         $this->collection = new GeneratedCollection();
-        $item = new GeneratedItem(
-            GeneratedItem::TYPE_MIGRATION,
-            $this->generateString(),
-            $this->getGenerateFilename($this->lowerName)
-        );
-        $this->collection->prepend($item);
+        $this->currentModel = \GraphQL\Language\Printer::doPrint($this->type->astNode);
+        $filename = $this->generateFilename($this->lowerName);
+
+        if ($this->mode !== self::MODE_NO_CHANGE) {
+            $item = new GeneratedItem(
+                GeneratedItem::TYPE_MIGRATION,
+                $this->generateString(),
+                $filename
+            );
+            $this->collection->prepend($item);
+        }
         return $this->collection;
     }
 
@@ -103,15 +138,15 @@ class MigrationGenerator extends BaseGenerator
             $options = []; // TODO: from directives
             $base = '$table->' . $ourType->getLaravelSQLType($fieldName, $options);
         } elseif ($type instanceof ListOfType) {
-            // relationship
+            throw new Exception("Invalid field type: " . get_class($type));
         } else {
             throw new Exception("Invalid field type: " . get_class($type));
         }
-        
+
         if (!($field->type instanceof NonNull)) {
             $base .= '->nullable()';
         }
-        
+
         foreach ($directives as $directive) {
             $name = $directive->name->value;
             switch ($name) {
@@ -156,7 +191,7 @@ class MigrationGenerator extends BaseGenerator
         $typeName = $type->name; /** @phpstan-ignore-line */
 
         $fieldName = $lowerName . '_id';
-        
+
         $base = null;
         $extra = [];
 
@@ -239,11 +274,10 @@ class MigrationGenerator extends BaseGenerator
             }
         }
 
-        if (!($field->type instanceof NonNull)) {
-            $base .= '->nullable()';
-        }
-
         if ($base) {
+            if (!($field->type instanceof NonNull)) {
+                $base .= '->nullable()';
+            }
             $base .= ';';
             $this->createCode[] = $base;
         }
@@ -265,7 +299,7 @@ class MigrationGenerator extends BaseGenerator
                 break;
             case 'index':
                 $values = $directive->arguments[0]->value->values;
-                
+
                 $indexFields = [];
                 foreach ($values as $value) {
                     $indexFields[] = $value->value;
@@ -281,7 +315,7 @@ class MigrationGenerator extends BaseGenerator
 
             case 'fulltextIndex':
                 $values = $directive->arguments[0]->value->values;
-                
+
                 $indexFields = [];
                 foreach ($values as $value) {
                     $indexFields[] = $value->value;
@@ -336,17 +370,31 @@ class MigrationGenerator extends BaseGenerator
                 $this->processDirectives($directives);
             }
 
-            $stub = str_replace(
-                '// dummyCode',
-                join("\n            ", $this->createCode),
-                $stub
-            );
+            if ($this->mode === self::MODE_CREATE) {
+                $stub = str_replace(
+                    '// dummyCode',
+                    join("\n            ", $this->createCode),
+                    $stub
+                );
 
-            $stub = str_replace(
-                '// dummyPostCreateCode',
-                join("\n            ", $this->postCreateCode),
-                $stub
-            );
+                $stub = str_replace(
+                    '// dummyPostCreateCode',
+                    join("\n            ", $this->postCreateCode),
+                    $stub
+                );
+            } else {
+                $stub = str_replace(
+                    '// dummyCode',
+                    '// TODO: write the patch please',
+                    $stub
+                );
+
+                $stub = str_replace(
+                    '// dummyPostCreateCode',
+                    '',
+                    $stub
+                );
+            }
 
             $stub = str_replace(
                 'dummytablename',
@@ -357,8 +405,8 @@ class MigrationGenerator extends BaseGenerator
             $stub = str_replace(
                 'modelSchemaCode',
                 "# start graphql\n" .
-                \GraphQL\Language\Printer::doPrint($this->type->astNode) .
-                "# end graphql\n",
+                $this->currentModel .
+                "\n# end graphql\n",
                 $stub
             );
             return $stub;
@@ -398,41 +446,53 @@ EOF;
         $item = new GeneratedItem(
             GeneratedItem::TYPE_MIGRATION,
             $contents,
-            $this->getGenerateFilename($type1 . '_' . $type2)
+            $this->getBasePath(
+                'database/migrations/' .
+                date('Y_m_d_His') .
+                static::$counter++ . // so we keep the same order of types in schema
+                '_' . $this->mode . '_' .
+                $type1 . '_' . $type2 .
+                '_table.php'
+            )
         );
+
         return $item;
     }
 
-    public function getGenerateFilename(string $basename): string
+    protected function generateFilename(string $basename): string
     {
-        $type = '_create_';
-        
-        /* TODO:
-         * check if a migration '_create_'. $this->lowerName exists,
-         * generate a diff from model(), generate new migration with diff
-         * /
-        $migrationFiles = \Safe\scandir($this->getBasePath('database/migrations/'));
+        $this->mode = self::MODE_CREATE;
         $match = '_create_' . $basename . '_table.php';
-        foreach ($migrationFiles as $m) {
-            if (!endsWith($m, $match)) {
-                continue;
+
+        $basepath = $this->getBasePath('database/migrations/');
+        if (is_dir($basepath)) {
+            $migrationFiles = \Safe\scandir($basepath);
+            foreach ($migrationFiles as $m) {
+                if (!endsWith($m, $match)) {
+                    continue;
+                }
+
+                // get source
+                $data = \Safe\file_get_contents($basepath . '/' . $m);
+
+                // compare with this source
+                $model = trim(getStringBetween($data, '# start graphql', '# end graphql'));
+
+                // if equal ignore and don't output file
+                if ($model === $this->currentModel) {
+                    $this->mode = self::MODE_NO_CHANGE;
+                } else {
+                    // else we'll generate a diff and patch
+                    $this->mode = self::MODE_PATCH;
+                }
             }
-            // get source
-
-            // compare with this source
-
-            // if equal ignore and don't output file
-
-            // else generate a diff and patch
-            $type = '_patch_';
         }
-        */
-  
+
         return $this->getBasePath(
             'database/migrations/' .
             date('Y_m_d_His') .
             static::$counter++ . // so we keep the same order of types in schema
-            $type .
+            '_' . $this->mode . '_' .
             $basename . '_table.php'
         );
     }

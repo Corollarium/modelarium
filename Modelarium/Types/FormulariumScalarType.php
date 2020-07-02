@@ -3,7 +3,10 @@
 namespace Modelarium\Types;
 
 use Formularium\Datatype;
+use Formularium\Exception\ClassNotFoundException;
 use Formularium\Field;
+use Formularium\Validator;
+use Modelarium\Exception\Exception;
 
 abstract class FormulariumScalarType extends ScalarType
 {
@@ -66,6 +69,51 @@ abstract class FormulariumScalarType extends ScalarType
     public function parseLiteral($valueNode, array $variables = null)
     {
         return $this->parseValue($valueNode->value);
+    }
+
+    public function processDirectives(
+        string $fieldName,
+        \GraphQL\Language\AST\NodeList $directives
+    ): Field {
+        $validators = [];
+        $extensions = [];
+        foreach ($directives as $directive) {
+            $name = $directive->name->value;
+
+            $validator = null;
+            $validator = Validator::class($name);
+
+            /**
+             * @var ValidatorMetadata $metadata
+             */
+            $metadata = $validator::getMetadata();
+            $arguments = [];
+
+            foreach ($directive->arguments as $arg) {
+                /**
+                 * @var \GraphQL\Language\AST\ArgumentNode $arg
+                 */
+
+                $argName = $arg->name->value;
+                $argValue = $arg->value->value;
+                $argValidator = $metadata->argument($argName);
+                if (!$argValidator) {
+                    throw new Exception("Directive $validator does not have argument $argName");
+                }
+                if ($argValidator->type === 'Int') {
+                    $argValue = (int)$argValue;
+                }
+                $arguments[$argName] = $argValue;
+            }
+
+            $validators[$name] = $arguments;
+        }
+        return new Field(
+            $fieldName,
+            $this->datatype->getName(),
+            $extensions,
+            $validators,
+        );
     }
 
     /**
