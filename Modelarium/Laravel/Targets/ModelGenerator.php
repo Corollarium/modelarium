@@ -308,17 +308,27 @@ EOF;
             ->setComment("The attributes that should be cast to native types.\n@var array")
             ->setInitialized();
 
+        $this->class->addMethod('getFields')
+            ->setPublic()
+            ->setStatic()
+            ->setReturnType('array')
+            ->addComment('@return array')
+            ->addBody(
+                'return ?;' . "\n" .
+                [
+                    $this->fields
+                ]
+            );
+
         $this->class->addMethod('getFormularium')
             ->setPublic()
             ->setStatic()
             ->setReturnType('\Formularium\Model')
             ->addComment('@return \Formularium\Model')
             ->addBody(
-                '$fields = ?;' . "\n" .
-                '$model = \Formularium\Model::create(?, $fields);' . "\n" .
+                '$model = \Formularium\Model::create(?, $this->getFields());' . "\n" .
                 'return $model;',
                 [
-                    $this->fields,
                     $this->studlyName,
                 ]
             );
