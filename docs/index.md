@@ -26,3 +26,7 @@ php artisan vendor:publish --provider="Modelarium\Laravel\ServiceProvider" --tag
 ```
 
 Edit
+
+## Sponsors
+
+[![Corollarium](https://modelarium.github.com/logo-horizontal-400px.png)](https://corollarium.com)

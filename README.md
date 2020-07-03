@@ -20,10 +20,8 @@ What it does?
 
 What it doesn't do:
 
-- you still have to write your code to process requests in the backend, like in mutations or special conditions in your models.
+- magic. you still have to write your code logic to process requests in the backend, like in mutations or special conditions in your models.
 - REST endpoints. At this point only GraphQL is supported through Lighthouse.
-- frontend structure.
-- magic.
 
 ## Sponsors
 
