@@ -2,6 +2,7 @@
 
 namespace ModelariumTests;
 
+use Modelarium\Exception\ScalarNotFoundException;
 use Modelarium\Parser;
 
 final class ParserTest extends TestCase
@@ -29,5 +30,18 @@ EOF
     {
         $parser = (new Parser())->fromFile(__DIR__ . '/data/userQueryInput.graphql');
         $this->assertNotNull($parser);
+    }
+
+    public function testScalars()
+    {
+        $parser = new Parser();
+        $scalars = $parser->getScalars();
+        $this->assertArrayHasKey('String', $scalars);
+    }
+
+    public function testScalarType()
+    {
+        $parser = new Parser();
+        $this->assertNull($parser->getScalarType("kasdfmaiooiwer"));
     }
 }
