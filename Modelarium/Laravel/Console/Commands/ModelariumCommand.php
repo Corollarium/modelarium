@@ -81,15 +81,12 @@ class ModelariumCommand extends Command
             // $this->call('lighthouse:ide-helper');
             // $output->fetch();
 
-            // @phpstan-ignore-next-line
             $files[] = base_path('schema-directives.graphql');
         } else {
-            // @phpstan-ignore-next-line
             $files[] = base_path(__DIR__ . '/../../Graphql/definitionsLighthouse.graphql');
         }
 
         if ($name === '*' || $name === 'all') {
-            // @phpstan-ignore-next-line
             $path = base_path('graphql');
             $dir = \Safe\scandir($path);
 
@@ -100,7 +97,6 @@ class ModelariumCommand extends Command
                 if (mb_strpos($n, '.graphql') === false) {
                     continue;
                 }
-                // @phpstan-ignore-next-line
                 $files[] = base_path('graphql/' . $n);
             }
             $processor->processFiles($files);
@@ -118,7 +114,6 @@ class ModelariumCommand extends Command
 
         $this->writeFiles(
             $processor->getCollection(),
-            // @phpstan-ignore-next-line
             base_path(),
             (bool)$this->option('overwrite')
         );
@@ -166,7 +161,6 @@ class ModelariumCommand extends Command
 
     protected function getPathGraphql(string $name): string
     {
-        // @phpstan-ignore-next-line
         return base_path('graphql/' . $name . '.graphql');
     }
 

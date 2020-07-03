@@ -73,7 +73,7 @@ class Processor extends ModelariumProcessor
         $directives = [];
 
         foreach ($directiveNamespaces as $directiveNamespace) {
-            /** @var string[] $classesInNamespace */
+            /** @var array<class-string> $classesInNamespace */
             $classesInNamespace = ClassFinder::getClassesInNamespace($directiveNamespace);
 
             foreach ($classesInNamespace as $class) {
@@ -82,7 +82,7 @@ class Processor extends ModelariumProcessor
                     continue;
                 }
 
-                if (! is_a($class, Directive::class, true)) {
+                if (! is_a($class, \Nuwave\Lighthouse\Schema\Directives\BaseDirective::class, true)) {
                     continue;
                 }
 

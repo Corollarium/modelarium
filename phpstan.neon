@@ -3,6 +3,8 @@ parameters:
     - php
     - phpt
   level: 7
+  ignoreErrors:
+    - "#Function base_path not found.#"
   paths:
     - Modelarium/
     - tests/

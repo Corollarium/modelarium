@@ -22,7 +22,11 @@
         "composer/composer": "^1.10",
         "webonyx/graphql-php": "^0.13.8",
         "thecodingmachine/safe": "^1.1",
-        "corollarium/formularium": "^0.2.0"
+        "corollarium/formularium": "^0.2.0",
+        "symfony/var-exporter": "^5.1",
+        "nette/php-generator": "^3.4",
+        "haydenpierce/class-finder": "^0.4.2",
+        "nuwave/lighthouse": "^4.15"
     },
     "require-dev": {
         "phpunit/phpunit": "^7",

@@ -157,10 +157,10 @@ class MigrationGenerator extends BaseGenerator
                 $extra[] = '$table->index("' . $fieldName . '");';
                 break;
             case 'migrationDefaultValue':
-                throw new Exception('Default value not implemented yet');
                 $x = ''; // TODO
                 $base .= '->default(' . $x . ')';
-                break;
+                throw new Exception('Default value not implemented yet');
+                // break;
             }
         }
         $base .= ';';
@@ -198,7 +198,6 @@ class MigrationGenerator extends BaseGenerator
             switch ($name) {
             case 'migrationSkip':
                 return;
-                break;
             case 'migrationUniqueIndex':
                 $extra[] = '$table->unique("' . $fieldName . '");';
                 break;
