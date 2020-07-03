@@ -178,7 +178,7 @@ class ModelGenerator extends BaseGenerator
         $lowerName = mb_strtolower($this->inflector->singularize($field->name));
         $lowerNamePlural = $this->inflector->pluralize($lowerName);
 
-        $targetClass = 'App\\' . Str::studly($this->inflector->singularize($field->name));
+        $targetClass = '\\App\\' . Str::studly($this->inflector->singularize($field->name));
 
         $generateRandom = false;
         foreach ($directives as $directive) {

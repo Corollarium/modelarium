@@ -57,9 +57,9 @@ final class ProcessorTest extends TestCase
         )->first();
 
         $this->assertStringContainsString('public function phone()', $userModel->contents);
-        $this->assertStringContainsString('return $this->hasOne(App\\Phone::class);', $userModel->contents);
+        $this->assertStringContainsString('return $this->hasOne(\\App\\Phone::class);', $userModel->contents);
         $this->assertStringContainsString('public function user()', $phoneModel->contents);
-        $this->assertStringContainsString('return $this->belongsTo(App\\User::class);', $phoneModel->contents);
+        $this->assertStringContainsString('return $this->belongsTo(\\App\\User::class);', $phoneModel->contents);
     }
 
     public function testParseRelationshipOneToOneNullable()
