@@ -134,9 +134,9 @@ final class ProcessorTest extends TestCase
         )->first();
 
         $this->assertStringContainsString('public function comments()', $postModel->contents);
-        $this->assertStringContainsString('return $this->hasMany(App\\Comment::class);', $postModel->contents);
+        $this->assertStringContainsString('return $this->hasMany(\\App\\Comment::class);', $postModel->contents);
         $this->assertStringContainsString('public function post()', $commentModel->contents);
-        $this->assertStringContainsString('return $this->belongsTo(App\\Post::class);', $commentModel->contents);
+        $this->assertStringContainsString('return $this->belongsTo(\\App\\Post::class);', $commentModel->contents);
     }
 
     public function testParseRelationshipManyToMany()
@@ -187,9 +187,9 @@ final class ProcessorTest extends TestCase
         )->first();
 
         $this->assertStringContainsString('public function roles()', $userModel->contents);
-        $this->assertStringContainsString('return $this->belongsToMany(App\\Role::class);', $userModel->contents);
+        $this->assertStringContainsString('return $this->belongsToMany(\\App\\Role::class);', $userModel->contents);
         $this->assertStringContainsString('public function users()', $roleModel->contents);
-        $this->assertStringContainsString('return $this->belongsToMany(App\\User::class);', $roleModel->contents);
+        $this->assertStringContainsString('return $this->belongsToMany(\\App\\User::class);', $roleModel->contents);
     }
 
     public function testSplitStrings()
