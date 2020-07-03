@@ -220,7 +220,7 @@ class Parser
     protected static function processImports(string $data, string $basedir): array
     {
         $matches = [];
-        $imports = \Safe\preg_match_all('/^#import\s+([^"]+)$/m', $data, $matches, PREG_SET_ORDER, 0);
+        $imports = \Safe\preg_match_all('/^#import\s+(.+)$/m', $data, $matches, PREG_SET_ORDER, 0);
         if (!$imports) {
             return [];
         }

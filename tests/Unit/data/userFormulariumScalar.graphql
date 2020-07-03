@@ -1,4 +1,4 @@
-#import "formularium.graphql"
+#import formularium.graphql
 
 type User {
   id: ID!
