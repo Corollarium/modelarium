@@ -65,7 +65,7 @@ class Processor extends ModelariumProcessor
     public function __construct()
     {
         $this->parser = new Parser();
-        $this->parser->setImport('modelarium', self::getDirectivesGraphqlString());
+        $this->parser->setImport('modelarium.graphql', self::getDirectivesGraphqlString());
     }
 
     /**

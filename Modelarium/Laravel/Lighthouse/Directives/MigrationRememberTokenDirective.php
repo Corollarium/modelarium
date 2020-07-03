@@ -10,6 +10,10 @@ class MigrationRememberTokenDirective extends BaseDirective implements DefinedDi
     public static function definition(): string
     {
         return /** @lang GraphQL */ <<<'SDL'
+"""
+Specifies that remember me tokens should be created on DB.
+"""
+directive @migrationRememberToken on OBJECT
 SDL;
     }
 }
