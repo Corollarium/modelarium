@@ -233,7 +233,7 @@ class ModelGenerator extends BaseGenerator
         if ($generateRandom) {
             $this->methodRandom->addBody(
                 '$data["' . $lowerName . '_id"] = function () {' . "\n" .
-                '    return factory(\\' . $targetClass . '::class)->create()->id;'  . "\n" .
+                '    return factory(' . $targetClass . '::class)->create()->id;'  . "\n" .
                 '};'
             );
         }
