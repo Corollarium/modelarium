@@ -3,9 +3,10 @@
 namespace Modelarium\Types;
 
 use Formularium\Datatype;
+use Formularium\DatatypeFactory;
 use Formularium\Exception\ClassNotFoundException;
 use Formularium\Field;
-use Formularium\Validator;
+use Formularium\ValidatorFactory;
 use Formularium\ValidatorMetadata;
 use Modelarium\Exception\Exception;
 
@@ -22,7 +23,8 @@ abstract class FormulariumScalarType extends ScalarType
     public function __construct(array $config = [])
     {
         parent::__construct($config);
-        $this->datatype = Datatype::factory(str_replace('Datatype_', '', $this->name));
+        $name = mb_strtolower(str_replace('Datatype_', '', $this->name));
+        $this->datatype = DatatypeFactory::factory($name);
     }
 
     public function getDatatype(): Datatype
@@ -77,13 +79,26 @@ abstract class FormulariumScalarType extends ScalarType
         \GraphQL\Language\AST\NodeList $directives
     ): Field {
         $validators = [];
-        $extensions = [];
+        $renderable = [];
         foreach ($directives as $directive) {
             $name = $directive->name->value;
 
+            if ($name === 'renderable') {
+                foreach ($directive->arguments as $arg) {
+                    /**
+                     * @var \GraphQL\Language\AST\ArgumentNode $arg
+                     */
+
+                    $argName = $arg->name->value;
+                    $argValue = $arg->value->value; /** @phpstan-ignore-line */
+                    $renderable[$argName] = $argValue;
+                }
+                continue;
+            }
+
             $validator = null;
             try {
-                $validator = Validator::class($name);
+                $validator = ValidatorFactory::class($name);
             } catch (ClassNotFoundException $e) {
                 continue;
             }
@@ -101,6 +116,7 @@ abstract class FormulariumScalarType extends ScalarType
 
                 $argName = $arg->name->value;
                 $argValue = $arg->value->value; /** @phpstan-ignore-line */
+
                 $argValidator = $metadata->argument($argName);
                 if (!$argValidator) {
                     throw new Exception("Directive $validator does not have argument $argName");
@@ -116,7 +132,7 @@ abstract class FormulariumScalarType extends ScalarType
         return new Field(
             $fieldName,
             $this->datatype->getName(),
-            $extensions,
+            $renderable,
             $validators,
         );
     }

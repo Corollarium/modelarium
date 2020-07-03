@@ -5,5 +5,7 @@ type User {
 
 type Phone {
   id: ID!
-  user: User! @belongsTo @foreign(onDelete: "cascade", onUpdate: "cascade")
+  user: User!
+    @belongsTo
+    @migrationForeign(onDelete: "cascade", onUpdate: "cascade")
 }

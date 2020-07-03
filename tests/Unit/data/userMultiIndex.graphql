@@ -1,4 +1,4 @@
-type User @index(fields: ["name", "surname"]) {
+type User @migrationIndex(fields: ["name", "surname"]) {
   id: ID!
   name: String!
   surname: String!

@@ -13,8 +13,16 @@ Forms are generated from a simple structure, which can be serialized as JSON. It
 
 ## Getting started
 
-Install with composer:
+Install deps with composer:
 
 ```
 composer required Corollarium/modelarium Corollarium/Formularium
 ```
+
+Export the schemas:
+
+```
+php artisan vendor:publish --provider="Modelarium\Laravel\ServiceProvider" --tag=schema
+```
+
+Edit

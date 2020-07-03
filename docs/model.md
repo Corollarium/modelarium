@@ -27,7 +27,7 @@ type Query {
   user(id: ID @eq): User @find
 }
 
-type User @timestamps @softDeletesDB {
+type User @timestamps @migrationSoftDeletes {
   id: ID!
   name: String!
   email: Email!

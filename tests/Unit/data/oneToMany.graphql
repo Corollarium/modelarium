@@ -5,5 +5,7 @@ type Post {
 
 type Comment {
   id: ID!
-  post: Post! @belongsTo @foreign(onDelete: "cascade", onUpdate: "cascade")
+  post: Post!
+    @belongsTo
+    @migrationForeign(onDelete: "cascade", onUpdate: "cascade")
 }

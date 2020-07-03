@@ -8,19 +8,13 @@ scalar Alphanum @scalar(class: "Modelarium\\Types\\Datatype_alphanum")
 
 scalar Alphanumdash @scalar(class: "Modelarium\\Types\\Datatype_alphanumdash")
 
-scalar Association @scalar(class: "Modelarium\\Types\\Datatype_association")
-
 scalar Bool @scalar(class: "Modelarium\\Types\\Datatype_bool")
-
-scalar Choice @scalar(class: "Modelarium\\Types\\Datatype_choice")
 
 scalar Cnpj @scalar(class: "Modelarium\\Types\\Datatype_cnpj")
 
 scalar Color @scalar(class: "Modelarium\\Types\\Datatype_color")
 
 scalar Constant @scalar(class: "Modelarium\\Types\\Datatype_constant")
-
-scalar Countrycode @scalar(class: "Modelarium\\Types\\Datatype_countrycode")
 
 scalar CountrycodeISO2 @scalar(class: "Modelarium\\Types\\Datatype_countrycodeISO2")
 
@@ -55,8 +49,6 @@ scalar Ipv6 @scalar(class: "Modelarium\\Types\\Datatype_ipv6")
 scalar Json @scalar(class: "Modelarium\\Types\\Datatype_json")
 
 scalar Language @scalar(class: "Modelarium\\Types\\Datatype_language")
-
-scalar Number @scalar(class: "Modelarium\\Types\\Datatype_number")
 
 scalar Pagination @scalar(class: "Modelarium\\Types\\Datatype_pagination")
 

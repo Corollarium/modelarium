@@ -195,7 +195,7 @@ final class ProcessorTest extends TestCase
     public function testSplitStrings()
     {
         $strings = [
-            LaravelProcessor::getDirectives(),
+            LaravelProcessor::getDirectivesGraphqlString(),
             \Safe\file_get_contents(__DIR__ . '/../data/lighthouse-schema-directives.graphql')
         ];
         $strings[] = <<< EOF
@@ -213,7 +213,7 @@ EOF;
         $strings[] = <<< EOF
 type Phone {
     id: ID!
-    user: User! @belongsTo @foreign(onDelete: "cascade", onUpdate: "cascade")
+    user: User! @belongsTo @migrationForeign(onDelete: "cascade", onUpdate: "cascade")
 }
 
 type Query {

@@ -4,6 +4,7 @@ namespace Modelarium\Laravel;
 
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
+use HaydenPierce\ClassFinder\ClassFinder;
 use Modelarium\GeneratedCollection;
 use Modelarium\GeneratedItem;
 use Modelarium\Laravel\Targets\EventGenerator;
@@ -15,6 +16,7 @@ use Modelarium\Laravel\Targets\SeedGenerator;
 use Modelarium\Parser;
 use Modelarium\Processor as ModelariumProcessor;
 use Nette\PhpGenerator\ClassType;
+use Nuwave\Lighthouse\Schema\Factories\DirectiveFactory;
 
 class Processor extends ModelariumProcessor
 {
@@ -61,14 +63,46 @@ class Processor extends ModelariumProcessor
     protected $seederClass = null;
 
     /**
-     * Returns directives defined by Modelarium.
+     * Scan the given namespaces for directive classes.
      *
-     * @return string
-     * @throws \Safe\Exceptions\FilesystemException
+     * @param  string[]  $directiveNamespaces
+     * @return array<string, string>
      */
-    public static function getDirectives(): string
+    public static function getDirectivesGraphql($directiveNamespaces = [ __DIR__ . 'Lighthouse/Directives' ]): array
     {
-        return \Safe\file_get_contents(__DIR__ . '/Graphql/definitions.graphql');
+        $directives = [];
+
+        foreach ($directiveNamespaces as $directiveNamespace) {
+            /** @var string[] $classesInNamespace */
+            $classesInNamespace = ClassFinder::getClassesInNamespace($directiveNamespace);
+
+            foreach ($classesInNamespace as $class) {
+                $reflection = new \ReflectionClass($class);
+                if (! $reflection->isInstantiable()) {
+                    continue;
+                }
+
+                if (! is_a($class, Directive::class, true)) {
+                    continue;
+                }
+
+                $name = DirectiveFactory::directiveName($class);
+                $directives[$name] = trim($class::definition());
+            }
+        }
+
+        return $directives;
+    }
+
+    /**
+     * Scan the given namespaces for directive classes.
+     *
+     * @param  string[]  $directiveNamespaces
+     * @return string
+     */
+    public static function getDirectivesGraphqlString($directiveNamespaces = [ __DIR__ . 'Lighthouse/Directives' ]): string
+    {
+        return implode(self::getDirectivesGraphql($directiveNamespaces));
     }
 
     /**

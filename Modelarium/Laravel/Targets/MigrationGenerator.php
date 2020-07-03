@@ -150,16 +150,14 @@ class MigrationGenerator extends BaseGenerator
         foreach ($directives as $directive) {
             $name = $directive->name->value;
             switch ($name) {
-            case 'uniqueIndex':
+            case 'migrationUniqueIndex':
                 $extra[] = '$table->unique("' . $fieldName . '");';
                 break;
-            case 'index':
+            case 'migrationIndex':
                 $extra[] = '$table->index("' . $fieldName . '");';
                 break;
-            case 'unsigned':
-                $base .= '->unsigned()';
-                break;
-            case 'defaultValue':
+            case 'migrationDefaultValue':
+                throw new Exception('Default value not implemented yet');
                 $x = ''; // TODO
                 $base .= '->default(' . $x . ')';
                 break;
@@ -198,10 +196,13 @@ class MigrationGenerator extends BaseGenerator
         foreach ($directives as $directive) {
             $name = $directive->name->value;
             switch ($name) {
-            case 'uniqueIndex':
+            case 'migrationSkip':
+                return;
+                break;
+            case 'migrationUniqueIndex':
                 $extra[] = '$table->unique("' . $fieldName . '");';
                 break;
-            case 'index':
+            case 'migrationIndex':
                 $extra[] = '$table->index("' . $fieldName . '");';
                 break;
             case 'belongsTo':
@@ -237,7 +238,7 @@ class MigrationGenerator extends BaseGenerator
                     $this->collection->push($item);
                 }
                 break;
-            case 'foreign':
+            case 'migrationForeign':
                 $references = 'id';
                 $on = $lowerNamePlural;
                 $onDelete = null;
@@ -290,13 +291,13 @@ class MigrationGenerator extends BaseGenerator
         foreach ($directives as $directive) {
             $name = $directive->name->value;
             switch ($name) {
-            case 'softDeletesDB':
+            case 'migrationSoftDeletes':
                 $this->createCode[] ='$table->softDeletes();';
                 break;
-            case 'primaryIndex':
+            case 'migrationPrimaryIndex':
                 // TODO
                 throw new Exception("Primary index is not implemented yet");
-            case 'index':
+            case 'migrationIndex':
                 $values = $directive->arguments[0]->value->values;
 
                 $indexFields = [];
@@ -308,11 +309,11 @@ class MigrationGenerator extends BaseGenerator
                 }
                 $this->createCode[] ='$table->index("' . implode('", "', $indexFields) .'");';
                 break;
-            case 'spatialIndex':
+            case 'migrationSpatialIndex':
                 $this->createCode[] ='$table->spatialIndex("' . $directive->arguments[0]->value->value .'");';
                 break;
 
-            case 'fulltextIndex':
+            case 'migrationFulltextIndex':
                 $values = $directive->arguments[0]->value->values;
 
                 $indexFields = [];
@@ -329,10 +330,10 @@ class MigrationGenerator extends BaseGenerator
                     implode('", "', $indexFields) .
                     "\")');";
                 break;
-            case 'rememberToken':
+            case 'migrationRememberToken':
                 $this->createCode[] ='$table->rememberToken();';
                 break;
-            case 'timestamps':
+            case 'migrationTimestamps':
                 $this->createCode[] ='$table->timestamps();';
                 break;
             default:

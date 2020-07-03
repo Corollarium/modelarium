@@ -70,7 +70,7 @@ class ModelariumCommand extends Command
         $processor->setRunEvent($this->option('event') || $this->option('everything'));
 
         $files = [
-            __DIR__ . '/../../Graphql/definitions.graphql',
+            // todo __DIR__ . '/../../Graphql/definitions.graphql',
             __DIR__ . '/../../../Types/Graphql/scalars.graphql'
         ];
 

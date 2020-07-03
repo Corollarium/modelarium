@@ -36,15 +36,15 @@ This a Graphql file that reproduces Laravel's default `User` model. Notice the E
 ```graphql
 type User
   @timestamps
-  @softDeletesDB
+  @migrationSoftDeletes
   @extends(class: "Illuminate\\Foundation\\Auth\\User")
-  @notifiable
-  @rememberToken {
+  @modelNotifiable
+  @migrationRememberToken {
   id: ID!
-  name: String! @fillableAPI
-  password: String! @hiddenAPI @fillableAPI
+  name: String! @modelFillable
+  password: String! @modelHidden @modelFillable
   email_verified_at: Timestamp @casts(type: "datetime")
-  email: Email! @uniqueIndex @fillableAPI
+  email: Email! @uniqueIndex @modelFillable
   posts: [Post!] @hasMany
 }
 ```

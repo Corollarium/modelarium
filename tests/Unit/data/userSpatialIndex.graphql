@@ -1,4 +1,4 @@
-type User @spatialIndex(field: "location") {
+type User @migrationSpatialIndex(field: "location") {
   id: ID!
   name: String!
   location: String!

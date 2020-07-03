@@ -2,8 +2,10 @@
 
 namespace Modelarium\Laravel;
 
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider as LaravelServiceProvider;
-
+use Nuwave\Lighthouse\Events\RegisterDirectiveNamespaces;
+ 
 class ServiceProvider extends LaravelServiceProvider
 {
     /**
@@ -11,12 +13,24 @@ class ServiceProvider extends LaravelServiceProvider
      *
      * @return void
      */
-    public function boot()
+    public function boot(): void
     {
         if ($this->app->runningInConsole()) {
             $this->commands([
                 \Modelarium\Laravel\Console\Commands\ModelariumCommand::class
             ]);
         }
+
+        $this->publishes([
+            // TODO __DIR__ . '/Graphql/definitions.graphql' => base_path('graphql/modelarium.graphql'),
+            __DIR__ . '/../Types/Graphql/scalars.graphql' => base_path('graphql/formularium.graphql'),
+        ], 'schema');
+
+        Event::listen(
+            RegisterDirectiveNamespaces::class,
+            function (RegisterDirectiveNamespaces $registerDirectiveNamespaces): string {
+                return 'Modelarium\\Laravel\\Lighthouse\\Directives';
+            }
+        );
     }
 }

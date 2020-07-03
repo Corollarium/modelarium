@@ -3,19 +3,13 @@
 namespace Modelarium\Laravel\Targets;
 
 use Formularium\Datatype;
-use Formularium\Exception\ClassNotFoundException;
-use Formularium\Formularium;
-use Formularium\Validator;
-use Formularium\ValidatorMetadata;
 use Illuminate\Support\Str;
 use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ObjectType;
-use Modelarium\Exception\Exception;
 use Modelarium\GeneratedCollection;
 use Modelarium\GeneratedItem;
 use Modelarium\Types\FormulariumScalarType;
-use Symfony\Component\VarExporter\VarExporter;
 
 class ModelGenerator extends BaseGenerator
 {
@@ -90,7 +84,8 @@ class ModelGenerator extends BaseGenerator
     protected function processField(
         string $typeName,
         \GraphQL\Type\Definition\FieldDefinition $field,
-        \GraphQL\Language\AST\NodeList $directives
+        \GraphQL\Language\AST\NodeList $directives,
+        bool $isRequired
     ): void {
         $fieldName = $field->name;
 
@@ -102,10 +97,19 @@ class ModelGenerator extends BaseGenerator
 
         if ($scalarType) {
             if ($scalarType instanceof FormulariumScalarType) {
-                $this->fields[$fieldName] = $scalarType->processDirectives(
+                $field = $scalarType->processDirectives(
                     $fieldName,
                     $directives
-                )->toArray();
+                );
+                
+                if ($isRequired) {
+                    $field->setValidatorOption(
+                        Datatype::REQUIRED,
+                        'value',
+                        true
+                    );
+                }
+                $this->fields[$fieldName] = $field->toArray();
             }
         }
     }
@@ -129,20 +133,13 @@ class ModelGenerator extends BaseGenerator
             $type = $field->type->getWrappedType();
         }
 
-        $validators = [];
-        if ($isRequired) {
-            $validators = [
-                Datatype::REQUIRED => true
-            ];
-        }
-
         foreach ($directives as $directive) {
             $name = $directive->name->value;
             switch ($name) {
-            case 'fillableAPI':
+            case 'modelFillable':
                 $this->fillable[] = $fieldName;
                 break;
-            case 'hiddenAPI':
+            case 'modelHidden':
                 $this->hidden[] = $fieldName;
                 break;
             case 'casts':
@@ -163,7 +160,7 @@ class ModelGenerator extends BaseGenerator
         }
 
         $typeName = $type->name; /** @phpstan-ignore-line */
-        $this->processField($typeName, $field, $directives);
+        $this->processField($typeName, $field, $directives, $isRequired);
     }
 
     protected function processRelationship(
@@ -207,19 +204,22 @@ class ModelGenerator extends BaseGenerator
             }
         }
 
+        $isRequired = false;
         if ($field->type instanceof NonNull) {
             $type = $field->type->getWrappedType();
+            $isRequired = true;
         } else {
             $type = $field->type;
         }
 
         if ($field->type instanceof ListOfType) {
             $type = $field->type->getWrappedType();
+            // TODO: NonNull check again?
         }
 
         $typeName = $type->name; /** @phpstan-ignore-line */
         if ($typeName) {
-            $this->processField($typeName, $field, $directives);
+            $this->processField($typeName, $field, $directives, $isRequired);
         }
     }
 
@@ -229,16 +229,16 @@ class ModelGenerator extends BaseGenerator
         foreach ($directives as $directive) {
             $name = $directive->name->value;
             switch ($name) {
-            case 'softDeletesDB':
+            case 'migrationSoftDeletes':
                 $this->traits[] = '\Illuminate\Database\Eloquent\SoftDeletes';
                 break;
-            case 'notifiable':
+            case 'modelNotifiable':
                 $this->traits[] = '\Illuminate\Notifications\Notifiable';
                 break;
-            case 'mustVerifyEmail':
+            case 'modelMustVerifyEmail':
                 $this->traits[] = '\Illuminate\Notifications\MustVerifyEmail';
                 break;
-            case 'rememberToken':
+            case 'migrationRememberToken':
                 $this->hidden[] = 'remember_token';
                 break;
             case 'extends':
@@ -266,7 +266,7 @@ class ModelGenerator extends BaseGenerator
             new \Formularium\Field(
                 '{$f->name}',
                 '',
-                [ // extensions
+                [ // renderable
                 ],
                 [ // validators
                 ]
@@ -314,7 +314,7 @@ EOF;
             ->setReturnType('array')
             ->addComment('@return array')
             ->addBody(
-                'return ?;' . "\n" .
+                "return ?;\n",
                 [
                     $this->fields
                 ]

@@ -1,4 +1,4 @@
-type User @softDeletesDB @rememberToken @timestamps {
+type User @migrationSoftDeletes @migrationRememberToken @migrationTimestamps {
   id: ID!
   name: String!
   email: String!
