@@ -1,0 +1,94 @@
+"""
+Default value for database column
+"""
+directive @casts(
+    """
+    The value
+    """
+    type: String!
+) on FIELD_DEFINITION"""
+Default value for database column
+"""
+directive @migrationDefaultValue(
+    """
+    The value
+    """
+    value: String!
+) on FIELD_DEFINITION"""
+Default value for database column
+"""
+directive @migrationForeign(
+    """
+    What field it references
+    """
+    references: String
+
+    """
+    What table it references
+    """
+    on: String
+
+    """
+    What to do onDelete
+    """
+    onDelete: String
+
+    """
+    What to do on Update
+    """
+    onUpdate: String
+) on FIELD_DEFINITION"""
+Generates a composed index on the database for a type
+"""
+directive @index(
+    """
+    The list of fields to compose in the index
+    """
+    fields: [String]!
+) on OBJECT"""
+Specifies that remember me tokens should be created on DB.
+"""
+directive @migrationRememberToken on OBJECT"""
+Do not add this field to the migration
+"""
+directive @migrationSkip on FIELD_DEFINITION"""
+Specifies a soft delete mode for this type
+"""
+directive @migrationSoftDeletes on OBJECT"""
+Generates a migrationSpatialIndex
+"""
+directive @migrationSpatialIndex(
+    """
+    The field for the index
+    """
+    field: String!
+) on OBJECT"""
+Generates a timestamps columns for a type
+"""
+directive @migrationTimestamps on OBJECT"""
+Generates a unique index on the database for that field
+"""
+directive @migrationUniqueIndex on FIELD_DEFINITION"""
+Base class to extend on model.
+"""
+directive @modelExtends(
+    """
+    The base class name with namespace
+    """
+    class: String!
+) on OBJECT"""
+Field is hidden from API.
+"""
+directive @modelFillable on FIELD_DEFINITION"""
+Field is hidden from API.
+"""
+directive @modelHidden on FIELD_DEFINITION"""
+Use a MustVerifyEmail trait on a model
+"""
+directive @modelMustVerifyEmail on OBJECT"""
+Use a Notifiable trait on a model
+"""
+directive @modelNotifiable on OBJECT"""
+Generate renderable
+"""
+directive @renderable on FIELD_DEFINITION

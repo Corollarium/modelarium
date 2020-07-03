@@ -5,7 +5,7 @@ namespace Modelarium\Laravel;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider as LaravelServiceProvider;
 use Nuwave\Lighthouse\Events\RegisterDirectiveNamespaces;
- 
+
 class ServiceProvider extends LaravelServiceProvider
 {
     /**
@@ -22,7 +22,7 @@ class ServiceProvider extends LaravelServiceProvider
         }
 
         $this->publishes([
-            // TODO __DIR__ . '/Graphql/definitions.graphql' => base_path('graphql/modelarium.graphql'),
+            __DIR__ . '/../Types/Graphql/directives.graphql' => base_path('graphql/modelarium.graphql'),
             __DIR__ . '/../Types/Graphql/scalars.graphql' => base_path('graphql/formularium.graphql'),
         ], 'schema');
 

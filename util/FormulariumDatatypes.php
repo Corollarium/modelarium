@@ -5,6 +5,7 @@ require(__DIR__ . '/../vendor/autoload.php');
 use Formularium\Datatype;
 use Formularium\Formularium;
 use Illuminate\Support\Str;
+use Modelarium\Laravel\Processor as LaravelProcessor;
 
 $graphql = [
     '"""
@@ -48,4 +49,8 @@ $graphqlData = implode("\n\n", $graphql);
 $filename = __DIR__ . '/../Modelarium/Types/Graphql/scalars.graphql';
 \Safe\file_put_contents($filename, $graphqlData);
 
+\Safe\file_put_contents(
+    __DIR__ . '/../Modelarium/Types/Graphql/directives.graphql',
+    LaravelProcessor::getDirectivesGraphqlString()
+);
 echo "Generated.\n";
