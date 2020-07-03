@@ -13,7 +13,7 @@ class MigrationForeignDirective extends BaseDirective implements DefinedDirectiv
 """
 Default value for database column
 """
-directive @foreign(
+directive @migrationForeign(
     """
     What field it references
     """

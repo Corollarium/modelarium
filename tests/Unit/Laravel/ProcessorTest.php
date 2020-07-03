@@ -198,6 +198,7 @@ final class ProcessorTest extends TestCase
             LaravelProcessor::getDirectivesGraphqlString(),
             \Safe\file_get_contents(__DIR__ . '/../data/lighthouse-schema-directives.graphql')
         ];
+
         $strings[] = <<< EOF
 type User {
     id: ID!

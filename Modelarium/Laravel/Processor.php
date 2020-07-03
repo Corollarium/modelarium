@@ -62,13 +62,19 @@ class Processor extends ModelariumProcessor
      */
     protected $seederClass = null;
 
+    public function __construct()
+    {
+        $this->parser = new Parser();
+        $this->parser->setImport('modelarium', self::getDirectivesGraphqlString());
+    }
+
     /**
      * Scan the given namespaces for directive classes.
      *
      * @param  string[]  $directiveNamespaces
      * @return array<string, string>
      */
-    public static function getDirectivesGraphql($directiveNamespaces = [ __DIR__ . 'Lighthouse/Directives' ]): array
+    public static function getDirectivesGraphql($directiveNamespaces = [ 'Modelarium\Laravel\Lighthouse\Directives' ]): array
     {
         $directives = [];
 
@@ -100,7 +106,7 @@ class Processor extends ModelariumProcessor
      * @param  string[]  $directiveNamespaces
      * @return string
      */
-    public static function getDirectivesGraphqlString($directiveNamespaces = [ __DIR__ . 'Lighthouse/Directives' ]): string
+    public static function getDirectivesGraphqlString($directiveNamespaces = [ 'Modelarium\Laravel\Lighthouse\Directives' ]): string
     {
         return implode(self::getDirectivesGraphql($directiveNamespaces));
     }
@@ -112,7 +118,7 @@ class Processor extends ModelariumProcessor
      */
     public function processFiles(array $files): GeneratedCollection
     {
-        $this->parser = Parser::fromFiles($files);
+        $this->parser->fromFiles($files);
         return $this->process();
     }
 
@@ -123,7 +129,7 @@ class Processor extends ModelariumProcessor
      */
     public function processString(string $data): GeneratedCollection
     {
-        $this->parser = Parser::fromString($data);
+        $this->parser->fromString($data);
         return $this->process();
     }
 
@@ -134,7 +140,7 @@ class Processor extends ModelariumProcessor
      */
     public function processStrings(array $data): GeneratedCollection
     {
-        $this->parser = Parser::fromStrings($data);
+        $this->parser->fromStrings($data);
         return $this->process();
     }
 

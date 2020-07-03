@@ -29,13 +29,22 @@ class Parser
      */
     protected $scalars = [];
 
-    protected function __construct()
+    /**
+     * @var string[]
+     */
+    protected $imports = [];
+
+    public function __construct()
     {
         $this->scalars = [
             'String' => 'Modelarium\\Types\\Datatype_string',
             'Int' => 'Modelarium\\Types\\Datatype_integer',
             'Float' => 'Modelarium\\Types\\Datatype_float',
             'Boolean' => 'Modelarium\\Types\\Datatype_bool',
+        ];
+
+        $this->imports = [
+            'formularium.graphql' => \Safe\file_get_contents(__DIR__ . '/Types/Graphql/scalars.graphql'),
         ];
     }
 
@@ -65,19 +74,18 @@ class Parser
      * @param string $data the string
      * @return Parser
      */
-    public static function fromString(string $data): self
+    public function fromString(string $data): self
     {
-        $p = new self();
-        $p->ast = \GraphQL\Language\Parser::parse($data);
-        $p->processAst();
+        $this->ast = \GraphQL\Language\Parser::parse($data);
+        $this->processAst();
         $schemaBuilder = new \GraphQL\Utils\BuildSchema(
-            $p->ast,
+            $this->ast,
             [__CLASS__, 'extendDatatypes']
         );
         
-        $p->schema = $schemaBuilder->buildSchema();
-        $p->processSchema();
-        return $p;
+        $this->schema = $schemaBuilder->buildSchema();
+        $this->processSchema();
+        return $this;
     }
 
     /**
@@ -85,9 +93,8 @@ class Parser
      * @param string[] $sources
      * @return self
      */
-    public static function fromStrings(array $sources): self
+    public function fromStrings(array $sources): self
     {
-        $p = new self();
         $schema = new Schema([
             'query' => new ObjectType(['name' => 'Query']),
             'mutation' => new ObjectType(['name' => 'Mutation']),
@@ -98,21 +105,21 @@ class Parser
             $s = \Safe\preg_replace('/^type Query/m', 'extend type Query', $s);
         }
         $extensionSource = implode("\n\n", $sources);
-        $p->ast = \GraphQL\Language\Parser::parse($extensionSource);
+        $this->ast = \GraphQL\Language\Parser::parse($extensionSource);
 
         // TODO: extendDatatypes
-        $p->schema = SchemaExtender::extend(
+        $this->schema = SchemaExtender::extend(
             $schema,
-            $p->ast
+            $this->ast
         );
         // $schemaBuilder = new \GraphQL\Utils\BuildSchema(
-        //     $p->ast,
+        //     $this->ast,
         //     [__CLASS__, 'extendDatatypes']
         // );
 
-        // $p->schema = $schemaBuilder->buildSchema();
-        $p->processAst();
-        return $p;
+        // $this->schema = $schemaBuilder->buildSchema();
+        $this->processAst();
+        return $this;
     }
 
     /**
@@ -121,17 +128,16 @@ class Parser
      * @return self
      * @throws \Safe\Exceptions\FilesystemException
      */
-    public static function fromFiles(array $files): self
+    public function fromFiles(array $files): self
     {
         $sources = [
-            Formularium::validatorGraphqlDirectives()
         ];
         foreach ($files as $f) {
             $data = \Safe\file_get_contents($f);
-            $sources = array_merge($sources, static::processImports($data, dirname($f)));
+            $sources = array_merge($sources, $this->processImports($data, dirname($f)));
             $sources[] = $data;
         }
-        return static::fromStrings($sources);
+        return $this->fromStrings($sources);
     }
 
     /**
@@ -141,12 +147,12 @@ class Parser
      * @return Parser
      * @throws \Safe\Exceptions\FilesystemException If file is not found or parsing fails.
      */
-    public static function fromFile(string $path): self
+    public function fromFile(string $path): self
     {
         $data = \Safe\file_get_contents($path);
-        $imports = static::processImports($data, dirname($path));
+        $imports = $this->processImports($data, dirname($path));
         // TODO: recurse imports
-        return self::fromString(implode("\n", $imports) . $data);
+        return $this->fromString(implode("\n", $imports) . $data);
     }
 
     protected function processSchema(): void
@@ -213,11 +219,17 @@ class Parser
         ]);
     }
 
+    public function setImport(string $name, string $data): self
+    {
+        $this->imports[$name] = $data;
+        return $this;
+    }
+
     /**
      * @param string $data
      * @return string[]
      */
-    protected static function processImports(string $data, string $basedir): array
+    protected function processImports(string $data, string $basedir): array
     {
         $matches = [];
         $imports = \Safe\preg_match_all('/^#import\s+(.+)$/m', $data, $matches, PREG_SET_ORDER, 0);
@@ -226,10 +238,11 @@ class Parser
         }
         return array_map(
             function ($i) use ($basedir) {
-                if ($i[1] === 'formularium.graphql') {
-                    return \Safe\file_get_contents(__DIR__ . '/Types/Graphql/scalars.graphql');
+                $name = $i[1];
+                if (array_key_exists($name, $this->imports)) {
+                    return $this->imports[$name];
                 }
-                return \Safe\file_get_contents($basedir . '/' . $i[1]);
+                return \Safe\file_get_contents($basedir . '/' . $name);
             },
             $matches
         );

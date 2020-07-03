@@ -8,7 +8,7 @@ final class ParserTest extends TestCase
 {
     public function testParse()
     {
-        $parser = Parser::fromString(
+        $parser = (new Parser())->fromString(
             <<<EOF
 type Query {
     users: [User!]! @paginate(defaultCount: 10)
@@ -27,7 +27,7 @@ EOF
 
     public function testParseFromFile()
     {
-        $parser = Parser::fromFile(__DIR__ . '/data/userQueryInput.graphql');
+        $parser = (new Parser())->fromFile(__DIR__ . '/data/userQueryInput.graphql');
         $this->assertNotNull($parser);
     }
 }

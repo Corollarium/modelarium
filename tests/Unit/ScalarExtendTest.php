@@ -95,14 +95,14 @@ final class ScalarExtendTest extends TestCase
 {
     public function testCustomScalarParserLoad()
     {
-        $parser = Parser::fromFile(__DIR__ . '/data/queryExtendScalar.graphql');
+        $parser = (new Parser())->fromFile(__DIR__ . '/data/queryExtendScalar.graphql');
         $this->assertNotNull($parser);
     }
 
     public function testObjectParserQuery()
     {
         $this->markTestSkipped();
-        $parser = Parser::fromFile(__DIR__ . '/data/queryExtendScalar.graphql');
+        $parser = (new Parser())->fromFile(__DIR__ . '/data/queryExtendScalar.graphql');
         $this->assertNotNull($parser);
 
         $result = $this->executeQuery(
