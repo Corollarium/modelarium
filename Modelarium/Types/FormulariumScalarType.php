@@ -133,7 +133,7 @@ abstract class FormulariumScalarType extends ScalarType
             $fieldName,
             $this->datatype->getName(),
             $renderable,
-            $validators,
+            $validators
         );
     }
 
