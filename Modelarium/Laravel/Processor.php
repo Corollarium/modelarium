@@ -171,7 +171,7 @@ class Processor extends ModelariumProcessor
             }
         }
 
-        $this->collection->merge($this->processMutation($schema->getMutationType()));
+        $this->collection = $this->collection->merge($this->processMutation($schema->getMutationType()));
 
         if ($this->runSeed) {
             $printer = new \Nette\PhpGenerator\PsrPrinter;
@@ -222,10 +222,10 @@ class Processor extends ModelariumProcessor
             return $collection;
         }
         if ($this->runPolicy) {
-            $collection = (new PolicyGenerator($this->parser, 'Mutation', $object))->generate();
+            $collection = $collection->merge((new PolicyGenerator($this->parser, 'Mutation', $object))->generate());
         }
         if ($this->runEvent) {
-            $collection = (new EventGenerator($this->parser, 'Mutation', $object))->generate();
+            $collection = $collection->merge((new EventGenerator($this->parser, 'Mutation', $object))->generate());
         }
         return $collection;
     }
