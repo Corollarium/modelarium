@@ -12,7 +12,7 @@ use Symfony\Component\Console\Output\BufferedOutput;
 // use Formularium\Frontend\Blade\Framework as FrameworkBlade;
 // use Formularium\Frontend\Vue\Framework as FrameworkVue;
 
-class ModelariumCommand extends Command
+class ModelariumScaffoldCommand extends Command
 {
     /**
      * The name and signature of the console command.
