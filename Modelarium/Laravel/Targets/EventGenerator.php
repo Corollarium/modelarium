@@ -108,7 +108,7 @@ class EventGenerator extends BaseGenerator
     public function getGenerateFilename(string $relativePath, string $name): string
     {
         // fix App -> app
-        if (substr($relativePath, 0, 3) === 'App' && !is_dir($this->getBasePath($relativePath))) {
+        if (mb_substr($relativePath, 0, 3) === 'App' && !is_dir($this->getBasePath($relativePath))) {
             $relativePath[0] = 'a';
         }
         return $this->getBasePath($relativePath . '/' . $name . '.php');

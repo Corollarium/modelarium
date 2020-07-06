@@ -5,6 +5,7 @@ namespace Modelarium\Laravel\Targets;
 use GraphQL\Language\AST\DirectiveNode;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ObjectType;
+use GraphQL\Type\Definition\Type;
 use Illuminate\Support\Str;
 use Modelarium\GeneratedCollection;
 use Modelarium\GeneratedItem;
@@ -37,6 +38,7 @@ class PolicyGenerator extends BaseGenerator
      */
     public function __construct(Parser $parser, string $name, $type = null)
     {
+        /** @phpstan-ignore-unused $name */
         parent::__construct($parser, '', $type);
         $this->collection = new GeneratedCollection();
     }

@@ -4,6 +4,8 @@ namespace Modelarium\Laravel\Console\Commands;
 
 use Illuminate\Console\Command;
 
+use function Safe\unlink;
+
 class ModelariumInitCommand extends Command
 {
     /**
