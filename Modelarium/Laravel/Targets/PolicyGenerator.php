@@ -3,10 +3,14 @@
 namespace Modelarium\Laravel\Targets;
 
 use GraphQL\Language\AST\DirectiveNode;
+use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ObjectType;
-use Modelarium\Exception\Exception;
+use Illuminate\Support\Str;
 use Modelarium\GeneratedCollection;
 use Modelarium\GeneratedItem;
+use Modelarium\Parser;
+use Nette\PhpGenerator\ClassType;
+use Nette\PhpGenerator\PhpNamespace;
 
 class PolicyGenerator extends BaseGenerator
 {
@@ -16,26 +20,52 @@ class PolicyGenerator extends BaseGenerator
     protected $type = null;
 
     /**
-     *
-     * @var string
+     * @var GeneratedCollection
      */
-    protected $modelName = '';
+    protected $collection = null;
 
     /**
-     * @var array
+     *
+     * @var ClassType[]
      */
-    protected $policies = [];
+    protected $policyClasses = [];
 
+    /**
+     * @param Parser $parser
+     * @param string $name
+     * @param Type|string $type
+     */
+    public function __construct(Parser $parser, string $name, $type = null)
+    {
+        parent::__construct($parser, '', $type);
+        $this->collection = new GeneratedCollection();
+    }
 
     public function generate(): GeneratedCollection
     {
-        return new GeneratedCollection(
-            [ new GeneratedItem(
-                GeneratedItem::TYPE_POLICY,
-                $this->generateString(),
-                $this->getGenerateFilename()
-            )]
-        );
+        foreach ($this->type->getFields() as $field) {
+            $directives = $field->astNode->directives;
+            $this->processDirectives($field, $directives);
+        }
+
+
+        $printer = new \Nette\PhpGenerator\PsrPrinter;
+
+        foreach ($this->policyClasses as $name => $c) {
+            $namespace = new PhpNamespace('App\\Policies');
+            $namespace->addUse('App\\User');
+            $namespace->addUse('App\\' . $name);
+            $namespace->add($c);
+
+            $this->collection->push(
+                new GeneratedItem(
+                    GeneratedItem::TYPE_POLICY,
+                    "<?php declare(strict_types=1);\n\n" . $printer->printNamespace($namespace),
+                    $this->getGenerateFilename($name)
+                )
+            );
+        }
+        return $this->collection;
     }
 
     public function processDirectives(
@@ -62,7 +92,16 @@ class PolicyGenerator extends BaseGenerator
         $find = '';
         $injected = false;
         $args = false;
-        $model = $field->type->name; /** @phpstan-ignore-line */;
+
+        if ($field->type instanceof NonNull) {
+            $isRequired = true;
+            $type = $field->type->getWrappedType();
+        } else {
+            $type = $field->type;
+        }
+
+        $model = $type->name; /** @phpstan-ignore-line */;
+        
         foreach ($directive->arguments as $arg) {
             switch ($arg->name->value) {
                 case 'ability':
@@ -78,96 +117,56 @@ class PolicyGenerator extends BaseGenerator
                     $model = $arg->value->value;
                 break;
                 case 'injectArgs':
-                    $injected = ', array $injectedArgs';
+                    $injected = true;
                 break;
                 case 'args':
-                    $args = ', array $staticArgs';
+                    $args = true;
                 break;
             }
         }
 
-        if (!$this->modelName) {
-            $this->modelName = $model;
-        } else {
-            if ($model != $this->modelName) {
-                // TODO
-                throw new Exception(
-                    'Mixing fields with different arguments in the same mutation type is not supported yet.'
-                );
-            }
-        }
+        list($namespace, $modelClassName, $relativePath) = $this->splitClassName($model);
+
+        $class = $this->getClass($modelClassName);
+
+        $method = $class->addMethod($ability);
+        $method->setPublic()
+            ->setReturnType('bool')
+            ->addBody(
+                'return false;'
+            );
+        $method->addParameter('user')->setType('\\App\\User');
+
         if ($find) {
-            $stub = <<<EOF
-
-    /**
-     * 
-     *
-     * @param \App\User \$user
-     * @param \App\{$model} \${$this->lowerName}
-     * @return mixed
-     */
-    public function {$ability}(User \$user, {$model} \${$this->lowerName}): bool
-    {
-        return false; // TODO: fill with your logic
+            $method->addParameter('model')->setType('\\App\\' . $modelClassName);
+        }
+        if ($injected) {
+            $method->addParameter('injectedArgs')->setType('array');
+        }
+        if ($args) {
+            $method->addParameter('staticArgs')->setType('array');
+        }
     }
-EOF;
-        } elseif ($args || $injected) {
-            $stub = <<<EOF
 
-    /**
-     * 
-     * @param \App\User  \$user
-     * @param array      \$args
-     * @return bool
-     */
-    public function {$ability}(User \$user$injected$args): bool
+    protected function getClass(string $name): ClassType
     {
-        return false; // TODO: fill with your logic
-    }
-EOF;
-        } else {
-            $stub = <<<EOF
-
-    /**
-     * 
-     * @param \App\User  \$user
-     * @return bool
-     */
-    public function {$ability}(User \$user): bool
-    {
-        return false; // TODO: fill with your logic
-    }
-EOF;
+        if (array_key_exists($name, $this->policyClasses)) {
+            return $this->policyClasses[$name];
         }
 
-        $this->policies[] = $stub;
+        /**
+         * @var ClassType $class
+         */
+        $class = new ClassType($name . 'Policy');
+        $class
+            ->addComment("This file was automatically generated by Modelarium.")
+            ->setTraits(['Illuminate\Auth\Access\HandlesAuthorization']);
+        $this->policyClasses[$name] = $class;
+        return $class;
     }
 
-    public function generateString(): string
+    public function getGenerateFilename(string $name): string
     {
-        return $this->stubToString('policy', function ($stub) {
-            foreach ($this->type->getFields() as $field) {
-                $directives = $field->astNode->directives;
-                $this->processDirectives($field, $directives);
-            }
-
-            $stub = str_replace(
-                'DummyPolicyClassName',
-                $this->modelName,
-                $stub
-            );
-            
-            $stub = str_replace(
-                '{{dummyCode}}',
-                join("\n", $this->policies),
-                $stub
-            );
-            return $stub;
-        });
-    }
-
-    public function getGenerateFilename(): string
-    {
-        return $this->getBasePath('app/Policies/'. $this->studlyName . 'Policy.php');
+        return $this->getBasePath('app/Policies/'. Str::studly($name) . 'Policy.php');
     }
 }

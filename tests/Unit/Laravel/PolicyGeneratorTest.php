@@ -18,7 +18,7 @@ final class PolicyGeneratorTest extends TestCase
 
         $this->assertStringContainsString('class PostPolicy', $contents);
         $this->assertStringContainsString('public function create(User $user): bool', $contents);
-        $this->assertStringContainsString('public function update(User $user, Post $mutation): bool', $contents);
+        $this->assertStringContainsString('public function update(User $user, Post $model): bool', $contents);
         $this->assertStringContainsString('public function arg(User $user, array $staticArgs): bool', $contents);
         $this->assertStringContainsString('public function inject(User $user, array $injectedArgs): bool', $contents);
         $this->assertStringContainsString('public function argInject(User $user, array $injectedArgs, array $staticArgs): bool', $contents);

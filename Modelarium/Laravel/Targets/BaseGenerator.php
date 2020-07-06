@@ -52,8 +52,6 @@ abstract class BaseGenerator
     protected $type = null;
 
     /**
-     * Undocumented function
-     *
      * @param Parser $parser
      * @param string $name
      * @param Type|string $type
@@ -62,11 +60,8 @@ abstract class BaseGenerator
     {
         $this->inflector = InflectorFactory::create()->build();
 
-        $this->name = $name;
-        $this->studlyName = Str::studly($this->name);
-        $this->lowerName = mb_strtolower($this->name);
-        $this->lowerNamePlural = $this->inflector->pluralize($this->lowerName);
         $this->parser = $parser;
+        $this->setName($name);
 
         if ($type instanceof Type) {
             $this->type = $type;
@@ -75,6 +70,23 @@ abstract class BaseGenerator
         } else {
             throw new Exception('Invalid model');
         }
+    }
+
+    protected function setName(string $name): void
+    {
+        $this->name = $name;
+        $this->studlyName = Str::studly($this->name);
+        $this->lowerName = mb_strtolower($this->name);
+        $this->lowerNamePlural = $this->inflector->pluralize($this->lowerName);
+    }
+
+    protected function splitClassName(string $fullclass): array
+    {
+        $classTokens = explode('\\', $fullclass);
+        $className = array_pop($classTokens);
+        $classNamespace = implode('\\', $classTokens);
+        $relativePath = implode('/', $classTokens);
+        return [$classNamespace, $className, $relativePath];
     }
 
     /**

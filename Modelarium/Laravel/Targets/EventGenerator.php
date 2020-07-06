@@ -34,10 +34,7 @@ class EventGenerator extends BaseGenerator
 
     protected function makeEventClass(string $name, string $model): GeneratedItem
     {
-        $eventTokens = explode('\\', $name);
-        $eventClassName = array_pop($eventTokens);
-        $eventNamespace = implode('\\', $eventTokens);
-        $relativePath = implode('/', $eventTokens);
+        list($eventNamespace, $eventClassName, $relativePath) = $this->splitClassName($name);
 
         $namespace = new \Nette\PhpGenerator\PhpNamespace($eventNamespace);
 
