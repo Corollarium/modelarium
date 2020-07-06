@@ -2,6 +2,7 @@
 
 namespace Modelarium\Laravel;
 
+use Formularium\Formularium;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider as LaravelServiceProvider;
 use Nuwave\Lighthouse\Events\RegisterDirectiveNamespaces;
@@ -21,6 +22,9 @@ class ServiceProvider extends LaravelServiceProvider
                 \Modelarium\Laravel\Console\Commands\ModelariumScaffoldCommand::class,
             ]);
         }
+
+        Formularium::appendDatatypeNamespace('App\\Datatypes');
+        Formularium::appendValidatorNamespace('App\\Validators');
 
         $this->publishes([
             __DIR__ . '/../Types/Graphql/directives.graphql' => base_path('graphql/modelarium.graphql'),
