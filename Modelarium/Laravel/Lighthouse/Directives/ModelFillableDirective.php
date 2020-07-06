@@ -11,7 +11,7 @@ class ModelFillableDirective extends BaseDirective implements DefinedDirective
     {
         return /** @lang GraphQL */ <<<'SDL'
 """
-Field is hidden from API.
+Field is added to Model::$fillable
 """
 directive @modelFillable on FIELD_DEFINITION
 SDL;

@@ -11,7 +11,7 @@ class ModelHiddenDirective extends BaseDirective implements DefinedDirective
     {
         return /** @lang GraphQL */ <<<'SDL'
 """
-Field is hidden from API.
+Field is added to Model::hidden
 """
 directive @modelHidden on FIELD_DEFINITION
 SDL;

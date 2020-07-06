@@ -15,52 +15,56 @@ What it does?
 - **generates scaffolding for you**: model, database migration, seed, factory, events, policies. Everything from your graphql descriptions. No more tedious creation of files and repeated code.
 - **datatypes**: your data is more than strings. You have models for your structures, so have datatypes for your fields. Create the correct database fields without thinking about it.
 - **validation**: transparent data validation made automatically based on your datatypes. Your data is always safely validated.
-- **frontend generation**: get HTML forms generated for you automatically with your favorite CSS framework, as well as basic cards and lists. Get Vue and React components if you use them.
+- **no performance penalty**: other than data validation you generate all data while developing. Everything is just as fast as before.
+- **no new standards**: code is generated following existing standards for existing tools. Generate code and use it freely. Nothing is tied down.
+- **frontend generation**: get HTML forms, cards, lists and views generated for you automatically with your favorite CSS framework. You can tweak them afterwards -- it's just code. Get Vue and React components if you use them.
 - **integration with Laravel and Lighthouse**. Get GraphQL endpoints automatically.
 
 What it doesn't do:
 
 - magic. you still have to write your code logic to process requests in the backend, like in mutations or special conditions in your models.
-- REST endpoints. At this point only GraphQL is supported through Lighthouse.
+- REST endpoints generation. At this point only GraphQL is supported through Laravel and Lighthouse. REST endpoints might come later.
+- other frameworks. Currently only Laravel is supported.
+
+## Documentation
+
+See [the full documentation for Modelarium](https://corollarium.github.io/modelarium/).
 
 ## Sponsors
 
 [![Corollarium](https://modelarium.github.com/logo-horizontal-400px.png)](https://corollarium.com)
 
-## Overview
+## Quick overview
 
-This a Graphql file that reproduces Laravel's default `User` model. Notice the Email and
+This a Graphql file that reproduces Laravel's default `User` model. Notice the `Email` datatype, as well as the `@migration` directives for the database creation.
 
 ```graphql
 type User
-  @timestamps
+  @migrationRememberToken
   @migrationSoftDeletes
-  @extends(class: "Illuminate\\Foundation\\Auth\\User")
-  @modelNotifiable
-  @migrationRememberToken {
+  @migrationTimestamps
+  @modelExtends(class: "Illuminate\\Foundation\\Auth\\User")
+  @modelNotifiable {
   id: ID!
-  name: String! @modelFillable
+  name: String!
+    @modelFillable
+    @renderable(label: "Name", comment: "Please fill with your fullname")
   password: String! @modelHidden @modelFillable
   email_verified_at: Timestamp @casts(type: "datetime")
-  email: Email! @uniqueIndex @modelFillable
-  posts: [Post!] @hasMany
+  email: Email! @migrationUniqueIndex @modelFillable
 }
 ```
 
 Here's a sample `Post` Model, with validation of the length of the fields and foreign keys:
 
 ```graphql
-type Post @timestamps {
+type Post @migrationTimestamps {
   id: ID!
   title: String! @MinLength(value: 5) @MaxLength(value: 25)
   description: Text! @MinLength(value: 15) @MaxLength(value: 1000)
   user: User! @belongsTo @foreign(onDelete: "cascade", onUpdate: "cascade")
 }
 ```
-
-## Documentation
-
-See...
 
 ## Contributing [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/Corollarium/modelarium/issues)
 

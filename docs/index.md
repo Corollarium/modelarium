@@ -2,10 +2,9 @@
 
 This is an [open source general backend/frontend scaffold generator and validator for PHP](https://github.com/Corollarium/modelarium/).
 
-The main feature is that it provides high level data types, allowing you to specify exactly what you expect of each field in a unified way for validation, database, model and frontend generation. Your fields are not strings, stop treating them as such.
+Modelarium is based on data types, allowing you to specify exactly what you expect of each field in a unified way for validation, database, model and frontend generation. Your fields are not strings, stop treating them as such.
 
-It uses [Formularium to validate data and generate frontend scaffolding](https://github.com/Corollarium/Formularium/).
-Forms are generated from a simple structure, which can be serialized as JSON. It's easy to create new datatypes, either from zero or extending the base types provided. The generated code can be used as is or customized with fine tuning for those pesky cases that no tool ever gets right.
+Your models and operations are described as a Graphql files. It uses [Formularium to validate data and generate frontend scaffolding](https://github.com/Corollarium/Formularium/). Forms are generated from a simple structure, which can be serialized as JSON. It's easy to create new datatypes, either from zero or extending the base types provided. The generated code can be used as is or customized with fine tuning for those pesky cases that no tool ever gets right.
 
 ## Documentation
 
@@ -13,6 +12,12 @@ Forms are generated from a simple structure, which can be serialized as JSON. It
 - [directive documentation](./directives.md)
 - [creating new datatypes](./datatype.md)
 - [creating new validators](./validator.md)
+- [Laravel scaffolding in detail](./laravel.md)
+
+Reference:
+
+- [all supported datatypes](./datatypes.md)
+- [all supported directives](./directives.md)
 
 ## Getting started tutorial: a Laravel Graphql backend application in two minutes
 
@@ -25,10 +30,11 @@ composer create-project laravel/laravel myawesomeproject
 Install deps with composer:
 
 ```
-composer required Corollarium/modelarium Corollarium/Formularium nuwave/lighthouse
+composer require corollarium/modelarium corollarium/formularium nuwave/lighthouse
+composer install
 ```
 
-We suggest `mll-lab/laravel-graphql-playground` as well to test your endpoints easily.
+We suggest installing `mll-lab/laravel-graphql-playground` as well to test your endpoints easily.
 
 Init the basic data. This will publish a base Graphql file and a `User` graphql schema that matches Laravel's defaults. Note that it will delete `app/User.php` and `database/migrations/2014_10_12_000000_create_users_table.php` -- if you just need the .graphql files, run `php artisan vendor:publish --provider="Modelarium\Laravel\ServiceProvider" --tag=schema` instead.
 
@@ -36,7 +42,7 @@ Init the basic data. This will publish a base Graphql file and a `User` graphql 
 php artisan modelarium:init
 ```
 
-At this point you are ready to go, just write your schema. We extend Graphql SDL to support `#import file` syntax, similar to other projects. Let's create a new model `Post`. Add this to `graphql/post.graphql`:
+At this point you are ready to go, just write your schema. We extend Graphql SDL to support `#import file` syntax, similar to other projects. Let's create a new model `Post`. Add a line `#import data/post.graphql` to `schema.graphql`, then create a file in `graphql/data/post.graphql` with the following:
 
 ```graphql
 extend type Query {
@@ -47,7 +53,7 @@ extend type Query {
 type Post @migrationTimestamps {
   id: ID!
   title: String! @MinLength(value: 5) @MaxLength(value: 25)
-  description: Text! @MinLength(value: 15) @MaxLength(value: 1000)
+  content: Text! @MinLength(value: 15) @MaxLength(value: 1000)
   user: User!
     @belongsTo
     @migrationForeign(onDelete: "cascade", onUpdate: "cascade")
@@ -85,7 +91,7 @@ Serve the site:
 php artisan serve --host 0.0.0.0 --port 8000
 ```
 
-If you installed `mll-lab/laravel-graphql-playground` you can test the graphql endpoint at `http://localhost:8000/graphql-playground`. Run a simple query to check it all:
+If you installed `mll-lab/laravel-graphql-playground` you can test the graphql endpoint at `http://localhost:8000/graphql-playground`. Run a simple query to check it all works:
 
 ```graphql
 {
@@ -101,7 +107,39 @@ If you installed `mll-lab/laravel-graphql-playground` you can test the graphql e
 }
 ```
 
+We can also get a list of posts, with pagination information:
+
+```graphql
+{
+  posts(page: 1) {
+    data {
+      id
+      title
+    }
+
+    paginatorInfo {
+      currentPage
+      lastPage
+    }
+  }
+}
+```
+
 Let's add a mutation to create a post.
+
+```graphql
+mutation {
+  createPost(title: "Title", content: "My first mutation works") {
+    id
+    title
+    content
+    user {
+      id
+      name
+    }
+  }
+}
+```
 
 ## Sponsors
 
