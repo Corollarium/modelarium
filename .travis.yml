@@ -36,3 +36,35 @@ jobs:
       env: STATIC_ANALYSIS
       install: travis_retry composer install
       script: vendor/bin/phpstan analyze Modelarium
+
+
+jobs:
+  allow_failures:
+    - php: nightly
+
+  include:
+    - stage: Quality assurance
+      env:
+        - CODE_COVERAGE=yes
+      script: vendor/bin/phpunit --bootstrap vendor/autoload.php --whitelist Formularium --coverage-clover ./clover.xml tests/
+      after_script:
+        - wget https://scrutinizer-ci.com/ocular.phar
+        - php ocular.phar code-coverage:upload --format=php-clover ./clover.xml
+
+    - stage: Quality assurance
+      env: STATIC_ANALYSIS
+      install: travis_retry composer install
+      script: vendor/bin/phpstan analyze Formularium
+
+    - stage: Publish documentation
+      env:
+        - DOCUMENTATION=yes
+      before_deploy:
+        - composer apidocs
+      script: skip
+      deploy:
+        provider: pages:git
+        token: ${GITHUB_TOKEN}
+        edge: true
+        verbose: true
+        local_dir: docs/
