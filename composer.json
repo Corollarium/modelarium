@@ -39,7 +39,8 @@
         "stan": "vendor/bin/phpstan analyse Modelarium",
         "coverage": "./vendor/bin/phpunit --configuration phpunit.xml --coverage-html docs/coverage-report tests/",
         "test": "./vendor/bin/phpunit --configuration phpunit.xml tests/",
-        "generateDatatypes": "php util/FormulariumDatatypes.php"
+        "generateDatatypes": "php util/FormulariumDatatypes.php",
+        "apidocs": "php util/MakeAPIDocs.php"
     },
     "extra": {
         "laravel": {
