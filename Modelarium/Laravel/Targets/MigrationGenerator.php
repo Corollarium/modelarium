@@ -461,11 +461,12 @@ EOF;
     protected function generateFilename(string $basename): string
     {
         $this->mode = self::MODE_CREATE;
-        $match = '_create_' . $basename . '_table.php';
+        $match = '_' . $basename . '_table.php';
 
         $basepath = $this->getBasePath('database/migrations/');
         if (is_dir($basepath)) {
             $migrationFiles = \Safe\scandir($basepath);
+            rsort($migrationFiles);
             foreach ($migrationFiles as $m) {
                 if (!endsWith($m, $match)) {
                     continue;
@@ -484,6 +485,7 @@ EOF;
                     // else we'll generate a diff and patch
                     $this->mode = self::MODE_PATCH;
                 }
+                break;
             }
         }
 

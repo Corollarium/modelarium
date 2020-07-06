@@ -35,10 +35,10 @@ class PolicyGenerator extends BaseGenerator
      * @param Parser $parser
      * @param string $name
      * @param Type|string $type
+     * @phpstan-ignore-next-line
      */
     public function __construct(Parser $parser, string $name, $type = null)
     {
-        /** @phpstan-ignore-unused $name */
         parent::__construct($parser, '', $type);
         $this->collection = new GeneratedCollection();
     }
