@@ -15,9 +15,8 @@ use GraphQL\Type\Definition\StringType;
 use Modelarium\Exception\Exception;
 use Modelarium\GeneratedCollection;
 use Modelarium\GeneratedItem;
-use Modelarium\ScalarType as ModelariumScalarType;
-use Modelarium\Types\FormulariumScalarType;
-use Safe\Exceptions\DirException;
+
+use function Safe\rsort;
 
 function getStringBetween(string $string, string $start, string $end): string
 {
