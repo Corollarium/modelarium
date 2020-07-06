@@ -94,7 +94,6 @@ class PolicyGenerator extends BaseGenerator
         $args = false;
 
         if ($field->type instanceof NonNull) {
-            $isRequired = true;
             $type = $field->type->getWrappedType();
         } else {
             $type = $field->type;
