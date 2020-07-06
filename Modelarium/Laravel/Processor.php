@@ -65,7 +65,7 @@ class Processor extends ModelariumProcessor
     public function __construct()
     {
         $this->parser = new Parser();
-        $this->parser->setImport('modelarium.graphql', self::getDirectivesGraphqlString());
+        $this->parser->setImport('directives.graphql', self::getDirectivesGraphqlString());
     }
 
     /**
@@ -92,7 +92,7 @@ class Processor extends ModelariumProcessor
                     continue;
                 }
 
-                $name = DirectiveFactory::directiveName($class);
+                $name = DirectiveFactory::directiveName((string)$class);
                 $directives[$name] = trim($class::definition());
             }
         }
@@ -106,9 +106,9 @@ class Processor extends ModelariumProcessor
      * @param  string[]  $directiveNamespaces
      * @return string
      */
-    public static function getDirectivesGraphqlString($directiveNamespaces = [ 'Modelarium\Laravel\Lighthouse\Directives' ]): string
+    public static function getDirectivesGraphqlString($directiveNamespaces = [ 'Modelarium\\Laravel\\Lighthouse\\Directives' ]): string
     {
-        return implode(self::getDirectivesGraphql($directiveNamespaces));
+        return implode("\n\n", self::getDirectivesGraphql($directiveNamespaces));
     }
 
     /**

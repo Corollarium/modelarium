@@ -1,3 +1,3 @@
-#import formularium.graphql
-#import modelarium.graphql
+#import scalars.graphql
+#import directives.graphql
 #import data/user.graphql
