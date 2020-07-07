@@ -83,11 +83,19 @@ class ModelariumFrontendCommand extends Command
             $basepath,
             (bool)$this->option('overwrite')
         );
+        $this->info('Files generated.');
 
         if ($this->option('prettier')) {
-            $this->info('Running prettier.');
+            $this->info('Running prettier on generated files.');
+            $useYarn = file_exists(base_path('yarn.lock'));
+            if ($useYarn) {
+                $command = "cd $basepath && npx prettier --write ";
+            } else {
+                $command = "cd $basepath && yarn prettier --write ";
+            }
+
             foreach ($writtenFiles as $f) {
-                shell_exec("cd $basepath && npx prettier --write $f");
+                shell_exec($command . $f);
             }
         }
         $this->info('Finished frontend.');

@@ -1,6 +1,6 @@
 # Getting started tutorial: a Laravel Graphql backend application in two minutes
 
-So let's create an application using Laravel and Lighthouse. Create a base Laravel project:
+So let's create a web application using Laravel and Lighthouse with a Graphql endpoint. Create a base Laravel project:
 
 ```
 composer create-project laravel/laravel myawesomeproject
@@ -18,7 +18,7 @@ We strongly suggest installing `mll-lab/laravel-graphql-playground` as well to t
 Init the basic data. This will publish a base Graphql file and a `User` graphql schema that matches Laravel's defaults. Note that it will delete `app/User.php` and `database/migrations/2014_10_12_000000_create_users_table.php` -- if you just need the .graphql files, run `php artisan vendor:publish --provider="Modelarium\Laravel\ServiceProvider" --tag=schema` instead.
 
 ```
-php artisan modelarium:init
+artisan modelarium:init
 ```
 
 At this point you are ready to go, just write your schema. We extend Graphql SDL to support `#import file` syntax, similar to other projects. Let's create a new model `Post`. Add a line `#import data/post.graphql` to `schema.graphql`, then create a file in `graphql/data/post.graphql` with the following:
@@ -164,20 +164,85 @@ mutation {
 
 ## Frontend
 
-Modelarium can generate frontend components too. Let's see how this works. We'll generate Vue components for the tutorial. Let's add UI support to the application:
+Modelarium can generate frontend components too. Let's see how this works. We'll generate Vue components for the tutorial. Start by adding UI support deps to the application:
 
-```
+```shell
+# add laravel ui deps
 composer require laravel/ui
 
+# install ui deps
 php artisan ui vue --auth
 
-npm install && npm run dev
+# install npm deps
+npm install
+
+# add prettier to generate well formatted code
+npm add prettier
 ```
 
-It's time to generate our Vue code now.
+It's time to generate our Vue code now. Let's add some new directives to control rendering:
 
 ```graphql
+type Post @migrationTimestamps {
+  id: ID!
+  title: String!
+    @modelFillable
+    @MinLength(value: 5)
+    @MaxLength(value: 25)
+    @renderable(
+      label: "Title"
+      comment: "Please add a descriptive title"
+      placeholder: "Type here"
+      size: "large"
+    )
+  content: Text!
+    @modelFillable
+    @MinLength(value: 15)
+    @MaxLength(value: 1000)
+    @renderable(label: "Content", comment: "Your post contents")
+  user: User!
+    @belongsTo
+    @migrationForeign(onDelete: "cascade", onUpdate: "cascade")
+  comments: [Comment!]! @hasMany
+}
+```
+
+Since we changed the schema, let's export the `Post` model again:
+
+```shell
+php artisan modelarium:scaffold Post --model --overwrite --lighthouse
+```
+
+If you think your Graphql files become too verbose with the extra directives, you can add the code to the Model itself instead, extending the parameters from the base class:
+
+```php
+class Post {
+  /**
+   * @return array
+   */
+  public static function getFields(): array
+  {
+    $data = parent::getFields();
+    $data['title']['renderable'] = [
+      'label' => 'Title',
+      'comment' => 'Please add a descriptive title',
+      'placeholder' => 'Type here',
+    ];
+    $data['content']['renderable'] = [
+      'label' => 'Content',
+      'comment' => 'Your post contents'
+    ];
+    return $data;
+  }
+}
+```
+
+Now let's export the actual frontend files. Let's pick a HTML/Bootstrap/Vue frontend:
 
 ```
+artisan modelarium:frontend '\App\Post' --framework=HTML --framework=Bootstrap --framework=Vue --overwrite --prettier
+```
+
+This will generate the files in `resources/js/components/Post/`, ready for you to use.
 
 ## Authentication
