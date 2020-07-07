@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Modelarium\Laravel\Targets;
+namespace Modelarium;
 
 use Doctrine\Inflector\InflectorFactory;
 use GraphQL\Type\Definition\Type;
@@ -9,37 +9,14 @@ use Modelarium\Exception\Exception;
 use Modelarium\GeneratedCollection;
 use Modelarium\Parser;
 
-abstract class BaseGenerator
+abstract class BaseGenerator implements GeneratorInterface
 {
-    /**
-     * @var string
-     */
-    protected $name = '';
+    use GeneratorNameTrait;
 
     /**
      * @var string
      */
-    protected $studlyName = '';
-
-    /**
-     * @var string
-     */
-    protected $lowerName = '';
-
-    /**
-     * @var string
-     */
-    protected $lowerNamePlural = '';
-
-    /**
-     * @var string
-     */
-    protected $stubDir = __DIR__ . "/stubs/";
-
-    /**
-     * @var \Doctrine\Inflector\Inflector
-     */
-    protected $inflector = null;
+    protected $stubDir = null;
 
     /**
      * @var Parser
@@ -53,13 +30,11 @@ abstract class BaseGenerator
 
     /**
      * @param Parser $parser
-     * @param string $name
+     * @param string $name The target type name.
      * @param Type|string $type
      */
     public function __construct(Parser $parser, string $name, $type = null)
     {
-        $this->inflector = InflectorFactory::create()->build();
-
         $this->parser = $parser;
         $this->setName($name);
 
@@ -71,40 +46,6 @@ abstract class BaseGenerator
             throw new Exception('Invalid model');
         }
     }
-
-    protected function setName(string $name): void
-    {
-        $this->name = $name;
-        $this->studlyName = Str::studly($this->name);
-        $this->lowerName = mb_strtolower($this->name);
-        $this->lowerNamePlural = $this->inflector->pluralize($this->lowerName);
-    }
-
-    protected function splitClassName(string $fullclass): array
-    {
-        $classTokens = explode('\\', $fullclass);
-        $className = array_pop($classTokens);
-        $classNamespace = implode('\\', $classTokens);
-        $relativePath = implode('/', $classTokens);
-        return [$classNamespace, $className, $relativePath];
-    }
-
-    /**
-     * Returns the base path (where composer.json is located)
-     *
-     * @param string $file The filename
-     * @return string
-     */
-    public static function getBasePath(string $file = null): string
-    {
-        $basepath = dirname(\Composer\Factory::getComposerFile());
-        if ($file) {
-            $basepath .= '/' . $file;
-        }
-        return $basepath;
-    }
-
-    abstract public function generate(): GeneratedCollection;
 
     /**
      * Stubs from a stub file.
@@ -166,25 +107,5 @@ abstract class BaseGenerator
             $str
         );
         return $str;
-    }
-
-    /**
-     * Get the value of name
-     *
-     * @return  string
-     */
-    public function getName()
-    {
-        return $this->name;
-    }
-
-    /**
-     * Get the value of studlyName
-     *
-     * @return  string
-     */
-    public function getStudlyName()
-    {
-        return $this->studlyName;
     }
 }

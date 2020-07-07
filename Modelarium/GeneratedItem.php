@@ -10,6 +10,7 @@ class GeneratedItem
     const TYPE_MODEL = 'model';
     const TYPE_POLICY = 'policy';
     const TYPE_SEED = 'seed';
+    const TYPE_FRONTEND = 'frontend';
 
     /**
      * @var string

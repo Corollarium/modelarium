@@ -8,19 +8,17 @@ use Modelarium\GeneratedItem;
 use Modelarium\Laravel\Processor as LaravelProcessor;
 use Symfony\Component\Console\Output\BufferedOutput;
 
-// use Formularium\FrameworkComposer;
-// use Formularium\Frontend\Blade\Framework as FrameworkBlade;
-// use Formularium\Frontend\Vue\Framework as FrameworkVue;
-
 class ModelariumScaffoldCommand extends Command
 {
+    use WriterTrait;
+
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
     protected $signature = 'modelarium:scaffold
-        {name : The model name}
+        {name : The model name. Use "*" or "all" for all models}
         {--framework=* : The frameworks to use}
         {--overwrite : overwrite files if they exist}
         {--lighthouse : use lighthouse directives}
@@ -30,8 +28,7 @@ class ModelariumScaffoldCommand extends Command
         {--migration : make migration}
         {--factory : make factory}
         {--seed : make seed}
-        {--policy : make policy}
-        {--frontend : make frontend files}';
+        {--policy : make policy}';
 
     /**
      * The console command description.
@@ -117,94 +114,11 @@ class ModelariumScaffoldCommand extends Command
             base_path(),
             (bool)$this->option('overwrite')
         );
-        $this->info('Finished. You might want to run `composer dump-autoload`');
-    }
-
-    protected function frontend(): void
-    {
-        // TODO
-        // // setup stuff
-        // $frameworks = $this->option('framework');
-        // FrameworkComposer::set($frameworks);
-
-        // /**
-        //  * @var FrameworkVue $vue
-        //  */
-        // $vue = FrameworkComposer::getByName('Vue');
-        // $blade = FrameworkComposer::getByName('Blade');
-
-        // if ($this->hasOption('stubdir')) {
-        //     $this->stubDir = $this->option('stubdir');
-        // }
-
-
-
-        // if ($this->option('frontend') || $this->option('everything')) {
-        //     if ($vue) {
-        //         $this->makeVueScaffold();
-        //         $this->makeVue($vue, 'Base', 'viewable');
-        //         $this->makeVue($vue, 'Item', 'viewable');
-        //         $this->makeVue($vue, 'ListPage', 'viewable');
-        //         $this->makeVue($vue, 'ShowPage', 'viewable');
-        //         $this->makeVue($vue, 'EditPage', 'editable');
-        //         $this->line('Generated Vue');
-        //     } elseif ($blade) {
-        //         $this->makeBlade($blade, 'show', 'viewable');
-        //         $this->makeBlade($blade, 'index', 'viewable');
-        //         $this->makeBlade($blade, 'form', 'editable');
-        //         $this->line('Generated Blade');
-        //     } else {
-        //         // TODO: react?
-        //     }
-        // }
+        $this->info('Finished scaffolding. You might want to run `composer dump-autoload`');
     }
 
     protected function getPathGraphql(string $name): string
     {
         return base_path('graphql/' . $name . '.graphql');
-    }
-
-    public function writeFiles(GeneratedCollection $collection, string $basepath, bool $overwrite = true): self
-    {
-        foreach ($collection as $element) {
-            /**
-             * @var GeneratedItem $element
-             */
-            $path = $basepath . '/' . $element->filename;
-            $this->writeFile(
-                $path,
-                ($element->onlyIfNewFile ? false : $overwrite),
-                $element->contents
-            );
-        }
-        return $this;
-    }
-
-    /**
-     * Takes a stub file and generates the target file with replacements.
-     *
-     * @param string $targetPath The path for the stub file.
-     * @param boolean $overwrite
-     * @param string $data The data to write
-     * @return void
-     */
-    protected function writeFile(string $targetPath, bool $overwrite, string $data)
-    {
-        if (file_exists($targetPath) && !$overwrite) {
-            $this->comment("File $targetPath already exists, not overwriting.");
-            return;
-        }
-
-        $dir = dirname($targetPath);
-        if (!is_dir($dir)) {
-            \Safe\mkdir($dir, 0777, true);
-        }
-
-        $ret = \Safe\file_put_contents($targetPath, $data);
-        if (!$ret) {
-            $this->error("Cannot write to $targetPath");
-            return;
-        }
-        $this->line("Wrote $targetPath");
     }
 }

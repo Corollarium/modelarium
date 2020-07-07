@@ -7,6 +7,7 @@ use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use Illuminate\Support\Str;
+use Modelarium\BaseGenerator;
 use Modelarium\GeneratedCollection;
 use Modelarium\GeneratedItem;
 use Modelarium\Parser;
@@ -15,6 +16,11 @@ use Nette\PhpGenerator\PhpNamespace;
 
 class PolicyGenerator extends BaseGenerator
 {
+    /**
+     * @var string
+     */
+    protected $stubDir = __DIR__ . "/stubs/";
+
     /**
      * @var ObjectType
      */

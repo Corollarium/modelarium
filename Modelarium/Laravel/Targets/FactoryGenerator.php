@@ -2,11 +2,17 @@
 
 namespace Modelarium\Laravel\Targets;
 
+use Modelarium\BaseGenerator;
 use Modelarium\GeneratedCollection;
 use Modelarium\GeneratedItem;
 
 class FactoryGenerator extends BaseGenerator
 {
+    /**
+     * @var string
+     */
+    protected $stubDir = __DIR__ . "/stubs/";
+
     public function generate(): GeneratedCollection
     {
         return new GeneratedCollection(

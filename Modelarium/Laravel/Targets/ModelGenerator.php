@@ -7,6 +7,7 @@ use Illuminate\Support\Str;
 use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ObjectType;
+use Modelarium\BaseGenerator;
 use Modelarium\GeneratedCollection;
 use Modelarium\GeneratedItem;
 use Modelarium\Types\FormulariumScalarType;
@@ -14,6 +15,11 @@ use Nette\PhpGenerator\Method;
 
 class ModelGenerator extends BaseGenerator
 {
+    /**
+     * @var string
+     */
+    protected $stubDir = __DIR__ . "/stubs/";
+
     /**
      * @var ObjectType
      */
@@ -175,10 +181,10 @@ class ModelGenerator extends BaseGenerator
         \GraphQL\Type\Definition\FieldDefinition $field,
         \GraphQL\Language\AST\NodeList $directives
     ): void {
-        $lowerName = mb_strtolower($this->inflector->singularize($field->name));
-        $lowerNamePlural = $this->inflector->pluralize($lowerName);
+        $lowerName = mb_strtolower($this->getInflector()->singularize($field->name));
+        $lowerNamePlural = $this->getInflector()->pluralize($lowerName);
 
-        $targetClass = '\\App\\' . Str::studly($this->inflector->singularize($field->name));
+        $targetClass = '\\App\\' . Str::studly($this->getInflector()->singularize($field->name));
 
         $generateRandom = false;
         foreach ($directives as $directive) {
@@ -205,7 +211,7 @@ class ModelGenerator extends BaseGenerator
                 break;
 
             case 'hasMany':
-                $target = $this->inflector->singularize($targetClass);
+                $target = $this->getInflector()->singularize($targetClass);
                 $this->class->addMethod($lowerNamePlural)
                     ->setPublic()
                     ->setBody("return \$this->hasMany($target::class);");

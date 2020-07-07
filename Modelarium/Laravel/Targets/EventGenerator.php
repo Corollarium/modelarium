@@ -5,12 +5,18 @@ namespace Modelarium\Laravel\Targets;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
+use Modelarium\BaseGenerator;
 use Modelarium\GeneratedCollection;
 use Modelarium\GeneratedItem;
 use Nette\PhpGenerator\ClassType;
 
 class EventGenerator extends BaseGenerator
 {
+    /**
+     * @var string
+     */
+    protected $stubDir = __DIR__ . "/stubs/";
+
     /**
      * @var ObjectType
      */

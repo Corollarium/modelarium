@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Formularium\Laravel\Commands;
+namespace Modelarium\Laravel\Console\Commands;
 
 use Formularium\DatatypeFactory;
 use Formularium\Exception\Exception;

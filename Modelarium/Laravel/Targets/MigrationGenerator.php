@@ -12,6 +12,7 @@ use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\StringType;
+use Modelarium\BaseGenerator;
 use Modelarium\Exception\Exception;
 use Modelarium\GeneratedCollection;
 use Modelarium\GeneratedItem;
@@ -35,6 +36,11 @@ function endsWith(string $haystack, string $needle): bool
 }
 class MigrationGenerator extends BaseGenerator
 {
+    /**
+     * @var string
+     */
+    protected $stubDir = __DIR__ . "/stubs/";
+
     protected const MODE_CREATE = 'create';
     protected const MODE_PATCH = 'patch';
     protected const MODE_NO_CHANGE = 'nochange';
@@ -172,8 +178,8 @@ class MigrationGenerator extends BaseGenerator
         \GraphQL\Type\Definition\FieldDefinition $field,
         \GraphQL\Language\AST\NodeList $directives
     ): void {
-        $lowerName = mb_strtolower($this->inflector->singularize($field->name));
-        $lowerNamePlural = $this->inflector->pluralize($lowerName);
+        $lowerName = mb_strtolower($this->getInflector()->singularize($field->name));
+        $lowerNamePlural = $this->getInflector()->pluralize($lowerName);
 
         if ($field->type instanceof NonNull) {
             $type = $field->type->getWrappedType();
