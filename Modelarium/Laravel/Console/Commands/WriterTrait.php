@@ -3,11 +3,21 @@
 namespace Modelarium\Laravel\Console\Commands;
 
 use Modelarium\GeneratedCollection;
+use Modelarium\GeneratedItem;
 
 trait WriterTrait
 {
-    public function writeFiles(GeneratedCollection $collection, string $basepath, bool $overwrite = true): self
+    /**
+     * Write a GeneractedCollection to the filesystem
+     *
+     * @param GeneratedCollection $collection
+     * @param string $basepath
+     * @param boolean $overwrite
+     * @return array The written files with their full path.
+     */
+    public function writeFiles(GeneratedCollection $collection, string $basepath, bool $overwrite = true): array
     {
+        $writtenFiles = [];
         foreach ($collection as $element) {
             /**
              * @var GeneratedItem $element
@@ -18,8 +28,9 @@ trait WriterTrait
                 ($element->onlyIfNewFile ? false : $overwrite),
                 $element->contents
             );
+            $writtenFiles[] = $path;
         }
-        return $this;
+        return $writtenFiles;
     }
 
     /**
