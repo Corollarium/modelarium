@@ -13,7 +13,7 @@ Modelarium generates scaffolding for your project based on a GraphQL description
 What it does?
 
 - **generates backend scaffolding for you**: model, database migration, seed, factory, events, policies. Everything from your graphql descriptions. No more tedious creation of files and repeated code.
-- **datatypes**: your data is more than strings. You have models for your structures, so have datatypes for your fields. Create the correct database fields without thinking about it.
+- **datatypes**: your data is more than strings. You have models for your structures, so have datatypes for your fields. Create the correct database fields without thinking about it. Uses [Formularium for datatypes](https://corollarium.github.io/Formularium/).
 - **validation**: transparent data validation made automatically based on your datatypes. Your data is always safely validated.
 - **no performance penalty**: other than data validation all data is generate at development time. It's just automatic scaffolding, everything is just as fast as before.
 - **no new standards**: code is generated following existing standards for existing tools. Generate code and use it freely. Nothing is tied down.
