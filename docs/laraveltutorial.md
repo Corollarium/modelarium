@@ -1,6 +1,10 @@
 # Getting started tutorial: a Laravel Graphql backend application in two minutes
 
-So let's create a web application using Laravel and Lighthouse with a Graphql endpoint. Create a base Laravel project:
+So let's create a web application using Laravel and Lighthouse with a Graphql endpoint. A [full source code ready to use is available](https://github.com/Corollarium/modelarium-example).
+
+## Deps
+
+Create a base Laravel project:
 
 ```
 composer create-project laravel/laravel myawesomeproject
@@ -10,10 +14,11 @@ Install deps with composer:
 
 ```
 composer require corollarium/modelarium corollarium/formularium nuwave/lighthouse
-composer install
 ```
 
 We strongly suggest installing `mll-lab/laravel-graphql-playground` as well to test your endpoints easily.
+
+## My first model
 
 Init the basic data. This will publish a base Graphql file and a `User` graphql schema that matches Laravel's defaults. Note that it will delete `app/User.php` and `database/migrations/2014_10_12_000000_create_users_table.php` -- if you just need the .graphql files, run `php artisan vendor:publish --provider="Modelarium\Laravel\ServiceProvider" --tag=schema` instead.
 
