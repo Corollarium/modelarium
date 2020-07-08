@@ -9,6 +9,7 @@ Your models and operations are described as a Graphql files. It uses [Formulariu
 ## Documentation
 
 - ["I don't read docs just a hello world tutorial please"](./laraveltutorial.md)
+- ["I don't read hello world tutorials just sample code please"](https://github.com/Corollarium/modelarium-example)
 - [directive documentation](./directives.md)
 - [creating new datatypes](./datatype.md)
 - [creating new validators](./validator.md)

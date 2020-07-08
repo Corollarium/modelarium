@@ -12,23 +12,25 @@ Modelarium generates scaffolding for your project based on a GraphQL description
 
 What it does?
 
-- **generates scaffolding for you**: model, database migration, seed, factory, events, policies. Everything from your graphql descriptions. No more tedious creation of files and repeated code.
+- **generates backend scaffolding for you**: model, database migration, seed, factory, events, policies. Everything from your graphql descriptions. No more tedious creation of files and repeated code.
 - **datatypes**: your data is more than strings. You have models for your structures, so have datatypes for your fields. Create the correct database fields without thinking about it.
 - **validation**: transparent data validation made automatically based on your datatypes. Your data is always safely validated.
-- **no performance penalty**: other than data validation you generate all data while developing. Everything is just as fast as before.
+- **no performance penalty**: other than data validation all data is generate at development time. It's just automatic scaffolding, everything is just as fast as before.
 - **no new standards**: code is generated following existing standards for existing tools. Generate code and use it freely. Nothing is tied down.
-- **frontend generation**: get HTML forms, cards, lists and views generated for you automatically with your favorite CSS framework. You can tweak them afterwards -- it's just code. Get Vue and React components if you use them.
+- **frontend generation**: get HTML forms, cards, lists and views generated for you automatically with your favorite CSS framework: Bootstrap, Bulma, Materialize, Buefy. You can tweak them afterwards -- it's just code. Get Vue and React components if you use them.
 - **integration with Laravel and Lighthouse**. Get GraphQL endpoints automatically.
 
 What it doesn't do:
 
 - magic. you still have to write your code logic to process requests in the backend, like in mutations or special conditions in your models.
 - REST endpoints generation. At this point only GraphQL is supported through Laravel and Lighthouse. REST endpoints might come later.
-- other frameworks. Currently only Laravel is supported.
+- other backend frameworks. Currently only Laravel is supported.
 
 ## Documentation
 
 See [the full documentation for Modelarium](https://corollarium.github.io/modelarium/).
+
+See [a sample project](https://github.com/Corollarium/modelarium-example).
 
 ## Sponsors
 
