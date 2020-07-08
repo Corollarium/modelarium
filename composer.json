@@ -22,7 +22,7 @@
         "composer/composer": "^1.10",
         "webonyx/graphql-php": "^0.13.8",
         "thecodingmachine/safe": "^1.1",
-        "corollarium/formularium": "^0.3",
+        "corollarium/formularium": "^0.3.2",
         "symfony/var-exporter": "^5.1",
         "nette/php-generator": "^3.4",
         "haydenpierce/class-finder": "^0.4.2",
