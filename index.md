@@ -22,4 +22,4 @@ Reference:
 
 ## Sponsors
 
-[![Corollarium](https://modelarium.github.com/logo-horizontal-400px.png)](https://corollarium.com)
+[![Corollarium](https://corollarium.github.com/modelarium/logo-horizontal-400px.png)](https://corollarium.com)
