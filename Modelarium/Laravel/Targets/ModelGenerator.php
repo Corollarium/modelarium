@@ -186,6 +186,20 @@ class ModelGenerator extends BaseGenerator
 
         $targetClass = '\\App\\' . Str::studly($this->getInflector()->singularize($field->name));
 
+        $isRequired = false;
+        if ($field->type instanceof NonNull) {
+            $type = $field->type->getWrappedType();
+            $isRequired = true;
+        } else {
+            $type = $field->type;
+        }
+
+        if ($field->type instanceof ListOfType) {
+            $type = $field->type->getWrappedType();
+            // TODO: NonNull check again?
+        }
+        $typeName = $type->name;
+
         $generateRandom = false;
         foreach ($directives as $directive) {
             $name = $directive->name->value;
@@ -194,6 +208,7 @@ class ModelGenerator extends BaseGenerator
                 $generateRandom = true;
                 $this->class->addMethod($lowerName)
                     ->setPublic()
+                    ->setReturnType('BelongsTo')
                     ->setBody("return \$this->belongsTo($targetClass::class);");
                 break;
 
@@ -201,6 +216,7 @@ class ModelGenerator extends BaseGenerator
                 $generateRandom = true;
                 $this->class->addMethod($lowerNamePlural)
                     ->setPublic()
+                    ->setReturnType('BelongsTo')
                     ->setBody("return \$this->belongsToMany($targetClass::class);");
                 break;
 
@@ -216,22 +232,30 @@ class ModelGenerator extends BaseGenerator
                     ->setPublic()
                     ->setBody("return \$this->hasMany($target::class);");
                 break;
+
+            case 'morphOne':
+                $targetField = ''; // TODO
+                $this->class->addMethod($field->name)
+                    ->setPublic()
+                    ->setBody("return \$this->morphMany(\\App\\$typeName::class, '$targetField');");
+                break;
+
+            case 'morphMany':
+                $targetField = ''; // TODO
+                $this->class->addMethod($field->name)
+                    ->setPublic()
+                    ->setBody("return \$this->morphMany(\\App\\$typeName::class, '$targetField');");
+                break;
+    
+            case 'morphTo':
+                $this->class->addMethod($field->name)
+                    ->setPublic()
+                    ->setBody("return \$this->morphTo();");
+                break;
+
             default:
                 break;
             }
-        }
-
-        $isRequired = false;
-        if ($field->type instanceof NonNull) {
-            $type = $field->type->getWrappedType();
-            $isRequired = true;
-        } else {
-            $type = $field->type;
-        }
-
-        if ($field->type instanceof ListOfType) {
-            $type = $field->type->getWrappedType();
-            // TODO: NonNull check again?
         }
 
         // TODO: relationship $this->processField($typeName, $field, $directives, $isRequired);
@@ -301,6 +325,7 @@ EOF;
     public function generateString(): string
     {
         $namespace = new \Nette\PhpGenerator\PhpNamespace('App');
+        $namespace->addUse('\\Illuminate\\Database\\Eloquent\\Relations\\BelongsTo');
 
         $this->class = $namespace->addClass('Base' . $this->studlyName);
         $this->class->setExtends($this->parentClassName)
