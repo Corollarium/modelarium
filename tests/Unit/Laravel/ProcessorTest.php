@@ -227,4 +227,98 @@ EOF;
         $data = $processor->processStrings($strings);
         $this->_checkOneToMany($data);
     }
+
+    public function testParseRelationshipMorphOneToOne()
+    {
+        $processor = new LaravelProcessor();
+        $data = $processor->processString(file_get_contents($this->getPathGraphql('morphOneToOne')));
+        $this->assertNotNull($data);
+
+        $userMigration = $data->filter(
+            function (GeneratedItem $i) {
+                return $i->type == GeneratedItem::TYPE_MIGRATION &&
+                    strpos($i->filename, 'user') > 0;
+            }
+        )->first();
+
+        $imageMigration = $data->filter(
+            function (GeneratedItem $i) {
+                return $i->type == GeneratedItem::TYPE_MIGRATION &&
+                    strpos($i->filename, 'image') > 0;
+            }
+        )->first();
+
+        $this->assertStringNotContainsString('image_id', $userMigration->contents);
+        $this->assertStringNotContainsString('->references;', $userMigration->contents);
+
+        $this->assertContains('unsignedBigInteger("imageable_id")', $imageMigration->contents);
+        $this->assertContains('string("imageable_type")', $imageMigration->contents);
+
+        $userModel = $data->filter(
+            function (GeneratedItem $i) {
+                return $i->type == GeneratedItem::TYPE_MODEL &&
+                    stripos($i->filename, 'user') > 0;
+            }
+        )->first();
+
+        $imageModel = $data->filter(
+            function (GeneratedItem $i) {
+                return $i->type == GeneratedItem::TYPE_MODEL &&
+                    stripos($i->filename, 'image') > 0;
+            }
+        )->first();
+
+        $this->assertContains('public function image()', $userModel->contents);
+        $this->assertContains('return $this->morphOne(Image::class, \'imageable\');', $userModel->contents);
+
+        $this->assertContains('public function imageable()', $imageModel->contents);
+        $this->assertContains('return $this->morphTo();', $imageModel->contents);
+    }
+
+    public function testParseRelationshipMorphOneToMany()
+    {
+        $processor = new LaravelProcessor();
+        $data = $processor->processString(file_get_contents($this->getPathGraphql('morphOneToMany')));
+        $this->assertNotNull($data);
+
+        $userMigration = $data->filter(
+            function (GeneratedItem $i) {
+                return $i->type == GeneratedItem::TYPE_MIGRATION &&
+                    strpos($i->filename, 'user') > 0;
+            }
+        )->first();
+
+        $imageMigration = $data->filter(
+            function (GeneratedItem $i) {
+                return $i->type == GeneratedItem::TYPE_MIGRATION &&
+                    strpos($i->filename, 'image') > 0;
+            }
+        )->first();
+
+        $this->assertStringNotContainsString('image_id', $userMigration->contents);
+        $this->assertStringNotContainsString('->references;', $userMigration->contents);
+
+        $this->assertContains('unsignedBigInteger("imageable_id")', $imageMigration->contents);
+        $this->assertContains('string("imageable_type")', $imageMigration->contents);
+
+        $userModel = $data->filter(
+            function (GeneratedItem $i) {
+                return $i->type == GeneratedItem::TYPE_MODEL &&
+                    stripos($i->filename, 'user') > 0;
+            }
+        )->first();
+
+        $imageModel = $data->filter(
+            function (GeneratedItem $i) {
+                return $i->type == GeneratedItem::TYPE_MODEL &&
+                    stripos($i->filename, 'image') > 0;
+            }
+        )->first();
+
+        $this->assertContains('public function images()', $userModel->contents);
+        $this->assertContains('return $this->morphMany(Image::class, \'imageable\');', $userModel->contents);
+
+        $this->assertContains('public function imageable()', $imageModel->contents);
+        $this->assertContains('return $this->morphTo();', $imageModel->contents);
+    }
 }

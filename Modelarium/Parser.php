@@ -3,7 +3,10 @@
 namespace Modelarium;
 
 use Formularium\Formularium;
+use GraphQL\Language\AST\ArgumentNode;
+use GraphQL\Language\AST\DirectiveNode;
 use GraphQL\Language\AST\NodeKind;
+use GraphQL\Language\AST\NodeList;
 use GraphQL\Language\Visitor;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
@@ -82,7 +85,7 @@ class Parser
             $this->ast,
             [__CLASS__, 'extendDatatypes']
         );
-        
+
         $this->schema = $schemaBuilder->buildSchema();
         $this->processSchema();
         return $this;
@@ -186,9 +189,9 @@ class Parser
                             /**
                              * @var \GraphQL\Language\AST\ArgumentNode $arg
                              */
-        
+
                             $value = $arg->value->value;
-        
+
                             switch ($arg->name->value) {
                             case 'class':
                                 $className = $value;
@@ -279,5 +282,56 @@ class Parser
             throw new ScalarNotFoundException("Class not found for $datatype ($className)");
         }
         return new $className();
+    }
+
+    public static function getDirectives(NodeList $list): array
+    {
+        $directives = [];
+        foreach ($list as $d) {
+            /**
+             * @var DirectiveNode $d
+             */
+            $directives[$d->name->value] = self::getDirectiveArguments($d);
+        }
+        return $directives;
+    }
+
+    /**
+     * Convertes a directive node arguments to an associative array.
+     *
+     * @param DirectiveNode $directive
+     * @return array
+     */
+    public static function getDirectiveArguments(DirectiveNode $directive): array
+    {
+        $data = [];
+        foreach ($directive->arguments as $arg) {
+            /**
+             * @var ArgumentNode $arg
+             */
+            $data[$arg->name->value] = $arg->value->value;
+        }
+        return $data;
+    }
+
+    /**
+     * Gets a directive argument value given its name
+     *
+     * @param DirectiveNode $directive
+     * @param string $name
+     * @param [type] $default
+     * @return mixed
+     */
+    public static function getDirectiveArgumentByName(DirectiveNode $directive, string $name, $default = null)
+    {
+        foreach ($directive->arguments as $arg) {
+            /**
+             * @var ArgumentNode $arg
+             */
+            if ($arg->name->value === $name) {
+                return $arg->value->value;
+            }
+        }
+        return $default;
     }
 }

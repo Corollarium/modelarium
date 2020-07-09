@@ -1,0 +1,19 @@
+type Post {
+  id: ID!
+  name: String!
+  image: Image! @morphOne
+}
+
+type User {
+  id: ID!
+  name: String!
+  image: Image @morphOne
+}
+
+union Imageable = Post | User
+
+type Image {
+  id: ID!
+  url: String!
+  imageable: Imageable! @morphTo
+}

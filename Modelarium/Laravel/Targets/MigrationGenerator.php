@@ -2,8 +2,10 @@
 
 namespace Modelarium\Laravel\Targets;
 
+use GraphQL\Language\AST\DirectiveNode;
 use GraphQL\Type\Definition\BooleanType;
 use GraphQL\Type\Definition\CustomScalarType;
+use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\FloatType;
 use GraphQL\Type\Definition\IDType;
@@ -12,10 +14,12 @@ use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\StringType;
+use GraphQL\Type\Definition\UnionType;
 use Modelarium\BaseGenerator;
 use Modelarium\Exception\Exception;
 use Modelarium\GeneratedCollection;
 use Modelarium\GeneratedItem;
+use Modelarium\Parser;
 
 use function Safe\rsort;
 
@@ -135,6 +139,8 @@ class MigrationGenerator extends BaseGenerator
             $base = '$table->float("' . $fieldName . '")';
         } elseif ($type instanceof EnumType) {
             throw new Exception("Enum is not supported here as a type field");
+        } elseif ($type instanceof UnionType) {
+            return;
         } elseif ($type instanceof CustomScalarType) {
             $ourType = $this->parser->getScalarType($type->name);
             if (!$ourType) {
@@ -153,6 +159,9 @@ class MigrationGenerator extends BaseGenerator
         }
 
         foreach ($directives as $directive) {
+            /**
+             * @var DirectiveNode $directive
+             */
             $name = $directive->name->value;
             switch ($name) {
             case 'migrationUniqueIndex':
@@ -163,6 +172,7 @@ class MigrationGenerator extends BaseGenerator
                 break;
             case 'migrationDefaultValue':
                 $x = ''; // TODO
+                Parser::getDirectiveArgumentByName($directive, 'value');
                 $base .= '->default(' . $x . ')';
                 throw new Exception('Default value not implemented yet');
                 // break;
@@ -225,6 +235,10 @@ class MigrationGenerator extends BaseGenerator
                 $targetDirectives = $targetField->astNode->directives;
                 foreach ($targetDirectives as $targetDirective) {
                     switch ($targetDirective->name->value) {
+                    case 'morphOne':
+                    case 'morphMany':
+                        // TODO
+                    break;
                     case 'hasOne':
                     case 'hasMany':
                         $base = '$table->unsignedBigInteger("' . $fieldName . '")';
@@ -242,38 +256,25 @@ class MigrationGenerator extends BaseGenerator
                     $this->collection->push($item);
                 }
                 break;
+            case 'morphTo':
+                $relation = Parser::getDirectiveArgumentByName($directive, 'relation', $lowerName);
+                $base = '$table->unsignedBigInteger("' . $relation . '_id")';
+                $extra[] = '$table->string("' . $relation . '_type")';
+                break;
+
             case 'migrationForeign':
-                $references = 'id';
-                $on = $lowerNamePlural;
-                $onDelete = null;
-                $onUpdate = null;
-                foreach ($directive->arguments as $arg) {
-                    /**
-                     * @var \GraphQL\Language\AST\ArgumentNode $arg
-                     */
-
-                    $value = $arg->value->value;
-
-                    switch ($arg->name->value) {
-                    case 'references':
-                        $references = $value;
-                    break;
-                    case 'on':
-                        $on = $value;
-                    break;
-                    case 'onDelete':
-                        $onDelete = $value;
-                    break;
-                    case 'onUpdate':
-                        $onUpdate = $value;
-                    break;
-                    }
-                }
+                $arguments = array_merge(
+                    [
+                        'references' => 'id',
+                        'on' => $lowerNamePlural
+                    ],
+                    Parser::getDirectiveArguments($directive)
+                );
                 $extra[] = '$table->foreign("' . $fieldName . '")' .
-                    "->references(\"$references\")" .
-                    "->on(\"$on\")" .
-                    ($onDelete ? "->onDelete(\"$onDelete\")" : '') .
-                    ($onUpdate ? "->onUpdate(\"$onUpdate\")" : '') .
+                    "->references(\"{$arguments['references']}\")" .
+                    "->on(\"{$arguments['on']}\")" .
+                    ($arguments['onDelete'] ? "->onDelete(\"{$arguments['onDelete']}\")" : '') .
+                    ($arguments['onUpdate'] ? "->onUpdate(\"{$arguments['onUpdate']}\")" : '') .
                     ';';
                 break;
             }
@@ -353,10 +354,12 @@ class MigrationGenerator extends BaseGenerator
                 if (
                     ($field->type instanceof ObjectType) ||
                     ($field->type instanceof ListOfType) ||
-                    ($field->type instanceof NonNull) && (
+                    ($field->type instanceof UnionType) ||
+                    ($field->type instanceof NonNull && (
                         ($field->type->getWrappedType() instanceof ObjectType) ||
-                        ($field->type->getWrappedType() instanceof ListOfType)
-                    )
+                        ($field->type->getWrappedType() instanceof ListOfType) ||
+                        ($field->type->getWrappedType() instanceof UnionType)
+                    ))
                 ) {
                     // relationship
                     $this->processRelationship($field, $directives);

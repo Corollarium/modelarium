@@ -1,0 +1,15 @@
+type User {
+  id: ID!
+  name: String!
+  images: [Image!] @morphMany
+}
+
+type Post {
+  images: [Image!] @morphMany
+}
+
+type Image {
+  imageable: Imageable! @morphTo
+}
+
+union Imageable = Post | User

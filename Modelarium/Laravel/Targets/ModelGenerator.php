@@ -7,9 +7,12 @@ use Illuminate\Support\Str;
 use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ObjectType;
+use GraphQL\Type\Definition\UnionType;
 use Modelarium\BaseGenerator;
+use Modelarium\Exception\Exception;
 use Modelarium\GeneratedCollection;
 use Modelarium\GeneratedItem;
+use Modelarium\Parser;
 use Modelarium\Types\FormulariumScalarType;
 use Nette\PhpGenerator\Method;
 
@@ -194,9 +197,11 @@ class ModelGenerator extends BaseGenerator
             $type = $field->type;
         }
 
-        if ($field->type instanceof ListOfType) {
-            $type = $field->type->getWrappedType();
-            // TODO: NonNull check again?
+        if ($type instanceof ListOfType) {
+            $type = $type->getWrappedType();
+            if ($type instanceof NonNull) {
+                $type = $type->getWrappedType();
+            }
         }
         $typeName = $type->name;
 
@@ -234,17 +239,28 @@ class ModelGenerator extends BaseGenerator
                 break;
 
             case 'morphOne':
-                $targetField = ''; // TODO
-                $this->class->addMethod($field->name)
-                    ->setPublic()
-                    ->setBody("return \$this->morphMany(\\App\\$typeName::class, '$targetField');");
-                break;
-
             case 'morphMany':
-                $targetField = ''; // TODO
+                $targetType = $this->parser->getType($typeName);
+                if (!$targetType) {
+                    throw new Exception("Cannot get type {$typeName} as a relationship to {$this->name}");
+                } elseif (!($targetType instanceof ObjectType)) {
+                    throw new Exception("{$typeName} is not a type for a relationship to {$this->name}");
+                }
+                $targetField = null;
+                foreach ($targetType->getFields() as $subField) {
+                    $subDir = Parser::getDirectives($subField->astNode->directives);
+                    if (array_key_exists('morphTo', $subDir)) {
+                        $targetField = $subField->name;
+                        break;
+                    }
+                }
+                if (!$targetField) {
+                    throw new Exception("{$targetType} does not have a '@morphTo' fields");
+                }
+
                 $this->class->addMethod($field->name)
                     ->setPublic()
-                    ->setBody("return \$this->morphMany(\\App\\$typeName::class, '$targetField');");
+                    ->setBody("return \$this->{$name}($typeName::class, '$targetField');");
                 break;
     
             case 'morphTo':
@@ -253,6 +269,18 @@ class ModelGenerator extends BaseGenerator
                     ->setBody("return \$this->morphTo();");
                 break;
 
+            case 'morphedByMany':
+                $this->class->addMethod($field->name)
+                    ->setPublic()
+                    ->setBody("return \$this->morphedByMany('', '');"); // TODO
+                break;
+            
+            case 'morphToMany':
+                $this->class->addMethod($field->name)
+                    ->setPublic()
+                    ->setBody("return \$this->morphToMany('', '');"); // TODO
+                break;
+    
             default:
                 break;
             }
@@ -404,10 +432,12 @@ EOF;
             if (
                 ($field->type instanceof ObjectType) ||
                 ($field->type instanceof ListOfType) ||
-                ($field->type instanceof NonNull) && (
+                ($field->type instanceof UnionType) ||
+                ($field->type instanceof NonNull && (
                     ($field->type->getWrappedType() instanceof ObjectType) ||
-                    ($field->type->getWrappedType() instanceof ListOfType)
-                )
+                    ($field->type->getWrappedType() instanceof ListOfType) ||
+                    ($field->type->getWrappedType() instanceof UnionType)
+                ))
             ) {
                 // relationship
                 $this->processRelationship($field, $directives);
