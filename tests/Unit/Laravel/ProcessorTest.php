@@ -251,6 +251,7 @@ EOF;
         $this->assertStringNotContainsString('image_id', $userMigration->contents);
         $this->assertStringNotContainsString('->references;', $userMigration->contents);
 
+        $this->assertContains('$table->bigIncrements("id");', $imageMigration->contents);
         $this->assertContains('unsignedBigInteger("imageable_id")', $imageMigration->contents);
         $this->assertContains('string("imageable_type")', $imageMigration->contents);
 
@@ -298,6 +299,7 @@ EOF;
         $this->assertStringNotContainsString('image_id', $userMigration->contents);
         $this->assertStringNotContainsString('->references;', $userMigration->contents);
 
+        $this->assertContains('$table->bigIncrements("id");', $imageMigration->contents);
         $this->assertContains('unsignedBigInteger("imageable_id")', $imageMigration->contents);
         $this->assertContains('string("imageable_type")', $imageMigration->contents);
 
@@ -320,5 +322,67 @@ EOF;
 
         $this->assertContains('public function imageable()', $imageModel->contents);
         $this->assertContains('return $this->morphTo();', $imageModel->contents);
+    }
+
+    public function testParseRelationshipMorphManyToMany()
+    {
+        $processor = new LaravelProcessor();
+        $data = $processor->processString(file_get_contents($this->getPathGraphql('morphManyToMany')));
+        $this->assertNotNull($data);
+
+        $postMigration = $data->filter(
+            function (GeneratedItem $i) {
+                return $i->type == GeneratedItem::TYPE_MIGRATION &&
+                    strpos($i->filename, 'post') > 0;
+            }
+        )->first();
+
+        $tagMigration = $data->filter(
+            function (GeneratedItem $i) {
+                return $i->type == GeneratedItem::TYPE_MIGRATION &&
+                    strpos($i->filename, 'tag_') > 0;
+            }
+        )->first();
+
+        $taggablesMigration = $data->filter(
+            function (GeneratedItem $i) {
+                return $i->type == GeneratedItem::TYPE_MIGRATION &&
+                    strpos($i->filename, 'taggable') > 0;
+            }
+        )->first();
+
+        $this->assertStringNotContainsString('tag_id', $postMigration->contents);
+        $this->assertStringNotContainsString('->references;', $postMigration->contents);
+
+        $this->assertContains('$table->bigIncrements("id");', $tagMigration->contents);
+        $this->assertContains('string("name")', $tagMigration->contents);
+
+        $this->assertStringNotContainsString('increments', $taggablesMigration->contents);
+        $this->assertContains("create('taggables'", $taggablesMigration->contents);
+        $this->assertContains('unsignedBigInteger("tag_id")', $taggablesMigration->contents);
+        $this->assertContains('unsignedBigInteger("taggable_id")', $taggablesMigration->contents);
+        $this->assertContains('string("taggable_type")', $taggablesMigration->contents);
+
+        $postModel = $data->filter(
+            function (GeneratedItem $i) {
+                return $i->type == GeneratedItem::TYPE_MODEL &&
+                    stripos($i->filename, 'post') > 0;
+            }
+        )->first();
+
+        $tagModel = $data->filter(
+            function (GeneratedItem $i) {
+                return $i->type == GeneratedItem::TYPE_MODEL &&
+                    stripos($i->filename, 'tag') > 0;
+            }
+        )->first();
+
+        $this->assertContains('public function tags()', $postModel->contents);
+        $this->assertContains('return $this->morphToMany(Tag::class, \'taggable\');', $postModel->contents);
+
+        $this->assertContains('public function posts()', $tagModel->contents);
+        $this->assertContains('public function videos()', $tagModel->contents);
+        $this->assertContains('return $this->morphedByMany(Post::class, \'taggable\');', $tagModel->contents);
+        $this->assertContains('return $this->morphedByMany(Video::class, \'taggable\');', $tagModel->contents);
     }
 }

@@ -235,10 +235,6 @@ class MigrationGenerator extends BaseGenerator
                 $targetDirectives = $targetField->astNode->directives;
                 foreach ($targetDirectives as $targetDirective) {
                     switch ($targetDirective->name->value) {
-                    case 'morphOne':
-                    case 'morphMany':
-                        // TODO
-                    break;
                     case 'hasOne':
                     case 'hasMany':
                         $base = '$table->unsignedBigInteger("' . $fieldName . '")';
@@ -246,6 +242,7 @@ class MigrationGenerator extends BaseGenerator
                     }
                 }
                 break;
+
             case 'belongsToMany':
                 $type1 = $this->lowerName;
                 $type2 = $lowerName;
@@ -256,10 +253,17 @@ class MigrationGenerator extends BaseGenerator
                     $this->collection->push($item);
                 }
                 break;
+
             case 'morphTo':
                 $relation = Parser::getDirectiveArgumentByName($directive, 'relation', $lowerName);
                 $base = '$table->unsignedBigInteger("' . $relation . '_id")';
                 $extra[] = '$table->string("' . $relation . '_type")';
+                break;
+
+            case 'morphedByMany':
+                $relation = Parser::getDirectiveArgumentByName($directive, 'relation', $lowerName);
+                $item = $this->generateManyToManyMorphTable($this->lowerName, $relation);
+                $this->collection->push($item);
                 break;
 
             case 'migrationForeign':
@@ -418,6 +422,52 @@ class MigrationGenerator extends BaseGenerator
             );
             return $stub;
         });
+    }
+
+    public function generateManyToManyMorphTable(string $name, string $relation): GeneratedItem
+    {
+        $contents = $this->stubToString('migration', function ($stub) use ($name, $relation) {
+            $code = <<<EOF
+
+            \$table->unsignedBigInteger("{$name}_id");
+            \$table->unsignedBigInteger("{$relation}_id");
+            \$table->string("{$relation}_type");
+EOF;
+
+            $stub = str_replace(
+                '// dummyCode',
+                $code,
+                $stub
+            );
+
+            $stub = str_replace(
+                'dummytablename',
+                $this->getInflector()->pluralize($relation),
+                $stub
+            );
+
+            $stub = str_replace(
+                'modelSchemaCode',
+                '',
+                $stub
+            );
+            return $stub;
+        });
+
+        $item = new GeneratedItem(
+            GeneratedItem::TYPE_MIGRATION,
+            $contents,
+            $this->getBasePath(
+                'database/migrations/' .
+                date('Y_m_d_His') .
+                static::$counter++ . // so we keep the same order of types in schema
+                '_' . $this->mode . '_' .
+                $relation .
+                '_table.php'
+            )
+        );
+
+        return $item;
     }
 
     public function generateManyToManyTable(string $type1, string $type2): GeneratedItem

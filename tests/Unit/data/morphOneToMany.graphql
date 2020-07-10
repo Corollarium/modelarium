@@ -9,6 +9,7 @@ type Post {
 }
 
 type Image {
+  id: ID!
   imageable: Imageable! @morphTo
 }
 

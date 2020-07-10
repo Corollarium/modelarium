@@ -3,6 +3,8 @@
 namespace Modelarium\Laravel\Targets;
 
 use Formularium\Datatype;
+use GraphQL\Language\AST\NodeKind;
+use GraphQL\Language\Visitor;
 use Illuminate\Support\Str;
 use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
@@ -137,18 +139,7 @@ class ModelGenerator extends BaseGenerator
     ): void {
         $fieldName = $field->name;
 
-        $isRequired = false;
-
-        if ($field->type instanceof NonNull) {
-            $isRequired = true;
-            $type = $field->type->getWrappedType();
-        } else {
-            $type = $field->type;
-        }
-
-        if ($field->type instanceof ListOfType) {
-            $type = $field->type->getWrappedType();
-        }
+        list($type, $isRequired) = Parser::getUnwrappedType($field->type);
 
         foreach ($directives as $directive) {
             $name = $directive->name->value;
@@ -189,20 +180,7 @@ class ModelGenerator extends BaseGenerator
 
         $targetClass = '\\App\\' . Str::studly($this->getInflector()->singularize($field->name));
 
-        $isRequired = false;
-        if ($field->type instanceof NonNull) {
-            $type = $field->type->getWrappedType();
-            $isRequired = true;
-        } else {
-            $type = $field->type;
-        }
-
-        if ($type instanceof ListOfType) {
-            $type = $type->getWrappedType();
-            if ($type instanceof NonNull) {
-                $type = $type->getWrappedType();
-            }
-        }
+        list($type, $isRequired) = Parser::getUnwrappedType($field->type);
         $typeName = $type->name;
 
         $generateRandom = false;
@@ -240,7 +218,8 @@ class ModelGenerator extends BaseGenerator
 
             case 'morphOne':
             case 'morphMany':
-                $targetType = $this->parser->getType($typeName);
+            case 'morphToMany':
+                    $targetType = $this->parser->getType($typeName);
                 if (!$targetType) {
                     throw new Exception("Cannot get type {$typeName} as a relationship to {$this->name}");
                 } elseif (!($targetType instanceof ObjectType)) {
@@ -249,13 +228,13 @@ class ModelGenerator extends BaseGenerator
                 $targetField = null;
                 foreach ($targetType->getFields() as $subField) {
                     $subDir = Parser::getDirectives($subField->astNode->directives);
-                    if (array_key_exists('morphTo', $subDir)) {
+                    if (array_key_exists('morphTo', $subDir) || array_key_exists('morphedByMany', $subDir)) {
                         $targetField = $subField->name;
                         break;
                     }
                 }
                 if (!$targetField) {
-                    throw new Exception("{$targetType} does not have a '@morphTo' fields");
+                    throw new Exception("{$targetType} does not have a '@morphTo' or '@morphToMany' field");
                 }
 
                 $this->class->addMethod($field->name)
@@ -270,17 +249,35 @@ class ModelGenerator extends BaseGenerator
                 break;
 
             case 'morphedByMany':
-                $this->class->addMethod($field->name)
-                    ->setPublic()
-                    ->setBody("return \$this->morphedByMany('', '');"); // TODO
+                $typeMap = $this->parser->getSchema()->getTypeMap();
+       
+                foreach ($typeMap as $name => $object) {
+                    if (!($object instanceof ObjectType) || $name === 'Query' || $name === 'Mutation' || $name === 'Subscription') {
+                        continue;
+                    }
+                    if (str_starts_with($name, '__')) {
+                        // internal type
+                        continue;
+                    }
+
+                    /**
+                     * @var ObjectType $object
+                     */
+                    foreach ($object->getFields() as $subField) {
+                        $directives = Parser::getDirectives($subField->astNode->directives);
+
+                        if (!array_key_exists('morphToMany', $directives)) {
+                            continue;
+                        }
+
+                        $methodName = $this->getInflector()->pluralize(mb_strtolower($name));
+                        $this->class->addMethod($methodName)
+                                ->setPublic()
+                                ->setBody("return \$this->morphedByMany($name::class, '$lowerName');");
+                    }
+                }
                 break;
             
-            case 'morphToMany':
-                $this->class->addMethod($field->name)
-                    ->setPublic()
-                    ->setBody("return \$this->morphToMany('', '');"); // TODO
-                break;
-    
             default:
                 break;
             }

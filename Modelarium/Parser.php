@@ -5,10 +5,14 @@ namespace Modelarium;
 use Formularium\Formularium;
 use GraphQL\Language\AST\ArgumentNode;
 use GraphQL\Language\AST\DirectiveNode;
+use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\NodeList;
 use GraphQL\Language\Visitor;
+use GraphQL\Type\Definition\ListOfType;
+use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ObjectType;
+use GraphQL\Type\Definition\OutputType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\SchemaExtender;
@@ -256,6 +260,11 @@ class Parser
         return $this->schema;
     }
 
+    public function getAST(): DocumentNode
+    {
+        return $this->ast;
+    }
+
     public function getType(string $name) : ?Type
     {
         return $this->schema->getType($name);
@@ -284,6 +293,12 @@ class Parser
         return new $className();
     }
 
+    /**
+     * Given a list of directives, return an array with [ name => [ argument => value] ]
+     *
+     * @param NodeList $list
+     * @return array
+     */
     public static function getDirectives(NodeList $list): array
     {
         $directives = [];
@@ -294,6 +309,32 @@ class Parser
             $directives[$d->name->value] = self::getDirectiveArguments($d);
         }
         return $directives;
+    }
+
+    /**
+     * Gets unwrapped type
+     *
+     * @param OutputType $type
+     * @return array [OutputType type, bool isRequired]
+     */
+    public static function getUnwrappedType(OutputType $type): array
+    {
+        $ret = $type;
+        $isRequired = false;
+
+        if ($ret instanceof NonNull) {
+            $ret = $ret->getWrappedType();
+            $isRequired = true;
+        }
+
+        if ($ret instanceof ListOfType) {
+            $ret = $ret->getWrappedType();
+            if ($ret instanceof NonNull) {
+                $ret = $ret->getWrappedType();
+            }
+        }
+
+        return [$ret, $isRequired];
     }
 
     /**

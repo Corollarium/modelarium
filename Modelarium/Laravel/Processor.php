@@ -162,8 +162,9 @@ class Processor extends ModelariumProcessor
             if ($object instanceof ObjectType) {
                 if ($name === 'Query') {
                     continue;
-                }
-                if ($name === 'Mutation') {
+                } elseif ($name === 'Mutation') {
+                    continue;
+                } elseif ($name === 'Subscription') {
                     continue;
                 }
                 $g = $this->processType((string)$name, $object);

@@ -1,0 +1,19 @@
+type Post {
+  id: ID!
+  name: String!
+  tags: [Tag!] @morphToMany
+}
+
+type Video {
+  id: ID!
+  name: String!
+  tags: [Tag!] @morphToMany
+}
+
+type Tag {
+  id: ID!
+  name: String!
+  taggable: [Taggable!]! @morphedByMany
+}
+
+union Taggable = Video | Post
