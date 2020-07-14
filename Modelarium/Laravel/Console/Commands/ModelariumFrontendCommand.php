@@ -77,7 +77,7 @@ class ModelariumFrontendCommand extends Command
             return;
         }
 
-        $basepath = base_path();
+        $basepath = base_path('resources/js/components/');
         $writtenFiles = $this->writeFiles(
             $collection,
             $basepath,

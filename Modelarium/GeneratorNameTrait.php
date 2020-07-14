@@ -48,7 +48,13 @@ trait GeneratorNameTrait
         $this->lowerNamePlural = $this->getInflector()->pluralize($this->lowerName);
     }
 
-    protected function splitClassName(string $fullclass): array
+    /**
+     * Splits a fully qualified class name into its namespace, class name and relative path
+     *
+     * @param string $fullclass
+     * @return array
+     */
+    protected static function splitClassName(string $fullclass): array
     {
         $classTokens = explode('\\', $fullclass);
         $className = array_pop($classTokens);
@@ -90,5 +96,39 @@ trait GeneratorNameTrait
     public function getStudlyName()
     {
         return $this->studlyName;
+    }
+
+    /**
+     * Replaces common strings from the stubs
+     *
+     * @param string $str The string data to apply replaces
+     * @return string
+     */
+    protected function template(string $str)
+    {
+        $date = date("c");
+        return str_replace(
+            [
+                '{{StudlyName}}',
+                '{{ StudlyName }}',
+                '{{lowerName}}',
+                '{{ lowerName }}',
+                '{{lowerNamePlural}}',
+                '{{ lowerNamePlural }}',
+                '{{date}}',
+                '{{ date }}',
+            ],
+            [
+                $this->studlyName,
+                $this->studlyName,
+                $this->lowerName,
+                $this->lowerName,
+                $this->lowerNamePlural,
+                $this->lowerNamePlural,
+                $date,
+                $date
+            ],
+            $str
+        );
     }
 }

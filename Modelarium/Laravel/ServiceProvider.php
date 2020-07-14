@@ -2,6 +2,7 @@
 
 namespace Modelarium\Laravel;
 
+use Formularium\DatatypeFactory;
 use Formularium\Formularium;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider as LaravelServiceProvider;
@@ -26,6 +27,9 @@ class ServiceProvider extends LaravelServiceProvider
 
         Formularium::appendDatatypeNamespace('App\\Datatypes');
         Formularium::appendValidatorNamespace('App\\Validators');
+        DatatypeFactory::registerFactory(
+            'Modelarium\\Laravel\\Datatypes\\Datatype_relationship::factoryName'
+        );
 
         $this->publishes([
             __DIR__ . '/../Types/Graphql/directives.graphql' => base_path('graphql/directives.graphql'),

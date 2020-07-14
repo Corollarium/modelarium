@@ -9,11 +9,14 @@ use Formularium\Frontend\Vue\Framework as FrameworkVue;
 use Modelarium\GeneratedCollection;
 use Modelarium\GeneratedItem;
 use Modelarium\GeneratorInterface;
+use Modelarium\GeneratorNameTrait;
 
 use function Safe\file_get_contents;
 
 class FrontendGenerator implements GeneratorInterface
 {
+    use GeneratorNameTrait;
+
     /**
      * @var FrameworkComposer
      */
@@ -39,6 +42,7 @@ class FrontendGenerator implements GeneratorInterface
     {
         $this->composer = $composer;
         $this->model = $model;
+        $this->setName($model->getName());
     }
 
     public function generate(): GeneratedCollection
@@ -55,8 +59,9 @@ class FrontendGenerator implements GeneratorInterface
             $this->makeVue($vue, 'Base', 'viewable');
             $this->makeVue($vue, 'Card', 'viewable');
             $this->makeVue($vue, 'List', 'viewable');
-            $this->makeVue($vue, 'View', 'viewable');
+            $this->makeVue($vue, 'Show', 'viewable');
             $this->makeVue($vue, 'Form', 'editable');
+            $this->makeVueRouter();
         }
 
         return $this->collection;
@@ -64,7 +69,8 @@ class FrontendGenerator implements GeneratorInterface
 
     protected function makeVue(FrameworkVue $vue, string $component, string $mode): void
     {
-        $path = 'resources/js/components/' . $this->model->getName() . '/' . $component . '.vue';
+        $path = $this->model->getName() . '/' .
+            $this->model->getName() . $component . '.vue';
         $stub = file_get_contents($this->stubDir . "/Vue{$component}.stub.vue");
         if ($mode == 'editable') {
             $vue->setEditableTemplate($stub);
@@ -85,5 +91,19 @@ class FrontendGenerator implements GeneratorInterface
                 )
             );
         }
+    }
+
+    protected function makeVueRoutes(string $component, string $mode): void
+    {
+        $path = $this->model->getName() . '/routes.js';
+        $stub = file_get_contents($this->stubDir . "/routes.stub.js");
+
+        $this->collection->push(
+            new GeneratedItem(
+                GeneratedItem::TYPE_FRONTEND,
+                $this->template($stub),
+                $path
+            )
+        );
     }
 }

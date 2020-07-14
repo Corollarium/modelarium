@@ -4,11 +4,6 @@ namespace Modelarium\Types;
 
 use Formularium\Datatype;
 use Formularium\DatatypeFactory;
-use Formularium\Exception\ClassNotFoundException;
-use Formularium\Field;
-use Formularium\ValidatorFactory;
-use Formularium\ValidatorMetadata;
-use Modelarium\Exception\Exception;
 
 abstract class FormulariumScalarType extends ScalarType
 {
@@ -72,69 +67,6 @@ abstract class FormulariumScalarType extends ScalarType
     public function parseLiteral($valueNode, array $variables = null)
     {
         return $this->parseValue($valueNode->value); /** @phpstan-ignore-line */
-    }
-
-    public function processDirectives(
-        string $fieldName,
-        \GraphQL\Language\AST\NodeList $directives
-    ): Field {
-        $validators = [];
-        $renderable = [];
-        foreach ($directives as $directive) {
-            $name = $directive->name->value;
-
-            if ($name === 'renderable') {
-                foreach ($directive->arguments as $arg) {
-                    /**
-                     * @var \GraphQL\Language\AST\ArgumentNode $arg
-                     */
-
-                    $argName = $arg->name->value;
-                    $argValue = $arg->value->value; /** @phpstan-ignore-line */
-                    $renderable[$argName] = $argValue;
-                }
-                continue;
-            }
-
-            $validator = null;
-            try {
-                $validator = ValidatorFactory::class($name);
-            } catch (ClassNotFoundException $e) {
-                continue;
-            }
-
-            /**
-             * @var ValidatorMetadata $metadata
-             */
-            $metadata = $validator::getMetadata();
-            $arguments = [];
-
-            foreach ($directive->arguments as $arg) {
-                /**
-                 * @var \GraphQL\Language\AST\ArgumentNode $arg
-                 */
-
-                $argName = $arg->name->value;
-                $argValue = $arg->value->value; /** @phpstan-ignore-line */
-
-                $argValidator = $metadata->argument($argName);
-                if (!$argValidator) {
-                    throw new Exception("Directive $validator does not have argument $argName");
-                }
-                if ($argValidator->type === 'Int') {
-                    $argValue = (int)$argValue;
-                }
-                $arguments[$argName] = $argValue;
-            }
-
-            $validators[$name] = $arguments;
-        }
-        return new Field(
-            $fieldName,
-            $this->datatype->getName(),
-            $renderable,
-            $validators
-        );
     }
 
     /**

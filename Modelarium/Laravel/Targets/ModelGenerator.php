@@ -12,6 +12,7 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\UnionType;
 use Modelarium\BaseGenerator;
 use Modelarium\Exception\Exception;
+use Modelarium\FormulariumUtils;
 use Modelarium\GeneratedCollection;
 use Modelarium\GeneratedItem;
 use Modelarium\Parser;
@@ -114,23 +115,33 @@ class ModelGenerator extends BaseGenerator
 
         $scalarType = $this->parser->getScalarType($typeName);
 
-        if ($scalarType) {
-            if ($scalarType instanceof FormulariumScalarType) {
-                $field = $scalarType->processDirectives(
-                    $fieldName,
-                    $directives
-                );
-                
-                if ($isRequired) {
-                    $field->setValidatorOption(
-                        Datatype::REQUIRED,
-                        'value',
-                        true
-                    );
-                }
-                $this->fields[$fieldName] = $field->toArray();
-            }
+        $field = null;
+        if (!$scalarType) {
+            // probably another model
+            $field = FormulariumUtils::getFieldFromDirectives(
+                $fieldName,
+                'relationship:11:Post:User', // TODO
+                $directives
+            );
+        } elseif ($scalarType instanceof FormulariumScalarType) {
+            $field = FormulariumUtils::getFieldFromDirectives(
+                $fieldName,
+                $scalarType->getDatatype()->getName(),
+                $directives
+            );
+        } else {
+            return;
         }
+
+        if ($isRequired) {
+            $field->setValidatorOption(
+                Datatype::REQUIRED,
+                'value',
+                true
+            );
+        }
+
+        $this->fields[$fieldName] = $field->toArray();
     }
 
     protected function processBasetype(
@@ -167,7 +178,7 @@ class ModelGenerator extends BaseGenerator
             }
         }
 
-        $typeName = $type->name; /** @phpstan-ignore-line */
+        $typeName = $type->name;
         $this->processField($typeName, $field, $directives, $isRequired);
     }
 
@@ -255,22 +266,24 @@ class ModelGenerator extends BaseGenerator
                     if (!($object instanceof ObjectType) || $name === 'Query' || $name === 'Mutation' || $name === 'Subscription') {
                         continue;
                     }
-                    if (str_starts_with($name, '__')) {
-                        // internal type
-                        continue;
-                    }
 
                     /**
                      * @var ObjectType $object
                      */
-                    foreach ($object->getFields() as $subField) {
-                        $directives = Parser::getDirectives($subField->astNode->directives);
 
-                        if (!array_key_exists('morphToMany', $directives)) {
+                    if (str_starts_with((string)$name, '__')) {
+                        // internal type
+                        continue;
+                    }
+
+                    foreach ($object->getFields() as $subField) {
+                        $subDirectives = Parser::getDirectives($subField->astNode->directives);
+
+                        if (!array_key_exists('morphToMany', $subDirectives)) {
                             continue;
                         }
 
-                        $methodName = $this->getInflector()->pluralize(mb_strtolower($name));
+                        $methodName = $this->getInflector()->pluralize(mb_strtolower((string)$name));
                         $this->class->addMethod($methodName)
                                 ->setPublic()
                                 ->setBody("return \$this->morphedByMany($name::class, '$lowerName');");
@@ -283,7 +296,7 @@ class ModelGenerator extends BaseGenerator
             }
         }
 
-        // TODO: relationship $this->processField($typeName, $field, $directives, $isRequired);
+        $this->processField($typeName, $field, $directives, $isRequired);
 
         if ($generateRandom) {
             $this->methodRandom->addBody(
@@ -418,6 +431,22 @@ EOF;
             ->addBody('return $data;');
         $this->class->addMember($this->methodRandom);
 
+        // TODO perhaps we can use PolicyGenerator->policyClasses to auto generate
+        $this->class->addMethod('getCanAttribute')
+            ->setPublic()
+            ->setReturnType('array')
+            ->addComment('@return \Formularium\Model')
+            ->addBody(
+                '$policy = new ?Policy();' . "\n" .
+                '$user = Auth::user();' . "\n" .
+                'return [' . "\n" .
+                '    //[ "ability" => "create", "value" => $policy->create($user) ]' . "\n" .
+                '];',
+                [
+                    $this->studlyName,
+                ]
+            );
+        
         $printer = new \Nette\PhpGenerator\PsrPrinter;
         return "<?php declare(strict_types=1);\n\n" . $printer->printNamespace($namespace);
     }

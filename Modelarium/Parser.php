@@ -360,7 +360,7 @@ class Parser
      *
      * @param DirectiveNode $directive
      * @param string $name
-     * @param [type] $default
+     * @param mixed $default
      * @return mixed
      */
     public static function getDirectiveArgumentByName(DirectiveNode $directive, string $name, $default = null)
