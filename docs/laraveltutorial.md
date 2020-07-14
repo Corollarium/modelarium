@@ -1,6 +1,6 @@
 # Getting started tutorial: a Laravel Graphql backend application in two minutes
 
-So let's create a web application using Laravel and Lighthouse with a Graphql endpoint. A [full source code ready to use is available](https://github.com/Corollarium/modelarium-example).
+So let's create a web application using Laravel and Lighthouse with a Graphql endpoint. A [full example with source code ready to use is available](https://github.com/Corollarium/modelarium-example).
 
 ## Deps
 
@@ -169,7 +169,7 @@ mutation {
 
 ## Frontend
 
-Modelarium can generate frontend components too. Let's see how this works. We'll generate Vue components for the tutorial. Start by adding UI support deps to the application:
+Modelarium can generate frontend components too. Let's see how this works. We'll generate Vue components for the tutorial. We'll use this integrated with Laravel, but you can also output the scaffolding to a separate project. Start by adding UI support deps to the application:
 
 ```shell
 # add laravel ui deps
@@ -185,7 +185,7 @@ npm install
 npm add prettier
 ```
 
-It's time to generate our Vue code now. Let's add some new directives to control rendering:
+It's time to generate our Vue code now. Let's add some new directives to control rendering. The `@renderable` directive passes arguments to the frontend generator.
 
 ```graphql
 type Post @migrationTimestamps {
@@ -218,7 +218,7 @@ Since we changed the schema, let's export the `Post` model again:
 php artisan modelarium:scaffold Post --model --overwrite --lighthouse
 ```
 
-If you think your Graphql files become too verbose with the extra directives, you can add the code to the Model itself instead, extending the parameters from the base class:
+If you think your Graphql files become too verbose with the extra directives, you can instead add the code to the Model itself, extending the parameters from the base class:
 
 ```php
 class Post {
@@ -248,6 +248,6 @@ Now let's export the actual frontend files. Let's pick a HTML/Bootstrap/Vue fron
 artisan modelarium:frontend '\App\Post' --framework=HTML --framework=Bootstrap --framework=Vue --overwrite --prettier
 ```
 
-This will generate the files in `resources/js/components/Post/`, ready for you to use.
+This will generate the component files in `resources/js/components/Post/`, ready for you to use in your Vue app.
 
 ## Authentication
