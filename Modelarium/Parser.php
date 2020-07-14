@@ -329,7 +329,7 @@ class Parser
 
         if ($ret instanceof ListOfType) {
             $ret = $ret->getWrappedType();
-            if ($ret instanceof NonNull) {
+            if ($ret instanceof NonNull) { /** @phpstan-ignore-line */
                 $ret = $ret->getWrappedType();
             }
         }
@@ -350,7 +350,7 @@ class Parser
             /**
              * @var ArgumentNode $arg
              */
-            $data[$arg->name->value] = $arg->value->value;
+            $data[$arg->name->value] = $arg->value->value; /** @phpstan-ignore-line */
         }
         return $data;
     }
@@ -370,7 +370,7 @@ class Parser
              * @var ArgumentNode $arg
              */
             if ($arg->name->value === $name) {
-                return $arg->value->value;
+                return $arg->value->value; /** @phpstan-ignore-line */
             }
         }
         return $default;

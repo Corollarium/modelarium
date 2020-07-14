@@ -61,7 +61,7 @@ class FrontendGenerator implements GeneratorInterface
             $this->makeVue($vue, 'List', 'viewable');
             $this->makeVue($vue, 'Show', 'viewable');
             $this->makeVue($vue, 'Form', 'editable');
-            $this->makeVueRouter();
+            $this->makeVueRoutes();
         }
 
         return $this->collection;
@@ -93,7 +93,7 @@ class FrontendGenerator implements GeneratorInterface
         }
     }
 
-    protected function makeVueRoutes(string $component, string $mode): void
+    protected function makeVueRoutes(): void
     {
         $path = $this->model->getName() . '/routes.js';
         $stub = file_get_contents($this->stubDir . "/routes.stub.js");

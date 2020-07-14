@@ -5,6 +5,7 @@ namespace Modelarium;
 use Formularium\Exception\ClassNotFoundException;
 use Formularium\Field;
 use Formularium\ValidatorFactory;
+use Formularium\ValidatorMetadata;
 use GraphQL\Language\AST\NodeList;
 use Modelarium\Exception\Exception;
 
