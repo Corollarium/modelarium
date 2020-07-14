@@ -1,9 +1,9 @@
 <template>
-<div>
+  <div>
     <a :href="link">
-        {{id}}
+      {{ id }}
     </a>
-</div>
+  </div>
 </template>
 <script>
 export default {
@@ -19,8 +19,6 @@ export default {
     },
 
 	props: {{props}}
-}
+};
 </script>
-<style>
-</style>
-
+<style></style>

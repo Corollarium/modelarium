@@ -1,6 +1,4 @@
-<template>
-</template>
-
+<template> </template>
 <script>
 import FormulariumBase from './FormulariumBase';
 
@@ -15,5 +13,4 @@ export default {
     }
 };
 </script>
-<style>
-</style>
+<style></style>
