@@ -448,14 +448,11 @@ EOF;
             ->setReturnType('array')
             ->addComment('@return \Formularium\Model')
             ->addBody(
-                '$policy = new ?Policy();' . "\n" .
+                '$policy = new App\\Policy\\' . $this->studlyName . 'Policy();' . "\n" .
                 '$user = Auth::user();' . "\n" .
                 'return [' . "\n" .
                 '    //[ "ability" => "create", "value" => $policy->create($user) ]' . "\n" .
-                '];',
-                [
-                    $this->studlyName,
-                ]
+                '];'
             );
         
         $printer = new \Nette\PhpGenerator\PsrPrinter;
