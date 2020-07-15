@@ -1,27 +1,19 @@
 <template>
-  <div>
+  <div class="{{ lowerName }}-card">
     <router-link :to="link">
       {{ id }}
-      {{ title }}
-      // TODO
     </router-link>
   </div>
 </template>
 <script>
-import mutationCreate from "raw-loader!./mutationCreate.graphql";
-
 export default {
   props: {
-    id: {
-      type: [Number, String],
-      required: true,
-    },
-    // TODO
+    {{ props }}
   },
 
   computed: {
     link() {
-      return "/{{nameLower}}/" + this.id;
+      return "/{{ lowerName }}/" + this.id;
     },
   },
 };

@@ -5,18 +5,18 @@ namespace Modelarium\Frontend\HTML\Renderable;
 use Formularium\Datatype;
 use Formularium\Field;
 use Formularium\Frontend\HTML\Framework;
-use Formularium\HTMLElement;
+use Formularium\HTMLNode;
 
 class Renderable_relationshipSelect extends Renderable_relationship
 {
-    public function viewable($value, Field $field, HTMLElement $previous): HTMLElement
+    public function viewable($value, Field $field, HTMLNode $previous): HTMLNode
     {
         return $previous;
     }
 
-    public function editable($value, Field $field, HTMLElement $previous): HTMLElement
+    public function editable($value, Field $field, HTMLNode $previous): HTMLNode
     {
-        $input = new HTMLElement('select');
+        $input = new HTMLNode('select');
     
         $renderable = $field->getRenderables();
         $input->setAttributes([

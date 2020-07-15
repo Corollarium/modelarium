@@ -102,33 +102,27 @@ trait GeneratorNameTrait
      * Replaces common strings from the stubs
      *
      * @param string $str The string data to apply replaces
+     * @param string[] $replace
      * @return string
      */
-    protected function template(string $str)
+    protected function template(string $str, array $replace = [])
     {
         $date = date("c");
-        return str_replace(
-            [
-                '{{StudlyName}}',
-                '{{ StudlyName }}',
-                '{{lowerName}}',
-                '{{ lowerName }}',
-                '{{lowerNamePlural}}',
-                '{{ lowerNamePlural }}',
-                '{{date}}',
-                '{{ date }}',
-            ],
-            [
-                $this->studlyName,
-                $this->studlyName,
-                $this->lowerName,
-                $this->lowerName,
-                $this->lowerNamePlural,
-                $this->lowerNamePlural,
-                $date,
-                $date
-            ],
-            $str
+        return strtr(
+            $str,
+            array_merge(
+                [
+                    '{{StudlyName}}' => $this->studlyName,
+                    '{{ StudlyName }}' => $this->studlyName,
+                    '{{lowerName}}' => $this->lowerName,
+                    '{{ lowerName }}' => $this->lowerName,
+                    '{{lowerNamePlural}}' => $this->lowerNamePlural,
+                    '{{ lowerNamePlural }}' => $this->lowerNamePlural,
+                    '{{date}}' => $date,
+                    '{{ date }}' => $date
+                ],
+                $replace
+            )
         );
     }
 }

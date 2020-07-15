@@ -2,6 +2,9 @@
 
 namespace Modelarium\Frontend;
 
+use Formularium\Datatype;
+use Formularium\Element;
+use Formularium\Field;
 use Formularium\Model;
 use Formularium\FrameworkComposer;
 use Formularium\Frontend\Blade\Framework as FrameworkBlade;
@@ -38,11 +41,26 @@ class FrontendGenerator implements GeneratorInterface
      */
     protected $stubDir = __DIR__ . '/stubs';
 
+    /**
+     * String substitution helpers
+     *
+     * @var string[]
+     */
+    protected $helpers = [];
+
+    /**
+     * Fields
+     *
+     * @var Field[]
+     */
+    protected $cardFields = [];
+
     public function __construct(FrameworkComposer $composer, Model $model)
     {
         $this->composer = $composer;
         $this->model = $model;
         $this->setName($model->getName());
+        $this->buildHelpers();
     }
 
     public function generate(): GeneratedCollection
@@ -70,13 +88,29 @@ class FrontendGenerator implements GeneratorInterface
         return $this->collection;
     }
 
+    protected function buildHelpers(): void
+    {
+        $this->cardFields = $this->model->filterField(
+            function (Field $field) {
+                return $field->getRenderable('card', false);
+            }
+        );
+
+        $this->helpers = [
+            '{{ submitButton }}' => $this->composer->element('Button', [Element::LABEL => 'Submit']),
+            '{{ props }}' => $this->makeProps()
+        ];
+    }
+
     protected function makeVue(FrameworkVue $vue, string $component, string $mode): void
     {
         $path = $this->model->getName() . '/' .
             $this->model->getName() . $component . '.vue';
+
         $stub = file_get_contents($this->stubDir . "/Vue{$component}.stub.vue");
+
         if ($mode == 'editable') {
-            $vue->setEditableTemplate($this->template($stub));
+            $vue->setEditableTemplate($this->template($stub, $this->helpers));
             $this->collection->push(
                 new GeneratedItem(
                     GeneratedItem::TYPE_FRONTEND,
@@ -85,7 +119,7 @@ class FrontendGenerator implements GeneratorInterface
                 )
             );
         } else {
-            $vue->setViewableTemplate($this->template($stub));
+            $vue->setViewableTemplate($this->template($stub, $this->helpers));
             $this->collection->push(
                 new GeneratedItem(
                     GeneratedItem::TYPE_FRONTEND,
@@ -96,14 +130,40 @@ class FrontendGenerator implements GeneratorInterface
         }
     }
 
+    protected function makeProps(): string
+    {
+        $props = [
+            'id: {
+                type: [Number, String],
+                required: true,
+            }'
+        ];
+    
+        foreach ($this->cardFields as $field) {
+            $props[] = "{$field->getName()}: { 
+                type: String," . // TODO
+                ($field->getValidator(Datatype::REQUIRED, false) ? 'required: true,' : '') .
+                '}';
+        }
+        return implode(",\n", $props);
+    }
+
     protected function makeGraphql(): void
     {
+        $cardFieldNames = array_map(
+            function (Field $field) {
+                return $field->getName();
+            },
+            $this->cardFields
+        );
+        $cardFieldParameters = implode("\n", $cardFieldNames);
+
         $listQuery = <<<EOF
 query (\$page: Int!) {
     {$this->lowerNamePlural}(page: \$page) {
         data {
             id
-            TODO
+            $cardFieldParameters
         }
       
         paginatorInfo {

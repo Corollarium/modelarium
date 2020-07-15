@@ -5,18 +5,18 @@ namespace Modelarium\Frontend\Vue\Renderable;
 use Formularium\Datatype;
 use Formularium\Field;
 use Formularium\Frontend\HTML\Framework;
-use Formularium\HTMLElement;
+use Formularium\HTMLNode;
 
 class Renderable_associationAutocomplete extends Renderable_relationship
 {
-    public function viewable($value, Field $field, HTMLElement $previous): HTMLElement
+    public function viewable($value, Field $field, HTMLNode $previous): HTMLNode
     {
         return $previous;
     }
 
-    public function editable($value, Field $field, HTMLElement $previous): HTMLElement
+    public function editable($value, Field $field, HTMLNode $previous): HTMLNode
     {
-        $input = new HTMLElement('input');
+        $input = new HTMLNode('input');
     
         $renderable = $field->getRenderables();
         $validators = $field->getValidators();

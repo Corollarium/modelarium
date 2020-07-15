@@ -1,10 +1,7 @@
 <template>
   <form class="modelarium-form" method="POST">
     {{ form }}
-
-    <button class="modelarium-form__submit" type="submit">
-      Save
-    </button>
+    {{ submitButton }}
   </form>
 </template>
 
