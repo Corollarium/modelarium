@@ -62,7 +62,10 @@ class FrontendGenerator implements GeneratorInterface
             $this->makeVue($vue, 'Show', 'viewable');
             $this->makeVue($vue, 'Form', 'editable');
             $this->makeVueRoutes();
+            $this->makeVueIndex();
         }
+
+        $this->makeGraphql();
 
         return $this->collection;
     }
@@ -73,7 +76,7 @@ class FrontendGenerator implements GeneratorInterface
             $this->model->getName() . $component . '.vue';
         $stub = file_get_contents($this->stubDir . "/Vue{$component}.stub.vue");
         if ($mode == 'editable') {
-            $vue->setEditableTemplate($stub);
+            $vue->setEditableTemplate($this->template($stub));
             $this->collection->push(
                 new GeneratedItem(
                     GeneratedItem::TYPE_FRONTEND,
@@ -82,7 +85,7 @@ class FrontendGenerator implements GeneratorInterface
                 )
             );
         } else {
-            $vue->setViewableTemplate($stub);
+            $vue->setViewableTemplate($this->template($stub));
             $this->collection->push(
                 new GeneratedItem(
                     GeneratedItem::TYPE_FRONTEND,
@@ -91,6 +94,105 @@ class FrontendGenerator implements GeneratorInterface
                 )
             );
         }
+    }
+
+    protected function makeGraphql(): void
+    {
+        $listQuery = <<<EOF
+query (\$page: Int!) {
+    {$this->lowerNamePlural}(page: \$page) {
+        data {
+            id
+            TODO
+        }
+      
+        paginatorInfo {
+            currentPage
+            perPage
+            total
+            lastPage
+        }
+    }
+}
+EOF;
+
+        $this->collection->push(
+            new GeneratedItem(
+                GeneratedItem::TYPE_FRONTEND,
+                $listQuery,
+                $this->model->getName() . '/queryList.graphql'
+            )
+        );
+
+        $itemQuery = <<<EOF
+query (\$id: ID!) {
+    {$this->lowerName}(id: \$id) {
+        id
+        TODO
+    }
+}
+EOF;
+
+        $this->collection->push(
+            new GeneratedItem(
+                GeneratedItem::TYPE_FRONTEND,
+                $itemQuery,
+                $this->model->getName() . '/queryItem.graphql'
+            )
+        );
+
+        // TODO: variables
+        $createMutation = <<<EOF
+mutation create(\$name: String!) {
+    {$this->lowerName}Create(name: \$name) {
+        TODO
+    }
+}
+EOF;
+        $this->collection->push(
+            new GeneratedItem(
+                GeneratedItem::TYPE_FRONTEND,
+                $createMutation,
+                $this->model->getName() . '/mutationCreate.graphql'
+            )
+        );
+    }
+
+    protected function makeVueIndex(): void
+    {
+        $path = $this->model->getName() . '/index.js';
+        $name = $this->studlyName;
+
+        $items = [
+            'Card',
+            'Form',
+            'List',
+            'Show',
+        ];
+
+        $import = array_map(
+            function ($i) use ($name) {
+                return "import {$name}$i from './{$name}$i.vue';";
+            },
+            $items
+        );
+
+        $export = array_map(
+            function ($i) use ($name) {
+                return "    {$name}$i,\n";
+            },
+            $items
+        );
+
+        $this->collection->push(
+            new GeneratedItem(
+                GeneratedItem::TYPE_FRONTEND,
+                implode("\n", $import) . "\n" .
+                "export {\n" .
+                implode("\n", $export) . "\n};\n",
+                $path
+            )
+        );
     }
 
     protected function makeVueRoutes(): void

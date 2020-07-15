@@ -3,14 +3,13 @@
 namespace Modelarium\Laravel\Targets;
 
 use Formularium\Datatype;
-use GraphQL\Language\AST\NodeKind;
-use GraphQL\Language\Visitor;
 use Illuminate\Support\Str;
 use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\UnionType;
 use Modelarium\BaseGenerator;
+use Modelarium\Datatypes\Datatype_relationship;
 use Modelarium\Exception\Exception;
 use Modelarium\FormulariumUtils;
 use Modelarium\GeneratedCollection;
@@ -195,11 +194,17 @@ class ModelGenerator extends BaseGenerator
         $typeName = $type->name;
 
         $generateRandom = false;
+
+        $sourceTypeName = null;
+        $targetTypeName = null;
+        $relationship = null;
+
         foreach ($directives as $directive) {
             $name = $directive->name->value;
             switch ($name) {
             case 'belongsTo':
                 $generateRandom = true;
+                $relationship = Datatype_relationship::RELATIONSHIP_ONE_TO_MANY; // TODO
                 $this->class->addMethod($lowerName)
                     ->setPublic()
                     ->setReturnType('BelongsTo')
@@ -208,6 +213,7 @@ class ModelGenerator extends BaseGenerator
 
             case 'belongsToMany':
                 $generateRandom = true;
+                $relationship = Datatype_relationship::RELATIONSHIP_ONE_TO_MANY; // TODO
                 $this->class->addMethod($lowerNamePlural)
                     ->setPublic()
                     ->setReturnType('BelongsTo')
@@ -215,12 +221,14 @@ class ModelGenerator extends BaseGenerator
                 break;
 
             case 'hasOne':
+                $relationship = Datatype_relationship::RELATIONSHIP_ONE_TO_ONE; // TODO
                 $this->class->addMethod($lowerName)
                     ->setPublic()
                     ->setBody("return \$this->hasOne($targetClass::class);");
                 break;
 
             case 'hasMany':
+                $relationship = Datatype_relationship::RELATIONSHIP_ONE_TO_MANY; // TODO
                 $target = $this->getInflector()->singularize($targetClass);
                 $this->class->addMethod($lowerNamePlural)
                     ->setPublic()
@@ -230,7 +238,9 @@ class ModelGenerator extends BaseGenerator
             case 'morphOne':
             case 'morphMany':
             case 'morphToMany':
-                    $targetType = $this->parser->getType($typeName);
+                $relationship = Datatype_relationship::RELATIONSHIP_ONE_TO_MANY; // TODO
+
+                $targetType = $this->parser->getType($typeName);
                 if (!$targetType) {
                     throw new Exception("Cannot get type {$typeName} as a relationship to {$this->name}");
                 } elseif (!($targetType instanceof ObjectType)) {
@@ -260,6 +270,7 @@ class ModelGenerator extends BaseGenerator
                 break;
 
             case 'morphedByMany':
+                $relationship = Datatype_relationship::RELATIONSHIP_MANY_TO_MANY; // TODO
                 $typeMap = $this->parser->getSchema()->getTypeMap();
        
                 foreach ($typeMap as $name => $object) {

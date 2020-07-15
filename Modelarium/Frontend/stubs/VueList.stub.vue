@@ -10,7 +10,7 @@
     </div>
 
     <div class="formularium-list__list" v-if="list.length">
-      <Card v-for="l in list" :key="l.id" v-bind="l"> </Card>
+      <{{StudlyName}}Card v-for="l in list" :key="l.id" v-bind="l"></{{StudlyName}}Card>
       <hr />
 
       <div v-html="pagination.html"></div>
@@ -23,7 +23,8 @@
 
 <script>
 import {{StudlyName}}Card from "./{{StudlyName}}Card";
-import axios from "axios";
+import axios from 'axios';
+import listQuery from 'raw-loader!./list.graphql';
 
 export default {
   data() {
@@ -40,61 +41,50 @@ export default {
     };
   },
 
-  components: { Card: {{StudlyName}}Card },
+  components: { {{StudlyName}}Card: {{StudlyName}}Card },
 
   created() {
     if (this.$route) {
       if (this.$route.query.page && this.$route.query.page > 1) {
-        this.pagination.current_page = this.$route.query.page;
+        this.pagination.currentPage = this.$route.query.page;
       }
     }
-
-    this.index(1);
+    this.index(this.pagination.currentPage);
   },
 
   watch: {
-    "pagination.current_page": function (newVal, oldVal) {
-      if (this.$route) {
-        if (this.$route.query.page != newVal) {
-          this.$router.push(this._indexURL(newVal));
-          this.index(newVal);
+    "pagination.currentPage": {
+      handler (newVal, oldVal) {
+        if (this.$route) {
+          if (this.$route.query.page != newVal) {
+            // TODO this.$router.push(this._indexURL(newVal));
+            this.index(newVal);
+          }
         }
       }
     },
   },
 
-  methods: {
-    index(page) {
-      axios({
-        url: "/graphql",
-        method: "post",
-        data: {
-          query: `
-{
-  {{lowerName}}(page: ${page}) {
-  	data {
-      id,
-      title
-    },
-
-    paginatorInfo {
-      currentPage,
-      perPage,
-      total,
-      lastPage
-    }
-  },
-
-}
-                `,
-        },
-      }).then((result) => {
-        const data = result.data.data;
-        this.$set(this, "list", data.posts.data);
-        this.$set(this, "pagination", data.posts.paginatorInfo);
-      });
-    },
-  },
+	methods: {
+        index(page) {
+            axios.post(
+                '/graphql',
+                {
+                    query: listQuery,
+                    variables: { page },
+                }
+            ).then((result) => {
+                if (result.data.errors) {
+                    // TODO
+                    console.error(result.data.errors);
+                    return;
+                }
+                const data = result.data.data;
+                this.$set(this, 'list', data.posts.data);
+                this.$set(this, 'pagination', data.posts.paginatorInfo);
+            });
+        }
+	}
 };
 </script>
 <style></style>

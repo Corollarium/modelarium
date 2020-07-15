@@ -1,34 +1,47 @@
 <template>
-<{{containerTag}}>
-    <form method="POST" action="/api/{{modelNameLower}}">
-        {{form}}
+  <form class="modelarium-form" method="POST">
+    {{ form }}
 
-        <button type="submit">
-            Save
-        </button>
-    </form>
-</{{containerTag}}>
+    <button class="modelarium-form__submit" type="submit">
+      Save
+    </button>
+  </form>
 </template>
 
 <script>
-import {{modelName}}Base from './{{modelName}}Base';
-import crudEditMixin from './formularium/crudEdit.js';
+import axios from "axios";
+import mutationCreate from "raw-loader!./mutationCreate.graphql";
 
 export default {
-    extends: {{modelName}}Base,
-    mixins: [crudEditMixin],
+  data() {
+    return {
+      model: {},
+    };
+  },
 
-    data() {
-        return {{jsonData}};
+  methods: {
+    create() {
+      axios
+        .post("/graphql", {
+          query: mutationCreate,
+          variables: this.model,
+        })
+        .then((result) => {
+          if (result.data.errors) {
+            // TODO
+            console.error(result.data.errors);
+            return;
+          }
+          const data = result.data.data;
+          this.$set(this, "model", data.post);
+          // TODO: route to '/{{lowerName}}/' + this.model.id
+        });
     },
 
-    methods: {
-        changedFile(name, event) {
-            // this[name]
-        }
-    }
-}
+    changedFile(name, event) {
+      // TODO
+    },
+  },
+};
 </script>
-<style>
-</style>
-
+<style></style>

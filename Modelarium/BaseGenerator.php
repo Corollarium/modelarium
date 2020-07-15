@@ -83,6 +83,7 @@ abstract class BaseGenerator implements GeneratorInterface
      *
      * @param string $str The string data to apply replaces
      * @return string
+     * @deprecated prefer template() from GeneratorNameTrait
      */
     protected function replaceDummy(string $str)
     {

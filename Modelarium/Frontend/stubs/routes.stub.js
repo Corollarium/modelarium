@@ -22,7 +22,7 @@ export default [
     {
         path: '/{{lowerName}}/edit',
         name: '{{StudlyName}}Edit',
-        component: {{ studlyName }}Edit
+        component: {{ StudlyName }}Edit
     }
 ];
 

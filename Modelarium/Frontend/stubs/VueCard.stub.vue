@@ -1,24 +1,29 @@
 <template>
   <div>
-    <a :href="link">
+    <router-link :to="link">
       {{ id }}
-    </a>
+      {{ title }}
+      // TODO
+    </router-link>
   </div>
 </template>
 <script>
+import mutationCreate from "raw-loader!./mutationCreate.graphql";
+
 export default {
-	data() {
-		return {
-		}
+  props: {
+    id: {
+      type: [Number, String],
+      required: true,
     },
+    // TODO
+  },
 
-    computed: {
-        link() {
-            return '/{{modelNameLower}}/' + this.id;
-        }
+  computed: {
+    link() {
+      return "/{{nameLower}}/" + this.id;
     },
-
-	props: {{props}}
+  },
 };
 </script>
 <style></style>

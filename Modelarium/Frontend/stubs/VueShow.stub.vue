@@ -1,28 +1,42 @@
 <template>
-<div>
-    {{form}}
-</div>
+  <div>
+    // TODO
+  </div>
 </template>
 
 <script>
-import {{modelName}}Base from './{{modelName}}Base';
-import crudShow from './formularium/crudShow.js';
+import axios from "axios";
+import itemQuery from "raw-loader!./item.graphql";
 
 export default {
-    extends: {{modelName}}Base,
-    mixins: [crudShow],
+  data() {
+    return {
+      model: {},
+    };
+  },
 
-    data() {
-        return {
-        }
+  created() {
+    this.get(this.$route.params.id);
+  },
+
+  methods: {
+    get(id) {
+      axios
+        .post("/graphql", {
+          query: itemQuery,
+          variables: { id },
+        })
+        .then((result) => {
+          if (result.data.errors) {
+            // TODO
+            console.error(result.data.errors);
+            return;
+          }
+          const data = result.data.data;
+          this.$set(this, "model", data.post);
+        });
     },
-
-    components: {
-    },
-
-    methods: {
-    }
+  },
 };
 </script>
-<style>
-</style>
+<style></style>
