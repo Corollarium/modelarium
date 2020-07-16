@@ -8,7 +8,7 @@
 
 ---
 
-Modelarium generates scaffolding for your project based on a GraphQL description of your API.
+Modelarium generates scaffolding for your project based on a GraphQL description of your API. It can create the entire backend and frontend files, leaving only the logic and design for you.
 
 What it does?
 
@@ -17,12 +17,13 @@ What it does?
 - **validation**: transparent data validation made automatically based on your datatypes. Your data is always safely validated.
 - **no performance penalty**: other than data validation all data is generate at development time. It's just automatic scaffolding, everything is just as fast as before.
 - **no new standards**: code is generated following existing standards for existing tools. Generate code and use it freely. Nothing is tied down.
-- **frontend generation**: get HTML forms, cards, lists and views generated for you automatically with your favorite CSS framework: Bootstrap, Bulma, Materialize, Buefy. You can tweak them afterwards -- it's just code. Get Vue and React components if you use them.
+- **frontend generation**: get HTML forms, cards, lists and views generated for you automatically with your favorite CSS framework: Bootstrap, Bulma, Materialize, Buefy with simple declarations and a standard description. You can tweak details afterwards -- it's just code.
+- **reactive frameworks**: Get Vue and React components like cards, forms, lists and tables, ready to use with their Graphql calls.
 - **integration with Laravel and Lighthouse**. Get GraphQL endpoints automatically.
 
 What it doesn't do:
 
-- magic. you still have to write your code logic to process requests in the backend, like in mutations or special conditions in your models.
+- magic. you still have to write your code logic to process requests in the backend, like in mutations or special conditions in your models. You also get only a basic design, so pretty CSS is up to you.
 - REST endpoints generation. At this point only GraphQL is supported through Laravel and Lighthouse. REST endpoints might come later.
 - other backend frameworks. Currently only Laravel is supported.
 
