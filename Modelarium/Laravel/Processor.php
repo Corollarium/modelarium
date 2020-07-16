@@ -160,11 +160,7 @@ class Processor extends ModelariumProcessor
 
         foreach ($typeMap as $name => $object) {
             if ($object instanceof ObjectType) {
-                if ($name === 'Query') {
-                    continue;
-                } elseif ($name === 'Mutation') {
-                    continue;
-                } elseif ($name === 'Subscription') {
+                if ($name === 'Query' || $name === 'Mutation' || $name === 'Subscription' || $name === 'Can') {
                     continue;
                 }
                 $g = $this->processType((string)$name, $object);

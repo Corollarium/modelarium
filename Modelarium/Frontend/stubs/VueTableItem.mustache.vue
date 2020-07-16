@@ -1,5 +1,5 @@
 <template>
-  <tr>
+  <tr class="modelarium-list__row">
     {|#props|}
     <td>{{ {|name|} }}</td>
     {|/props|}

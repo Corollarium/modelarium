@@ -1,5 +1,5 @@
 <template>
-  <div class="{{ lowerName }}-card">
+  <div class="{|lowerName|}-card">
     <router-link :to="link">
       {{ id }}
     </router-link>
@@ -8,7 +8,7 @@
 <script>
 export default {
   props: {
-    {{ props }}
+    {|props|}
   },
 
   computed: {

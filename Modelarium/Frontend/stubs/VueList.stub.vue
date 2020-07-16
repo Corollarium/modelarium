@@ -5,7 +5,7 @@
     <div class="formularium-list__header">
       <router-link to="/post/edit">
         <i class="fa fa-plus"></i>
-        Add your post
+        Add new
       </router-link>
     </div>
 

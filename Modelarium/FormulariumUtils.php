@@ -5,7 +5,7 @@ namespace Modelarium;
 use Formularium\Exception\ClassNotFoundException;
 use Formularium\Field;
 use Formularium\ValidatorFactory;
-use Formularium\ValidatorMetadata;
+use Formularium\Metadata;
 use GraphQL\Language\AST\NodeList;
 use Modelarium\Exception\Exception;
 
@@ -42,7 +42,7 @@ class FormulariumUtils
             }
 
             /**
-             * @var ValidatorMetadata $metadata
+             * @var Metadata $metadata
              */
             $metadata = $validator::getMetadata();
             $arguments = [];
@@ -55,7 +55,7 @@ class FormulariumUtils
                 $argName = $arg->name->value;
                 $argValue = $arg->value->value; /** @phpstan-ignore-line */
 
-                $argValidator = $metadata->argument($argName);
+                $argValidator = $metadata->parameter($argName);
                 if (!$argValidator) {
                     throw new Exception("Directive $validator does not have argument $argName");
                 }
