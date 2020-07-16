@@ -208,6 +208,11 @@ class MigrationGenerator extends BaseGenerator
         $base = null;
         $extra = [];
 
+        // special types that should be skipped.
+        if ($typeName === 'Can') {
+            return;
+        }
+
         foreach ($directives as $directive) {
             $name = $directive->name->value;
             switch ($name) {

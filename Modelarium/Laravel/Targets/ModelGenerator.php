@@ -207,7 +207,7 @@ class ModelGenerator extends BaseGenerator
                 $relationship = Datatype_relationship::RELATIONSHIP_ONE_TO_MANY; // TODO
                 $this->class->addMethod($lowerName)
                     ->setPublic()
-                    ->setReturnType('BelongsTo')
+                    ->setReturnType('App\\BelongsTo')
                     ->setBody("return \$this->belongsTo($targetClass::class);");
                 break;
 
@@ -216,7 +216,7 @@ class ModelGenerator extends BaseGenerator
                 $relationship = Datatype_relationship::RELATIONSHIP_ONE_TO_MANY; // TODO
                 $this->class->addMethod($lowerNamePlural)
                     ->setPublic()
-                    ->setReturnType('BelongsTo')
+                    ->setReturnType('App\\BelongsTo')
                     ->setBody("return \$this->belongsToMany($targetClass::class);");
                 break;
 
@@ -224,6 +224,7 @@ class ModelGenerator extends BaseGenerator
                 $relationship = Datatype_relationship::RELATIONSHIP_ONE_TO_ONE; // TODO
                 $this->class->addMethod($lowerName)
                     ->setPublic()
+                    ->setReturnType('App\\HasOne')
                     ->setBody("return \$this->hasOne($targetClass::class);");
                 break;
 
@@ -232,6 +233,7 @@ class ModelGenerator extends BaseGenerator
                 $target = $this->getInflector()->singularize($targetClass);
                 $this->class->addMethod($lowerNamePlural)
                     ->setPublic()
+                    ->setReturnType('App\\HasMany')
                     ->setBody("return \$this->hasMany($target::class);");
                 break;
 
@@ -375,6 +377,8 @@ EOF;
     {
         $namespace = new \Nette\PhpGenerator\PhpNamespace('App');
         $namespace->addUse('\\Illuminate\\Database\\Eloquent\\Relations\\BelongsTo');
+        $namespace->addUse('\\Illuminate\\Database\\Eloquent\\Relations\\HasOne');
+        $namespace->addUse('\\Illuminate\\Database\\Eloquent\\Relations\\HasMany');
 
         $this->class = $namespace->addClass('Base' . $this->studlyName);
         $this->class->setExtends($this->parentClassName)
@@ -448,7 +452,7 @@ EOF;
             ->setReturnType('array')
             ->addComment('@return \Formularium\Model')
             ->addBody(
-                '$policy = new App\\Policy\\' . $this->studlyName . 'Policy();' . "\n" .
+                '$policy = new \\App\\Policies\\' . $this->studlyName . 'Policy();' . "\n" .
                 '$user = Auth::user();' . "\n" .
                 'return [' . "\n" .
                 '    //[ "ability" => "create", "value" => $policy->create($user) ]' . "\n" .
