@@ -193,8 +193,12 @@ class ModelGenerator extends BaseGenerator
         list($type, $isRequired) = Parser::getUnwrappedType($field->type);
         $typeName = $type->name;
 
-        $generateRandom = false;
+        // special types that should be skipped.
+        if ($typeName === 'Can') {
+            return;
+        }
 
+        $generateRandom = false;
         $sourceTypeName = null;
         $targetTypeName = null;
         $relationship = null;
@@ -460,7 +464,7 @@ EOF;
             );
         
         $printer = new \Nette\PhpGenerator\PsrPrinter;
-        return "<?php declare(strict_types=1);\n\n" . $printer->printNamespace($namespace);
+        return $this->phpHeader() . $printer->printNamespace($namespace);
     }
 
     protected function processGraphql(): void
