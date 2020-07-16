@@ -6,6 +6,6 @@
 /** @var \Illuminate\Database\Eloquent\Factory $factory */
 use Faker\Generator as Faker;
 
-$factory->define(App\DummyName::class, function (Faker $faker) {
-    return App\DummyName::getRandomData();
+$factory->define(App\{|studlyName|}::class, function (Faker $faker) {
+    return App\{|studlyName|}::getRandomData();
 });

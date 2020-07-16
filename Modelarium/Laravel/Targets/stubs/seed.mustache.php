@@ -5,7 +5,7 @@
 
 use Illuminate\Database\Seeder;
 
-class DummyNameSeeder extends Seeder
+class {|StudlyName|}Seeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -14,6 +14,6 @@ class DummyNameSeeder extends Seeder
      */
     public function run()
     {
-        factory(App\DummyClass::class)->create();
+        factory(App\{|StudlyName|}::class)->create();
     }
 }

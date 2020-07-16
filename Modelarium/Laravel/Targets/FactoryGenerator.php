@@ -26,7 +26,7 @@ class FactoryGenerator extends BaseGenerator
 
     public function generateString(): string
     {
-        return $this->stubToString('factory');
+        return $this->templateStub('factory');
     }
 
     public function getGenerateFilename(): string

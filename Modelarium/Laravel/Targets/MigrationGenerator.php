@@ -352,107 +352,64 @@ class MigrationGenerator extends BaseGenerator
 
     public function generateString(): string
     {
-        return $this->stubToString('migration', function ($stub) {
-            foreach ($this->type->getFields() as $field) {
-                $directives = $field->astNode->directives;
-                if (
-                    ($field->type instanceof ObjectType) ||
-                    ($field->type instanceof ListOfType) ||
-                    ($field->type instanceof UnionType) ||
-                    ($field->type instanceof NonNull && (
-                        ($field->type->getWrappedType() instanceof ObjectType) ||
-                        ($field->type->getWrappedType() instanceof ListOfType) ||
-                        ($field->type->getWrappedType() instanceof UnionType)
-                    ))
-                ) {
-                    // relationship
-                    $this->processRelationship($field, $directives);
-                } else {
-                    $this->processBasetype($field, $directives);
-                }
-            }
-
-            assert($this->type->astNode !== null);
-            /**
-             * @var \GraphQL\Language\AST\NodeList|null
-             */
-            $directives = $this->type->astNode->directives;
-            if ($directives) {
-                $this->processDirectives($directives);
-            }
-
-            if ($this->mode === self::MODE_CREATE) {
-                $stub = str_replace(
-                    '// dummyCode',
-                    join("\n            ", $this->createCode),
-                    $stub
-                );
-
-                $stub = str_replace(
-                    '// dummyPostCreateCode',
-                    join("\n            ", $this->postCreateCode),
-                    $stub
-                );
+        foreach ($this->type->getFields() as $field) {
+            $directives = $field->astNode->directives;
+            if (
+                ($field->type instanceof ObjectType) ||
+                ($field->type instanceof ListOfType) ||
+                ($field->type instanceof UnionType) ||
+                ($field->type instanceof NonNull && (
+                    ($field->type->getWrappedType() instanceof ObjectType) ||
+                    ($field->type->getWrappedType() instanceof ListOfType) ||
+                    ($field->type->getWrappedType() instanceof UnionType)
+                ))
+            ) {
+                // relationship
+                $this->processRelationship($field, $directives);
             } else {
-                $stub = str_replace(
-                    '// dummyCode',
-                    '// TODO: write the patch please',
-                    $stub
-                );
-
-                $stub = str_replace(
-                    '// dummyPostCreateCode',
-                    '',
-                    $stub
-                );
+                $this->processBasetype($field, $directives);
             }
+        }
 
-            $stub = str_replace(
-                'dummytablename',
-                $this->lowerNamePlural,
-                $stub
-            );
+        assert($this->type->astNode !== null);
+        /**
+         * @var \GraphQL\Language\AST\NodeList|null
+         */
+        $directives = $this->type->astNode->directives;
+        if ($directives) {
+            $this->processDirectives($directives);
+        }
 
-            $stub = str_replace(
-                'modelSchemaCode',
-                "# start graphql\n" .
+        $context = [
+            'dummytablename' => $this->lowerNamePlural,
+            'modelSchemaCode' => "# start graphql\n" .
                 $this->currentModel .
-                "\n# end graphql\n",
-                $stub
-            );
-            return $stub;
-        });
+                "\n# end graphql",
+        ];
+
+        if ($this->mode === self::MODE_CREATE) {
+            $context['dummyCode'] = join("\n            ", $this->createCode);
+            $context['dummyPostCreateCode'] = join("\n            ", $this->postCreateCode);
+        } else {
+            $context['dummyCode'] = '// TODO: write the patch please';
+            $context['dummyPostCreateCode'] = '';
+        }
+
+        return $this->templateStub('migration', $context);
     }
 
     public function generateManyToManyMorphTable(string $name, string $relation): GeneratedItem
     {
-        $contents = $this->stubToString('migration', function ($stub) use ($name, $relation) {
-            $code = <<<EOF
-
+        $context = [
+            'dummyCode' =>  <<<EOF
             \$table->unsignedBigInteger("{$name}_id");
             \$table->unsignedBigInteger("{$relation}_id");
             \$table->string("{$relation}_type");
-EOF;
-
-            $stub = str_replace(
-                '// dummyCode',
-                $code,
-                $stub
-            );
-
-            $stub = str_replace(
-                'dummytablename',
-                $this->getInflector()->pluralize($relation),
-                $stub
-            );
-
-            $stub = str_replace(
-                'modelSchemaCode',
-                '',
-                $stub
-            );
-            return $stub;
-        });
+EOF,
+            'dummytablename' => $this->getInflector()->pluralize($relation),
+            'modelSchemaCode' => ''
+        ];
+        $contents = $this->templateStub('migration', $context);
 
         $item = new GeneratedItem(
             GeneratedItem::TYPE_MIGRATION,
@@ -472,33 +429,17 @@ EOF;
 
     public function generateManyToManyTable(string $type1, string $type2): GeneratedItem
     {
-        $contents = $this->stubToString('migration', function ($stub) use ($type1, $type2) {
-            $code = <<<EOF
+        $context = [
+            'dummyCode' => <<<EOF
 
             \$table->increments("id");
             \$table->unsignedBigInteger("{$type1}_id");
             \$table->unsignedBigInteger("{$type2}_id");
-EOF;
-
-            $stub = str_replace(
-                '// dummyCode',
-                $code,
-                $stub
-            );
-
-            $stub = str_replace(
-                'dummytablename',
-                "{$type1}_{$type2}",
-                $stub
-            );
-
-            $stub = str_replace(
-                'modelSchemaCode',
-                '',
-                $stub
-            );
-            return $stub;
-        });
+EOF,
+            'dummytablename' => "{$type1}_{$type2}",
+            'modelSchemaCode' => ''
+        ];
+        $contents = $this->templateStub('migration', $context);
 
         $item = new GeneratedItem(
             GeneratedItem::TYPE_MIGRATION,

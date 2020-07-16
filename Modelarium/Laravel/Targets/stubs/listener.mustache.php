@@ -2,11 +2,11 @@
 
 namespace App\Listeners;
 
-use App\Events\DummyClassEvent;
-use App\Notifications\DummyClassNotification;
+use App\Events\{|studlyName|}Event;
+use App\Notifications\{|studlyName|}Notification;
 use Illuminate\Support\Facades\Notification;
 
-class DummyClassListener
+class {|studlyName|}Listener
 {
     /**
      * Create the event listener.
@@ -24,9 +24,9 @@ class DummyClassListener
      * @param  object  $event
      * @return void
      */
-    public function handle(DummyClassEvent $event)
+    public function handle({|studlyName|}Event $event)
     {
-        $n = new DummyClassNotification($event->data);
+        $n = new {|studlyName|}Notification($event->data);
         // Notification::send($event->data->user, $n);
     }
 }

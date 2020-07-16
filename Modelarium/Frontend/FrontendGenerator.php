@@ -258,12 +258,11 @@ EOF;
     protected function makeVueRoutes(): void
     {
         $path = $this->model->getName() . '/routes.js';
-        $stub = file_get_contents($this->stubDir . "/routes.stub.js");
 
         $this->collection->push(
             new GeneratedItem(
                 GeneratedItem::TYPE_FRONTEND,
-                $this->template($stub),
+                $this->templateFile($this->stubDir . "/routes.mustache.js"),
                 $path
             )
         );

@@ -4,6 +4,7 @@ namespace ModelariumTests;
 
 use Modelarium\Exception\ScalarNotFoundException;
 use Modelarium\Parser;
+use LightnCandy\LightnCandy;
 
 final class ParserTest extends TestCase
 {

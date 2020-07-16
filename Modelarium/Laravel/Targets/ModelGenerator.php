@@ -92,7 +92,7 @@ class ModelGenerator extends BaseGenerator
             ),
             new GeneratedItem(
                 GeneratedItem::TYPE_MODEL,
-                $this->stubToString('model'),
+                $this->templateStub('model'),
                 $this->getGenerateFilename(false),
                 true
             )

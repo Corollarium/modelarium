@@ -3,11 +3,9 @@
 namespace Modelarium;
 
 use Doctrine\Inflector\InflectorFactory;
-use GraphQL\Type\Definition\Type;
 use Illuminate\Support\Str;
+use LightnCandy\LightnCandy;
 use Modelarium\Exception\Exception;
-use Modelarium\GeneratedCollection;
-use Modelarium\Parser;
 
 trait GeneratorNameTrait
 {
@@ -99,11 +97,66 @@ trait GeneratorNameTrait
     }
 
     /**
+     *
+     * @param string $path
+     * @return callable
+     */
+    protected function compileMustacheFromFile(string $path)
+    {
+        $template = \Safe\file_get_contents($path);
+        $phpStr = LightnCandy::compile(
+            $template,
+            [
+                'flags' => LightnCandy::FLAG_ERROR_EXCEPTION,
+                'delimiters' => array('{|', '|}')
+            ]
+        );
+        if (!$phpStr) {
+            throw new Exception('Invalid template');
+        }
+        /** @var callable $renderer */
+        $renderer = LightnCandy::prepare($phpStr);
+        return $renderer;
+    }
+
+    /**
+     * Replaces common strings from the stubs
+     *
+     * @param string $str The string data to apply replaces
+     * @param array $context
+     * @return string
+     */
+    public function templateFile(string $path, array $context = [])
+    {
+        $renderer = $this->compileMustacheFromFile($path);
+        $context['StudlyName'] = $context['studlyName'] = $this->studlyName;
+        $context['lowerName'] = $this->lowerName;
+        $context['lowerNamePlural'] = $this->lowerNamePlural;
+        $context['date'] = date("c");
+
+        return $renderer($context);
+    }
+
+    /**
+     * Stubs from a mustache file. Convenience wrapper for templateFile().
+     *
+     * @param string $stubName
+     * @param array $context
+     * @return string
+     */
+    public function templateStub(string $stubName, array $context = []): string
+    {
+        $stub = $this->stubDir . "/$stubName.mustache.php";
+        return $this->templateFile($stub, $context);
+    }
+
+    /**
      * Replaces common strings from the stubs
      *
      * @param string $str The string data to apply replaces
      * @param string[] $replace
      * @return string
+     * @deprecated
      */
     protected function template(string $str, array $replace = [])
     {

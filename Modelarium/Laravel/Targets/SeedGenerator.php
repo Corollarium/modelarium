@@ -26,7 +26,7 @@ class SeedGenerator extends BaseGenerator
     
     public function generateString(): string
     {
-        return $this->stubToString('seed');
+        return $this->templateStub('seed');
     }
 
     public function getGenerateFilename(): string
