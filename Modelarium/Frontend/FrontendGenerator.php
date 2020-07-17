@@ -42,11 +42,11 @@ class FrontendGenerator implements GeneratorInterface
     protected $stubDir = __DIR__ . '/stubs';
 
     /**
-     * String substitution helpers
+     * String substitution
      *
      * @var string[]
      */
-    protected $helpers = [];
+    protected $templateParameters = [];
 
     /**
      * Fields
@@ -60,7 +60,7 @@ class FrontendGenerator implements GeneratorInterface
         $this->composer = $composer;
         $this->model = $model;
         $this->setName($model->getName());
-        $this->buildHelpers();
+        $this->buildTemplateParameters();
     }
 
     public function generate(): GeneratedCollection
@@ -74,7 +74,6 @@ class FrontendGenerator implements GeneratorInterface
         // $blade = FrameworkComposer::getByName('Blade');
 
         if ($vue !== null) {
-            $this->makeVue($vue, 'Base', 'viewable');
             $this->makeVue($vue, 'Card', 'viewable');
             $this->makeVue($vue, 'List', 'viewable');
             $this->makeVue($vue, 'Show', 'viewable');
@@ -88,7 +87,7 @@ class FrontendGenerator implements GeneratorInterface
         return $this->collection;
     }
 
-    protected function buildHelpers(): void
+    protected function buildTemplateParameters(): void
     {
         $this->cardFields = $this->model->filterField(
             function (Field $field) {
@@ -96,10 +95,21 @@ class FrontendGenerator implements GeneratorInterface
             }
         );
 
-        $this->helpers = [
-            '{{ submitButton }}' => $this->composer->element('Button', [Element::LABEL => 'Submit']),
-            '{{ props }}' => $this->makeProps()
+        $this->templateParameters = [
+            'submitButton' => $this->composer->element('Button', [Element::LABEL => 'Submit'])
         ];
+    }
+
+    public function templateCallback(string $stub, FrameworkVue $vue, array $data, Model $m): string
+    {
+        $x = $this->templateFile(
+            $stub,
+            array_merge(
+                $this->templateParameters,
+                $data
+            )
+        );
+        return $x;
     }
 
     protected function makeVue(FrameworkVue $vue, string $component, string $mode): void
@@ -107,10 +117,15 @@ class FrontendGenerator implements GeneratorInterface
         $path = $this->model->getName() . '/' .
             $this->model->getName() . $component . '.vue';
 
-        $stub = file_get_contents($this->stubDir . "/Vue{$component}.stub.vue");
+        $stub = $this->stubDir . "/Vue{$component}.mustache.vue";
 
         if ($mode == 'editable') {
-            $vue->setEditableTemplate($this->template($stub, $this->helpers));
+            $vue->setEditableTemplate(
+                function (FrameworkVue $vue, array $data, Model $m) use ($stub) {
+                    return $this->templateCallback($stub, $vue, $data, $m);
+                }
+            );
+
             $this->collection->push(
                 new GeneratedItem(
                     GeneratedItem::TYPE_FRONTEND,
@@ -119,7 +134,12 @@ class FrontendGenerator implements GeneratorInterface
                 )
             );
         } else {
-            $vue->setViewableTemplate($this->template($stub, $this->helpers));
+            $vue->setViewableTemplate(
+                function (FrameworkVue $vue, array $data, Model $m) use ($stub) {
+                    return $this->templateCallback($stub, $vue, $data, $m);
+                }
+            );
+
             $this->collection->push(
                 new GeneratedItem(
                     GeneratedItem::TYPE_FRONTEND,
@@ -128,24 +148,6 @@ class FrontendGenerator implements GeneratorInterface
                 )
             );
         }
-    }
-
-    protected function makeProps(): string
-    {
-        $props = [
-            'id: {
-                type: [Number, String],
-                required: true,
-            }'
-        ];
-    
-        foreach ($this->cardFields as $field) {
-            $props[] = "{$field->getName()}: { 
-                type: String," . // TODO
-                ($field->getValidator(Datatype::REQUIRED, false) ? 'required: true,' : '') .
-                '}';
-        }
-        return implode(",\n", $props);
     }
 
     protected function makeGraphql(): void

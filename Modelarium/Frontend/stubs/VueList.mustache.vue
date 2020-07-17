@@ -10,7 +10,7 @@
     </div>
 
     <div class="formularium-list__list" v-if="list.length">
-      <{{StudlyName}}Card v-for="l in list" :key="l.id" v-bind="l"></{{StudlyName}}Card>
+      <{|StudlyName|}Card v-for="l in list" :key="l.id" v-bind="l"></{|StudlyName|}Card>
       <hr />
 
       <div v-html="pagination.html"></div>
@@ -22,14 +22,14 @@
 </template>
 
 <script>
-import {{StudlyName}}Card from "./{{StudlyName}}Card";
+import {|StudlyName|}Card from "./{|StudlyName|}Card";
 import axios from 'axios';
 import listQuery from 'raw-loader!./list.graphql';
 
 export default {
   data() {
     return {
-      type: "{{lowerName}}",
+      type: "{|lowerName|}",
       list: [],
       pagination: {
         currentPage: 1,
@@ -41,7 +41,7 @@ export default {
     };
   },
 
-  components: { {{StudlyName}}Card: {{StudlyName}}Card },
+  components: { {|StudlyName|}Card: {|StudlyName|}Card },
 
   created() {
     if (this.$route) {

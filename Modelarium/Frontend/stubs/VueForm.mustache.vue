@@ -1,7 +1,6 @@
 <template>
   <form class="modelarium-form" method="POST">
-    {{ form }}
-    {{ submitButton }}
+    {|{ form }|} {|{ submitButton }|}
   </form>
 </template>
 
@@ -31,7 +30,7 @@ export default {
           }
           const data = result.data.data;
           this.$set(this, "model", data.post);
-          // TODO: route to '/{{lowerName}}/' + this.model.id
+          // TODO: route to '/{|lowerName|}/' + this.model.id
         });
     },
 

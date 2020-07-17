@@ -7,13 +7,11 @@
 </template>
 <script>
 export default {
-  props: {
-    {|props|}
-  },
+  props: {|{propsCode}|},
 
   computed: {
     link() {
-      return "/{{ lowerName }}/" + this.id;
+      return "/{| lowerName |}/" + this.id;
     },
   },
 };
