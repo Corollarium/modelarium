@@ -122,7 +122,7 @@ trait GeneratorNameTrait
     /**
      * Replaces common strings from the stubs
      *
-     * @param string $str The string data to apply replaces
+     * @param string $path The string data to apply replaces
      * @param array $context
      * @return string
      */
