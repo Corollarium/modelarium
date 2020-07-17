@@ -149,33 +149,4 @@ trait GeneratorNameTrait
         $stub = $this->stubDir . "/$stubName.mustache.php";
         return $this->templateFile($stub, $context);
     }
-
-    /**
-     * Replaces common strings from the stubs
-     *
-     * @param string $str The string data to apply replaces
-     * @param string[] $replace
-     * @return string
-     * @deprecated
-     */
-    protected function template(string $str, array $replace = [])
-    {
-        $date = date("c");
-        return strtr(
-            $str,
-            array_merge(
-                [
-                    '{{StudlyName}}' => $this->studlyName,
-                    '{{ StudlyName }}' => $this->studlyName,
-                    '{{lowerName}}' => $this->lowerName,
-                    '{{ lowerName }}' => $this->lowerName,
-                    '{{lowerNamePlural}}' => $this->lowerNamePlural,
-                    '{{ lowerNamePlural }}' => $this->lowerNamePlural,
-                    '{{date}}' => $date,
-                    '{{ date }}' => $date
-                ],
-                $replace
-            )
-        );
-    }
 }
