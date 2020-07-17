@@ -405,12 +405,13 @@ class MigrationGenerator extends BaseGenerator
 
     public function generateManyToManyMorphTable(string $name, string $relation): GeneratedItem
     {
-        $context = [
-            'dummyCode' =>  <<<EOF
+        $dummyCode = <<<EOF
             \$table->unsignedBigInteger("{$name}_id");
             \$table->unsignedBigInteger("{$relation}_id");
             \$table->string("{$relation}_type");
-EOF,
+EOF;
+        $context = [
+            'dummyCode' => $dummyCode,
             'dummytablename' => $this->getInflector()->pluralize($relation),
             'modelSchemaCode' => ''
         ];
