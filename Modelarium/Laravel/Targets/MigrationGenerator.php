@@ -435,13 +435,14 @@ EOF;
 
     public function generateManyToManyTable(string $type1, string $type2): GeneratedItem
     {
-        $context = [
-            'dummyCode' => <<<EOF
+        $dummyCode =  <<<EOF
 
-            \$table->increments("id");
-            \$table->unsignedBigInteger("{$type1}_id");
-            \$table->unsignedBigInteger("{$type2}_id");
-EOF,
+        \$table->increments("id");
+        \$table->unsignedBigInteger("{$type1}_id");
+        \$table->unsignedBigInteger("{$type2}_id");
+EOF;
+        $context = [
+            'dummyCode' => $dummyCode,
             'dummytablename' => "{$type1}_{$type2}",
             'modelSchemaCode' => ''
         ];
