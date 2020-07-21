@@ -10,4 +10,3 @@ use Formularium\Formularium;
 DatatypeFactory::registerFactory(
     'Modelarium\\Laravel\\Datatypes\\Datatype_relationship::factoryName'
 );
-Formularium::appendDatatypeNamespace('Modelarium\\Laravel\\Datatypes');
