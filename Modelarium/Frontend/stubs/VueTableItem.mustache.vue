@@ -10,9 +10,10 @@ export default {
   props: [
     {|#props|}
     {
-      name: {|name|},
-      {|#type|}type: {|.|},{|/required|}
+      name: "{|name|}",
+      {|#type|}type: {|.|},{|/type|}
       {|#required|}required: true,{|/required|}
+    },
     {|/props|}
   ],
 

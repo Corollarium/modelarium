@@ -76,6 +76,8 @@ class FrontendGenerator implements GeneratorInterface
         if ($vue !== null) {
             $this->makeVue($vue, 'Card', 'viewable');
             $this->makeVue($vue, 'List', 'viewable');
+            $this->makeVue($vue, 'Table', 'viewable');
+            $this->makeVue($vue, 'TableItem', 'viewable');
             $this->makeVue($vue, 'Show', 'viewable');
             $this->makeVue($vue, 'Form', 'editable');
             $this->makeVueRoutes();
@@ -148,6 +150,12 @@ class FrontendGenerator implements GeneratorInterface
                 )
             );
         }
+    }
+
+    protected function getFilters(): array
+    {
+        $filters = [];
+        return $filters;
     }
 
     protected function makeGraphql(): void

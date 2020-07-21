@@ -1,6 +1,6 @@
 <template>
   <div>
-    // TODO
+    {|{ form }|}
   </div>
 </template>
 

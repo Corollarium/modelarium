@@ -9,33 +9,40 @@
       </router-link>
     </div>
 
-    <table class="modelarium-table__list">
-      <thead>
-        <tr class="modelarium-list__head-row">
-          {|#props|}
-          <th>
-            {|name|}
-            {|#sortable|}
-              <span @click="sort('{|name|}', 'ascending')">▲</span>
-              <span @click="sort('{|name|}', 'descending')">▼</span>
-            {|/sortable|}
-            {|#searchable|}
-              TODO
-            {|/searchable|}
-          </th>
-          {|/props|}
+    <div class="modelarium-table__container" v-if="list.length">
+      <table class="modelarium-table__list">
+        <thead>
+          <tr class="modelarium-table__head-row">
+            {|#props|}
+            <th>
+              {|name|}
+              {|#sortable|}
+                <span @click="sort('{|name|}', 'ascending')">▲</span>
+                <span @click="sort('{|name|}', 'descending')">▼</span>
+              {|/sortable|}
+              {|#searchable|}
+                TODO
+              {|/searchable|}
+            </th>
+            {|/props|}
+            </tr>
+        </thead>
+        <tfoot>
+          <tr class="modelarium-table__foot-row">
+            {|#props|}
+            <th>
+              {|name|}
+            </th>
+            {|/props|}
           </tr>
-      </thead>
-      <tfoot>
-          {|#props|}
-          <th>
-            {|name|}
-          </th>
-          {|/props|}
-      </tfoot>
-      <{|StudlyName|}TableItem v-for="l in list" :key="l.id" v-bind="l"></{|StudlyName|}TableItem>
-    </table>
-    <div class="modelarium-list__list" v-if="!list.length">
+        </tfoot>
+        <tbody>
+          <{|StudlyName|}TableItem v-for="l in list" :key="l.id" v-bind="l"></{|StudlyName|}TableItem>
+        </tbody>
+      </table>
+      <Pagination v-bind="pagination"></Pagination>
+    </div>
+    <div class="modelarium-table__empty" v-else>
       Nothing found.
     </div>
   </main>

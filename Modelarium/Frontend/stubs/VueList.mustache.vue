@@ -1,21 +1,26 @@
 <template>
-  <main class="formularium-list">
-    <h1 class="formularium-list__title">Post</h1>
+  <main class="modelarium-list">
+    <h1 class="modelarium-list__title">Post</h1>
 
-    <div class="formularium-list__header">
-      <router-link to="/post/edit">
+    <div class="modelarium-list__header">
+      <router-link :to="'/' + type + '/edit'">
         <i class="fa fa-plus"></i>
         Add new
       </router-link>
     </div>
 
-    <div class="formularium-list__list" v-if="list.length">
-      <{|StudlyName|}Card v-for="l in list" :key="l.id" v-bind="l"></{|StudlyName|}Card>
-      <hr />
+    <div class="modelarium-list__list" v-if="list.length">
+      <div class="modelarium-list__filters">
+        {|#filters|}
 
-      <div v-html="pagination.html"></div>
+        {|/filters|}
+      </div>
+
+      <{|StudlyName|}Card v-for="l in list" :key="l.id" v-bind="l"></{|StudlyName|}Card>
+
+      <Pagination v-bind="pagination"></Pagination>
     </div>
-    <div class="formularium-list__list" v-else>
+    <div class="modelarium-list__empty" v-else>
       Nothing found.
     </div>
   </main>
