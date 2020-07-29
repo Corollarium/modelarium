@@ -1,6 +1,6 @@
 <?php
 
-namespace App;
+namespace App\Models;
 
 class {|StudlyName|} extends Base{|StudlyName|}
 {

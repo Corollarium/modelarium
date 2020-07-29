@@ -119,7 +119,7 @@ class ModelGenerator extends BaseGenerator
             // probably another model
             $field = FormulariumUtils::getFieldFromDirectives(
                 $fieldName,
-                'relationship:11:Post:User', // TODO
+                $typeName,
                 $directives
             );
         } elseif ($scalarType instanceof FormulariumScalarType) {
@@ -188,7 +188,7 @@ class ModelGenerator extends BaseGenerator
         $lowerName = mb_strtolower($this->getInflector()->singularize($field->name));
         $lowerNamePlural = $this->getInflector()->pluralize($lowerName);
 
-        $targetClass = '\\App\\' . Str::studly($this->getInflector()->singularize($field->name));
+        $targetClass = '\\App\\Models\\' . Str::studly($this->getInflector()->singularize($field->name));
 
         list($type, $isRequired) = Parser::getUnwrappedType($field->type);
         $typeName = $type->name;
@@ -199,8 +199,8 @@ class ModelGenerator extends BaseGenerator
         }
 
         $generateRandom = false;
-        $sourceTypeName = null;
-        $targetTypeName = null;
+        $sourceTypeName = $this->lowerName;
+        $targetTypeName = $lowerName;
         $relationship = null;
 
         foreach ($directives as $directive) {
@@ -208,7 +208,7 @@ class ModelGenerator extends BaseGenerator
             switch ($name) {
             case 'belongsTo':
                 $generateRandom = true;
-                $relationship = Datatype_relationship::RELATIONSHIP_ONE_TO_MANY; // TODO
+                $relationship = 'N1'; // TODO
                 $this->class->addMethod($lowerName)
                     ->setPublic()
                     ->setReturnType('App\\BelongsTo')
@@ -217,7 +217,7 @@ class ModelGenerator extends BaseGenerator
 
             case 'belongsToMany':
                 $generateRandom = true;
-                $relationship = Datatype_relationship::RELATIONSHIP_ONE_TO_MANY; // TODO
+                $relationship = 'NN'; // TODO
                 $this->class->addMethod($lowerNamePlural)
                     ->setPublic()
                     ->setReturnType('App\\BelongsTo')
@@ -225,7 +225,7 @@ class ModelGenerator extends BaseGenerator
                 break;
 
             case 'hasOne':
-                $relationship = Datatype_relationship::RELATIONSHIP_ONE_TO_ONE; // TODO
+                $relationship = '11'; // TODO
                 $this->class->addMethod($lowerName)
                     ->setPublic()
                     ->setReturnType('App\\HasOne')
@@ -233,7 +233,7 @@ class ModelGenerator extends BaseGenerator
                 break;
 
             case 'hasMany':
-                $relationship = Datatype_relationship::RELATIONSHIP_ONE_TO_MANY; // TODO
+                $relationship = '1N'; // TODO, NN?
                 $target = $this->getInflector()->singularize($targetClass);
                 $this->class->addMethod($lowerNamePlural)
                     ->setPublic()
@@ -244,7 +244,11 @@ class ModelGenerator extends BaseGenerator
             case 'morphOne':
             case 'morphMany':
             case 'morphToMany':
-                $relationship = Datatype_relationship::RELATIONSHIP_ONE_TO_MANY; // TODO
+                if ($name === 'morphOne') {
+                    $relationship = '11'; // Datatype_relationship::RELATIONSHIP_ONE_TO_ONE; // TODO
+                } else {
+                    $relationship = 'N1'; // Datatype_relationship::RELATIONSHIP_ONE_TO_MANY; // TODO
+                }
 
                 $targetType = $this->parser->getType($typeName);
                 if (!$targetType) {
@@ -270,13 +274,14 @@ class ModelGenerator extends BaseGenerator
                 break;
     
             case 'morphTo':
+                $relationship = 'N1'; // Datatype_relationship::RELATIONSHIP_ONE_TO_MANY; // TODO
                 $this->class->addMethod($field->name)
                     ->setPublic()
                     ->setBody("return \$this->morphTo();");
                 break;
 
             case 'morphedByMany':
-                $relationship = Datatype_relationship::RELATIONSHIP_MANY_TO_MANY; // TODO
+                $relationship = 'NN';// TODO Datatype_relationship::RELATIONSHIP_MANY_TO_MANY; // TODO
                 $typeMap = $this->parser->getSchema()->getTypeMap();
        
                 foreach ($typeMap as $name => $object) {
@@ -312,8 +317,13 @@ class ModelGenerator extends BaseGenerator
                 break;
             }
         }
+        if (!$relationship) {
+            throw new Exception("Could not find a relationship in {$typeName}");
+        }
 
-        $this->processField($typeName, $field, $directives, $isRequired);
+        $relationshipDatatype = "relationship:$relationship:$sourceTypeName:$targetTypeName";
+
+        $this->processField($relationshipDatatype, $field, $directives, $isRequired);
 
         if ($generateRandom) {
             $this->methodRandom->addBody(
@@ -499,6 +509,6 @@ EOF;
 
     public function getGenerateFilename(bool $base = true): string
     {
-        return $this->getBasePath('app/' . ($base ? 'Base' : '') . $this->studlyName . '.php');
+        return $this->getBasePath('app/Models/' . ($base ? 'Base' : '') . $this->studlyName . '.php');
     }
 }

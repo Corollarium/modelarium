@@ -29,7 +29,7 @@ abstract class Datatype_relationship extends Datatype
     public static function factoryName(string $name): Datatype
     {
         $matches = [];
-        if (preg_match('/^relationship:(M?[1N]{2}):([a-zA-Z0-9]+):([a-zA-Z0-9]+)$/', $name, $matches)) {
+        if (preg_match('/^relationship:(11|1N|N1|NN):([a-zA-Z0-9]+):([a-zA-Z0-9]+)$/', $name, $matches)) {
             $mode = null;
             switch ($matches[1]) {
                 case '11':
@@ -39,7 +39,8 @@ abstract class Datatype_relationship extends Datatype
                     $mode = self::RELATIONSHIP_ONE_TO_MANY;
                     break;
                 case 'NN':
-                    $mode = self::RELATIONSHIP_MANY_TO_MANY;
+                case 'N1': // TODO
+                        $mode = self::RELATIONSHIP_MANY_TO_MANY;
                     break;
                 // TODO: morph
                 default:
