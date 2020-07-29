@@ -51,7 +51,13 @@ class ModelariumInitCommand extends Command
 
         $this->call('vendor:publish', [
             '--provider' => "Modelarium\\Laravel\\ServiceProvider",
-            '--tag' => "schema"
+            '--tag' => "schema",
+            '--force' => true
+        ]);
+
+        $this->call('vendor:publish', [
+            '--provider' => "Modelarium\\Laravel\\ServiceProvider",
+            '--tag' => "schemabase",
         ]);
 
         $this->info("Setup done.");
