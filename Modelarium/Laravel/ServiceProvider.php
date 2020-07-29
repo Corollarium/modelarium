@@ -34,9 +34,12 @@ class ServiceProvider extends LaravelServiceProvider
         $this->publishes([
             __DIR__ . '/../Types/Graphql/directives.graphql' => base_path('graphql/directives.graphql'),
             __DIR__ . '/../Types/Graphql/scalars.graphql' => base_path('graphql/scalars.graphql'),
+        ], 'schema');
+
+        $this->publishes([
             __DIR__ . '/Graphql/user.graphql' => base_path('graphql/data/user.graphql'),
             __DIR__ . '/Graphql/schema.graphql' => base_path('graphql/schema.graphql'),
-        ], 'schema');
+        ], 'schemabase');
 
         Event::listen(
             RegisterDirectiveNamespaces::class,
