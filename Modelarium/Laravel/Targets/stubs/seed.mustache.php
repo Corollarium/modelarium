@@ -14,6 +14,6 @@ class {|StudlyName|}Seeder extends Seeder
      */
     public function run()
     {
-        factory(App\{|StudlyName|}::class)->create();
+        factory(App\Models\{|StudlyName|}::class)->create();
     }
 }

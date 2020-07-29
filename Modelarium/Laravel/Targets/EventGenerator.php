@@ -60,7 +60,7 @@ class EventGenerator extends BaseGenerator
         $constructor = $class->addMethod('__construct');
         $constructor->setPublic()
             ->addParameter('target')
-            ->setType('App\\' . $model);
+            ->setType('App\\Models\\' . $model);
 
         $constructor->addBody(
             '$this->target = $target;'

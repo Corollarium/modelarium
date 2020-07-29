@@ -17,6 +17,6 @@ final class EventGeneratorTest extends TestCase
         $event = $data->first();
         $this->assertStringContainsString('class UserCreated', $event->contents);
         $this->assertStringContainsString('namespace App\\Events;', $event->contents);
-        $this->assertStringContainsString('public function __construct(\\App\\User $target)', $event->contents);
+        $this->assertStringContainsString('public function __construct(\\App\\Models\\User $target)', $event->contents);
     }
 }

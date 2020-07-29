@@ -389,7 +389,7 @@ EOF;
 
     public function generateString(): string
     {
-        $namespace = new \Nette\PhpGenerator\PhpNamespace('App');
+        $namespace = new \Nette\PhpGenerator\PhpNamespace('App\\Models');
         $namespace->addUse('\\Illuminate\\Database\\Eloquent\\Relations\\BelongsTo');
         $namespace->addUse('\\Illuminate\\Database\\Eloquent\\Relations\\HasOne');
         $namespace->addUse('\\Illuminate\\Database\\Eloquent\\Relations\\HasMany');

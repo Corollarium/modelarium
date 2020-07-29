@@ -61,8 +61,8 @@ class PolicyGenerator extends BaseGenerator
 
         foreach ($this->policyClasses as $name => $c) {
             $namespace = new PhpNamespace('App\\Policies');
-            $namespace->addUse('App\\User');
-            $namespace->addUse('App\\' . $name);
+            $namespace->addUse('App\\Models\\User');
+            $namespace->addUse('App\\Models\\' . $name);
             $namespace->add($c);
 
             $this->collection->push(
@@ -142,10 +142,10 @@ class PolicyGenerator extends BaseGenerator
             ->addBody(
                 'return false;'
             );
-        $method->addParameter('user')->setType('\\App\\User');
+        $method->addParameter('user')->setType('\\App\\Models\\User');
 
         if ($find) {
-            $method->addParameter('model')->setType('\\App\\' . $modelClassName);
+            $method->addParameter('model')->setType('\\App\\Models\\' . $modelClassName);
         }
         if ($injected) {
             $method->addParameter('injectedArgs')->setType('array');

@@ -190,20 +190,10 @@ class MigrationGenerator extends BaseGenerator
     ): void {
         $lowerName = mb_strtolower($this->getInflector()->singularize($field->name));
         $lowerNamePlural = $this->getInflector()->pluralize($lowerName);
-
-        if ($field->type instanceof NonNull) {
-            $type = $field->type->getWrappedType();
-        } else {
-            $type = $field->type;
-        }
-
-        if ($field->type instanceof ListOfType) {
-            $type = $field->type->getWrappedType();
-        }
-
-        $typeName = $type->name; /** @phpstan-ignore-line */
-
         $fieldName = $lowerName . '_id';
+
+        list($type, $isRequired) = Parser::getUnwrappedType($field->type);
+        $typeName = $type->name; /** @phpstan-ignore-line */
 
         $base = null;
         $extra = [];
