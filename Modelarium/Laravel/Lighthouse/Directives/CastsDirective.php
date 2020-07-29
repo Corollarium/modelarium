@@ -11,7 +11,7 @@ class CastsDirective extends BaseDirective implements DefinedDirective
     {
         return /** @lang GraphQL */ <<<'SDL'
 """
-Default value for database column
+Casts type
 """
 directive @casts(
     """

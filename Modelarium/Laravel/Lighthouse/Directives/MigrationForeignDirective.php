@@ -11,7 +11,7 @@ class MigrationForeignDirective extends BaseDirective implements DefinedDirectiv
     {
         return /** @lang GraphQL */ <<<'SDL'
 """
-Default value for database column
+Foreign keys
 """
 directive @migrationForeign(
     """
