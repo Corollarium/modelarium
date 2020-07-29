@@ -19,17 +19,17 @@ class Datatype_relationship extends \Modelarium\Datatypes\Datatype_relationship
 
     public function getRandom(array $params = [])
     {
-        return ${$this->source}::where('active', 1)->inRandomOrder()->limit($params['total'] ?? 1)->get();
+        return $this->targetClass::where('active', 1)->inRandomOrder()->limit($params['total'] ?? 1)->get();
     }
 
     public function validate($value, Model $model = null)
     {
         if (is_array($value)) {
-            if (${$this->source}::whereIn('id', $value)->exists()) {
+            if ($this->targetClass::whereIn('id', $value)->exists()) {
                 return $value;
             }
         } else {
-            if (${$this->source}::where('id', '=', $value)->exists()) {
+            if ($this->targetClass::where('id', '=', $value)->exists()) {
                 return $value;
             }
         }

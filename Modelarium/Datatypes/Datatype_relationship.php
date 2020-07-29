@@ -2,11 +2,8 @@
 
 namespace Modelarium\Datatypes;
 
-use Formularium\Exception\ValidatorException;
-use Formularium\Field;
-use Formularium\Model;
 use Formularium\Datatype;
-use Formularium\DatatypeFactory;
+use Illuminate\Support\Str;
 use Formularium\Exception\ClassNotFoundException;
 
 use function Safe\class_alias;
@@ -77,6 +74,11 @@ abstract class Datatype_relationship extends Datatype
     /**
      * @var string
      */
+    protected $targetClass= '';
+
+    /**
+     * @var string
+     */
     protected $target = '';
 
     public function __construct(string $source, string $target, string $relationship)
@@ -85,6 +87,7 @@ abstract class Datatype_relationship extends Datatype
         parent::__construct($name, 'relationship');
         $this->source = $source;
         $this->target = $target;
+        $this->targetClass = 'App\\Models\\' . Str::studly($this->target);
         $this->relationship = $relationship;
     }
 
