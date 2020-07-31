@@ -203,6 +203,7 @@ class MigrationGenerator extends BaseGenerator
             return;
         }
 
+        $isManytoMany = false;
         foreach ($directives as $directive) {
             $name = $directive->name->value;
             switch ($name) {
@@ -243,9 +244,9 @@ class MigrationGenerator extends BaseGenerator
                 $type2 = $lowerName;
 
                 // we only generate once, so use a comparison for that
+                $isManytoMany = true;
                 if (strcasecmp($type1, $type2) < 0) {
-                    $item = $this->generateManyToManyTable($type1, $type2);
-                    $this->collection->push($item);
+                    $this->generateManyToManyTable($type1, $type2);
                 }
                 break;
 
@@ -256,25 +257,34 @@ class MigrationGenerator extends BaseGenerator
                 break;
 
             case 'morphedByMany':
+                $isManytoMany = true;
                 $relation = Parser::getDirectiveArgumentByName($directive, 'relation', $lowerName);
-                $item = $this->generateManyToManyMorphTable($this->lowerName, $relation);
-                $this->collection->push($item);
+                $this->generateManyToManyMorphTable($this->lowerName, $relation);
                 break;
+            }
+        }
 
+        foreach ($directives as $directive) {
+            $name = $directive->name->value;
+            switch ($name) {
             case 'migrationForeign':
-                $arguments = array_merge(
-                    [
-                        'references' => 'id',
-                        'on' => $lowerNamePlural
-                    ],
-                    Parser::getDirectiveArguments($directive)
-                );
-                $extra[] = '$table->foreign("' . $fieldName . '")' .
-                    "->references(\"{$arguments['references']}\")" .
-                    "->on(\"{$arguments['on']}\")" .
-                    ($arguments['onDelete'] ? "->onDelete(\"{$arguments['onDelete']}\")" : '') .
-                    ($arguments['onUpdate'] ? "->onUpdate(\"{$arguments['onUpdate']}\")" : '') .
-                    ';';
+                
+                if (!$isManytoMany) {
+                    $arguments = array_merge(
+                        [
+                            'references' => 'id',
+                            'on' => $lowerNamePlural
+                        ],
+                        Parser::getDirectiveArguments($directive)
+                    );
+    
+                    $extra[] = '$table->foreign("' . $fieldName . '")' .
+                        "->references(\"{$arguments['references']}\")" .
+                        "->on(\"{$arguments['on']}\")" .
+                        ($arguments['onDelete'] ? "->onDelete(\"{$arguments['onDelete']}\")" : '') .
+                        ($arguments['onUpdate'] ? "->onUpdate(\"{$arguments['onUpdate']}\")" : '') .
+                        ';';
+                }
                 break;
             }
         }
@@ -393,9 +403,17 @@ class MigrationGenerator extends BaseGenerator
         return $this->templateStub('migration', $context);
     }
 
-    public function generateManyToManyMorphTable(string $name, string $relation): GeneratedItem
+    /**
+     * creates a many-to-many morph relationship table
+     *
+     * @param string $type1
+     * @param string $type2
+     * @return string The table name.
+     */
+    protected function generateManyToManyMorphTable(string $name, string $relation): string
     {
         $dummyCode = <<<EOF
+
             \$table->unsignedBigInteger("{$name}_id");
             \$table->unsignedBigInteger("{$relation}_id");
             \$table->string("{$relation}_type");
@@ -419,17 +437,25 @@ EOF;
                 '_table.php'
             )
         );
+        $this->collection->push($item);
 
-        return $item;
+        return $context['dummytablename'];
     }
 
-    public function generateManyToManyTable(string $type1, string $type2): GeneratedItem
+    /**
+     * creates a many-to-many relationship table
+     *
+     * @param string $type1
+     * @param string $type2
+     * @return string The table name.
+     */
+    protected function generateManyToManyTable(string $type1, string $type2): string
     {
-        $dummyCode =  <<<EOF
+        $dummyCode = <<<EOF
 
-        \$table->increments("id");
-        \$table->unsignedBigInteger("{$type1}_id");
-        \$table->unsignedBigInteger("{$type2}_id");
+            \$table->increments("id");
+            \$table->unsignedBigInteger("{$type1}_id")->references('id')->on('{$type1}');
+            \$table->unsignedBigInteger("{$type2}_id")->references('id')->on('{$type2}');
 EOF;
         $context = [
             'dummyCode' => $dummyCode,
@@ -450,8 +476,9 @@ EOF;
                 '_table.php'
             )
         );
+        $this->collection->push($item);
 
-        return $item;
+        return $context['dummytablename'];
     }
 
     protected function generateFilename(string $basename): string

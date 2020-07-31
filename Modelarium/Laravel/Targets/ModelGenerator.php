@@ -211,7 +211,7 @@ class ModelGenerator extends BaseGenerator
                 $relationship = 'N1'; // TODO
                 $this->class->addMethod($lowerName)
                     ->setPublic()
-                    ->setReturnType('App\\BelongsTo')
+                    ->setReturnType('\\Illuminate\\Database\\Eloquent\\Relations\\BelongsTo')
                     ->setBody("return \$this->belongsTo($targetClass::class);");
                 break;
 
@@ -220,7 +220,7 @@ class ModelGenerator extends BaseGenerator
                 $relationship = 'NN'; // TODO
                 $this->class->addMethod($lowerNamePlural)
                     ->setPublic()
-                    ->setReturnType('App\\BelongsTo')
+                    ->setReturnType('\\Illuminate\\Database\\Eloquent\\Relations\\BelongsTo')
                     ->setBody("return \$this->belongsToMany($targetClass::class);");
                 break;
 
@@ -228,7 +228,7 @@ class ModelGenerator extends BaseGenerator
                 $relationship = '11'; // TODO
                 $this->class->addMethod($lowerName)
                     ->setPublic()
-                    ->setReturnType('App\\HasOne')
+                    ->setReturnType('\\Illuminate\\Database\\Eloquent\\Relations\\HasOne')
                     ->setBody("return \$this->hasOne($targetClass::class);");
                 break;
 
@@ -237,7 +237,7 @@ class ModelGenerator extends BaseGenerator
                 $target = $this->getInflector()->singularize($targetClass);
                 $this->class->addMethod($lowerNamePlural)
                     ->setPublic()
-                    ->setReturnType('App\\HasMany')
+                    ->setReturnType('\\Illuminate\\Database\\Eloquent\\Relations\\HasMany')
                     ->setBody("return \$this->hasMany($target::class);");
                 break;
 
@@ -269,6 +269,7 @@ class ModelGenerator extends BaseGenerator
                 }
 
                 $this->class->addMethod($field->name)
+                    // TODO: return type
                     ->setPublic()
                     ->setBody("return \$this->{$name}($typeName::class, '$targetField');");
                 break;
@@ -276,6 +277,7 @@ class ModelGenerator extends BaseGenerator
             case 'morphTo':
                 $relationship = 'N1'; // Datatype_relationship::RELATIONSHIP_ONE_TO_MANY; // TODO
                 $this->class->addMethod($field->name)
+                    ->setReturnType('\\Illuminate\\Database\\Eloquent\\Relations\\MorphTo')
                     ->setPublic()
                     ->setBody("return \$this->morphTo();");
                 break;
@@ -307,6 +309,7 @@ class ModelGenerator extends BaseGenerator
 
                         $methodName = $this->getInflector()->pluralize(mb_strtolower((string)$name));
                         $this->class->addMethod($methodName)
+                                ->setReturnType('\\Illuminate\\Database\\Eloquent\\Relations\\MorphToMany')
                                 ->setPublic()
                                 ->setBody("return \$this->morphedByMany($name::class, '$lowerName');");
                     }
@@ -393,6 +396,9 @@ EOF;
         $namespace->addUse('\\Illuminate\\Database\\Eloquent\\Relations\\BelongsTo');
         $namespace->addUse('\\Illuminate\\Database\\Eloquent\\Relations\\HasOne');
         $namespace->addUse('\\Illuminate\\Database\\Eloquent\\Relations\\HasMany');
+        $namespace->addUse('\\Illuminate\\Database\\Eloquent\\Relations\\MorphTo');
+        $namespace->addUse('\\Illuminate\\Database\\Eloquent\\Relations\\MorphToMany');
+        $namespace->addUse('\\Illuminate\\Support\\Facades\\Auth');
 
         $this->class = $namespace->addClass('Base' . $this->studlyName);
         $this->class->setExtends($this->parentClassName)
