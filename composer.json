@@ -44,7 +44,7 @@
         "stan": "vendor/bin/phpstan analyse Modelarium",
         "coverage": "./vendor/bin/phpunit --configuration phpunit.xml --coverage-html docs/coverage-report tests/",
         "test": "./vendor/bin/phpunit --configuration phpunit.xml tests/",
-        "generateDatatypes": "php util/FormulariumDatatypes.php",
+        "buildGraphql": "php util/BuildGraphql.php",
         "apidocs": "php util/MakeAPIDocs.php"
     },
     "extra": {
@@ -56,5 +56,11 @@
     },
     "suggest": {
         "corollarium/formularium": "Generate frontend, your own datatypes and validators easily"
-    }
+    },
+    "repositories": [
+        {
+            "type": "path",
+            "url": "../formularium"
+        }
+    ]
 }
