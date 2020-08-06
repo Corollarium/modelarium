@@ -15,6 +15,7 @@ use Modelarium\GeneratorInterface;
 use Modelarium\GeneratorNameTrait;
 
 use function Safe\file_get_contents;
+use function Safe\json_encode;
 
 class FrontendGenerator implements GeneratorInterface
 {
@@ -74,11 +75,14 @@ class FrontendGenerator implements GeneratorInterface
         // $blade = FrameworkComposer::getByName('Blade');
 
         if ($vue !== null) {
+            $vue->setFieldModelVariable('model.');
+            $this->makeJSModel();
             $this->makeVue($vue, 'Card', 'viewable');
             $this->makeVue($vue, 'List', 'viewable');
             $this->makeVue($vue, 'Table', 'viewable');
             $this->makeVue($vue, 'TableItem', 'viewable');
             $this->makeVue($vue, 'Show', 'viewable');
+            $this->makeVue($vue, 'Edit', 'editable');
             $this->makeVue($vue, 'Form', 'editable');
             $this->makeVueRoutes();
             $this->makeVueIndex();
@@ -235,7 +239,7 @@ EOF;
 
         $items = [
             'Card',
-            'Form',
+            'Edit',
             'List',
             'Show',
         ];
@@ -273,6 +277,21 @@ EOF;
             new GeneratedItem(
                 GeneratedItem::TYPE_FRONTEND,
                 $this->templateFile($this->stubDir . "/routes.mustache.js"),
+                $path
+            )
+        );
+    }
+
+    protected function makeJSModel(): void
+    {
+        $path = $this->model->getName() . '/model.js';
+        $modelJS = 'const model = ' . json_encode($this->model->getDefault()) .
+            ";\n\nexport default model;\n";
+        
+        $this->collection->push(
+            new GeneratedItem(
+                GeneratedItem::TYPE_FRONTEND,
+                $modelJS,
                 $path
             )
         );

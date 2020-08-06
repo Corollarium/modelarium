@@ -6,12 +6,13 @@
 
 <script>
 import axios from "axios";
-import itemQuery from "raw-loader!./item.graphql";
+import itemQuery from "raw-loader!./queryItem.graphql";
+import model from "./model";
 
 export default {
   data() {
     return {
-      model: {},
+      model: model,
     };
   },
 

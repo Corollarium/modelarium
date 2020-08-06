@@ -29,7 +29,7 @@
 <script>
 import {|StudlyName|}Card from "./{|StudlyName|}Card";
 import axios from 'axios';
-import listQuery from 'raw-loader!./list.graphql';
+import listQuery from 'raw-loader!./queryList.graphql';
 
 export default {
   data() {

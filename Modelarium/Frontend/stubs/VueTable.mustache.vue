@@ -51,7 +51,7 @@
 <script>
 import {|StudlyName|}TableItem from "./{|StudlyName|}TableItem";
 import axios from 'axios';
-import listQuery from 'raw-loader!./list.graphql';
+import listQuery from 'raw-loader!./queryList.graphql';
 
 export default {
   data() {
@@ -68,7 +68,7 @@ export default {
     };
   },
 
-  components: { {|StudlyName|}Card: {|StudlyName|}Card },
+  components: { {|StudlyName|}TableItem: {|StudlyName|}TableItem },
 
   created() {
     if (this.$route) {

@@ -7,15 +7,7 @@
 </template>
 <script>
 export default {
-  props: [
-    {|#props|}
-    {
-      name: "{|name|}",
-      {|#type|}type: {|.|},{|/type|}
-      {|#required|}required: true,{|/required|}
-    },
-    {|/props|}
-  ],
+  props: {|{propsCode}|},
 
   computed: {
     link() {

@@ -3,26 +3,23 @@
  * on {|date|}
  */
 
+import * as components from './index';
+
 export default [
     {
         path: '/{|lowerName|}',
         name: '{|StudlyName|}List',
-        component: {| StudlyName |}List
+        component: components.{| StudlyName |}List
+    },
+    {
+        path: '/{|lowerName|}/:id?/edit',
+        name: '{|StudlyName|}Edit',
+        component: components.{| StudlyName |}Edit
     },
     {
         path: '/{|lowerName|}/:id',
         name: '{|StudlyName|}Show',
-        component: {| StudlyName |}Show
-    },
-    {
-        path: '/{|lowerName|}/:id/edit',
-        name: '{|StudlyName|}Edit',
-        component: {| StudlyName |}Edit
-    },
-    {
-        path: '/{|lowerName|}/edit',
-        name: '{|StudlyName|}Edit',
-        component: {| StudlyName |}Edit
+        component: components.{| StudlyName |}Show
     }
 ];
 
