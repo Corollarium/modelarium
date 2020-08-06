@@ -17,6 +17,11 @@ export default [
         component: components.{| StudlyName |}Edit
     },
     {
+        path: '/{|lowerName|}/table',
+        name: '{|StudlyName|}Table',
+        component: components.{| StudlyName |}Table
+    },
+    {
         path: '/{|lowerName|}/:id',
         name: '{|StudlyName|}Show',
         component: components.{| StudlyName |}Show

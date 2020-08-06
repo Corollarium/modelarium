@@ -9,7 +9,9 @@ use Formularium\Model;
 use Formularium\FrameworkComposer;
 use Formularium\Frontend\Blade\Framework as FrameworkBlade;
 use Formularium\Frontend\HTML\Element\Button;
+use Formularium\Frontend\HTML\Element\Table;
 use Formularium\Frontend\Vue\Framework as FrameworkVue;
+use Formularium\Renderable;
 use Modelarium\GeneratedCollection;
 use Modelarium\GeneratedItem;
 use Modelarium\GeneratorInterface;
@@ -102,6 +104,27 @@ class FrontendGenerator implements GeneratorInterface
             }
         );
 
+        $table = $this->composer->nodeElement(
+            'Table',
+            [
+                Table::ROW_NAMES => array_map(
+                    function (Field $field) {
+                        return $field->getRenderable(Renderable::LABEL, $field->getName());
+                    },
+                    $this->cardFields
+                ),
+            ]
+        );
+        /**
+         * @var HTMLNode $tbody
+         */
+        $tbody = $table->get('tbody')[0];
+        $tbody->setContent(
+            '<' . $this->studlyName . 'TableItem v-for="l in list" :key="l.id" v-bind="l"></' . $this->studlyName . 'TableItem>',
+            true,
+            true
+        );
+
         $this->templateParameters = [
             'submitButton' => $this->composer->element(
                 'Button',
@@ -109,7 +132,8 @@ class FrontendGenerator implements GeneratorInterface
                     Button::TYPE => 'submit',
                     Element::LABEL => 'Submit'
                 ]
-            )
+            ),
+            'tablelist' => $table->getRenderHTML(),
         ];
     }
 
@@ -249,6 +273,7 @@ EOF;
             'Edit',
             'List',
             'Show',
+            'Table',
         ];
 
         $import = array_map(
