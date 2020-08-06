@@ -168,8 +168,8 @@ final class ProcessorTest extends TestCase
 
         $this->assertStringNotContainsString('$table->unsignedBigInteger(', $userMigration->contents);
         $this->assertStringNotContainsString('$table->unsignedBigInteger(', $roleMigration->contents);
-        $this->assertStringContainsString('$table->unsignedBigInteger("user_id");', $roleToUser->contents);
-        $this->assertStringContainsString('$table->unsignedBigInteger("role_id");', $roleToUser->contents);
+        $this->assertStringContainsString('$table->unsignedBigInteger("user_id")->references(\'id\')->on(\'user\')', $roleToUser->contents);
+        $this->assertStringContainsString('$table->unsignedBigInteger("role_id")->references(\'id\')->on(\'role\');', $roleToUser->contents);
 
 
         $userModel = $data->filter(
