@@ -56,11 +56,5 @@
     },
     "suggest": {
         "corollarium/formularium": "Generate frontend, your own datatypes and validators easily"
-    },
-    "repositories": [
-        {
-            "type": "path",
-            "url": "../formularium"
-        }
-    ]
+    }
 }
