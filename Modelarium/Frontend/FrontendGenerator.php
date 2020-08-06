@@ -8,6 +8,7 @@ use Formularium\Field;
 use Formularium\Model;
 use Formularium\FrameworkComposer;
 use Formularium\Frontend\Blade\Framework as FrameworkBlade;
+use Formularium\Frontend\HTML\Element\Button;
 use Formularium\Frontend\Vue\Framework as FrameworkVue;
 use Modelarium\GeneratedCollection;
 use Modelarium\GeneratedItem;
@@ -102,7 +103,13 @@ class FrontendGenerator implements GeneratorInterface
         );
 
         $this->templateParameters = [
-            'submitButton' => $this->composer->element('Button', [Element::LABEL => 'Submit'])
+            'submitButton' => $this->composer->element(
+                'Button',
+                [
+                    Button::TYPE => 'submit',
+                    Element::LABEL => 'Submit'
+                ]
+            )
         ];
     }
 
