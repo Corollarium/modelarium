@@ -78,12 +78,16 @@ class FrontendGenerator implements GeneratorInterface
         // $blade = FrameworkComposer::getByName('Blade');
 
         if ($vue !== null) {
+            $cardFieldNames = array_map(function (Field $f) {
+                return $f->getName();
+            }, $this->cardFields);
+
             $vue->setFieldModelVariable('model.');
             $this->makeJSModel();
-            $this->makeVue($vue, 'Card', 'viewable');
+            $this->makeVue($vue, 'Card', 'viewable', $cardFieldNames);
             $this->makeVue($vue, 'List', 'viewable');
             $this->makeVue($vue, 'Table', 'viewable');
-            $this->makeVue($vue, 'TableItem', 'viewable');
+            $this->makeVue($vue, 'TableItem', 'viewable', $cardFieldNames);
             $this->makeVue($vue, 'Show', 'viewable');
             $this->makeVue($vue, 'Edit', 'editable');
             $this->makeVue($vue, 'Form', 'editable');
@@ -124,6 +128,12 @@ class FrontendGenerator implements GeneratorInterface
             true,
             true
         );
+        $titleFields = $this->model->filterField(
+            function (Field $field) {
+                var_dump($field->getRenderables());
+                return $field->getRenderable('title', false);
+            }
+        );
 
         $this->templateParameters = [
             'submitButton' => $this->composer->element(
@@ -134,6 +144,7 @@ class FrontendGenerator implements GeneratorInterface
                 ]
             ),
             'tablelist' => $table->getRenderHTML(),
+            'titleField' => array_key_first($titleFields) ?: 'id'
         ];
     }
 
@@ -149,7 +160,7 @@ class FrontendGenerator implements GeneratorInterface
         return $x;
     }
 
-    protected function makeVue(FrameworkVue $vue, string $component, string $mode): void
+    protected function makeVue(FrameworkVue $vue, string $component, string $mode, $restrictFields = null): void
     {
         $path = $this->model->getName() . '/' .
             $this->model->getName() . $component . '.vue';
@@ -166,7 +177,7 @@ class FrontendGenerator implements GeneratorInterface
             $this->collection->push(
                 new GeneratedItem(
                     GeneratedItem::TYPE_FRONTEND,
-                    $this->model->editable($this->composer),
+                    $this->model->editable($this->composer, [], $restrictFields),
                     $path
                 )
             );
@@ -180,7 +191,7 @@ class FrontendGenerator implements GeneratorInterface
             $this->collection->push(
                 new GeneratedItem(
                     GeneratedItem::TYPE_FRONTEND,
-                    $this->model->viewable($this->composer, []),
+                    $this->model->viewable($this->composer, [], $restrictFields),
                     $path
                 )
             );
@@ -229,11 +240,11 @@ EOF;
             )
         );
 
+        $graphqlQuery = $this->model->toGraphqlQuery();
         $itemQuery = <<<EOF
 query (\$id: ID!) {
     {$this->lowerName}(id: \$id) {
-        id
-        TODO
+        $graphqlQuery
     }
 }
 EOF;

@@ -1,7 +1,7 @@
 <template>
   <div class="{|lowerName|}-card">
     <router-link :to="link">
-      {{ id }}
+      {{ {| titleField |} }}
     </router-link>
   </div>
 </template>
