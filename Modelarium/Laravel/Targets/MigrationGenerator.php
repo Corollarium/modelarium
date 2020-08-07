@@ -193,7 +193,7 @@ class MigrationGenerator extends BaseGenerator
         $fieldName = $lowerName . '_id';
 
         list($type, $isRequired) = Parser::getUnwrappedType($field->type);
-        $typeName = $type->name; /** @phpstan-ignore-line */
+        $typeName = $type->name;
 
         $base = null;
         $extra = [];
@@ -406,8 +406,8 @@ class MigrationGenerator extends BaseGenerator
     /**
      * creates a many-to-many morph relationship table
      *
-     * @param string $type1
-     * @param string $type2
+     * @param string $name
+     * @param string $relation
      * @return string The table name.
      */
     protected function generateManyToManyMorphTable(string $name, string $relation): string
