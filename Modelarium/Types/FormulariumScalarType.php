@@ -36,8 +36,8 @@ abstract class FormulariumScalarType extends ScalarType
     public function serialize($value)
     {
         // $field = new Field(); // TODO
-        // return $this->datatype->format($value, $field);
-        return '';
+        // return $this->datatype->format($value);
+        return $value;
     }
 
     /**
@@ -67,6 +67,27 @@ abstract class FormulariumScalarType extends ScalarType
     public function parseLiteral($valueNode, array $variables = null)
     {
         return $this->parseValue($valueNode->value); /** @phpstan-ignore-line */
+    }
+
+    /**
+     * Returns the Graphql query for this datatype.
+     *
+     * @return string
+     */
+    public function getGraphqlType(): string
+    {
+        return $this->datatype->getGraphqlType(); // TODO: studlycase?
+    }
+
+    /**
+     * Returns the Graphql query for this datatype.
+     *
+     * @param string $name The field name
+     * @return string
+     */
+    public function getGraphqlField(string $name): string
+    {
+        return $this->datatype->getGraphqlField($name); // TODO: studlycase?
     }
 
     /**
