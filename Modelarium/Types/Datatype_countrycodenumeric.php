@@ -4,6 +4,6 @@
  */
 namespace Modelarium\Types;
 
-class Datatype_countrycodeISO2 extends FormulariumScalarType
+class Datatype_countrycodenumeric extends FormulariumScalarType
 {
 }
