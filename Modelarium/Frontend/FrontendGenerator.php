@@ -130,7 +130,6 @@ class FrontendGenerator implements GeneratorInterface
         );
         $titleFields = $this->model->filterField(
             function (Field $field) {
-                var_dump($field->getRenderables());
                 return $field->getRenderable('title', false);
             }
         );
