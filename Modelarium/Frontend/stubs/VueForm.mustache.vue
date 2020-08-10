@@ -42,10 +42,12 @@ export default {
     },
 
     create() {
+      let postData = { ...this.model };
+      delete postData.id;
       axios
         .post("/graphql", {
           query: mutationCreate,
-          variables: { input: this.model },
+          variables: { "{|lowerName|}": postData },
         })
         .then((result) => {
           if (result.data.errors) {
@@ -54,8 +56,7 @@ export default {
             return;
           }
           const data = result.data.data;
-          this.$set(this, "model", data.post);
-          // TODO: route to '/{|lowerName|}/' + this.model.id
+          this.$router.push("/{|lowerName|}/" + data.create{|studlyName|}.id);
         });
     },
 
