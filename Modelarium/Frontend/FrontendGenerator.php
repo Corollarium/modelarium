@@ -89,6 +89,9 @@ class FrontendGenerator implements GeneratorInterface
             $cardFieldNames = array_map(function (Field $f) {
                 return $f->getName();
             }, $this->cardFields);
+            $tableFieldNames = array_map(function (Field $f) {
+                return $f->getName();
+            }, $this->tableFields);
 
             $vue->setFieldModelVariable('model.');
             $vue->setExtraProps([
@@ -102,7 +105,7 @@ class FrontendGenerator implements GeneratorInterface
             $this->makeVue($vue, 'Card', 'viewable', $cardFieldNames);
             $this->makeVue($vue, 'List', 'viewable');
             $this->makeVue($vue, 'Table', 'viewable');
-            $this->makeVue($vue, 'TableItem', 'viewable', $cardFieldNames);
+            $this->makeVue($vue, 'TableItem', 'viewable', $tableFieldNames);
             $this->makeVue($vue, 'Show', 'viewable');
             $this->makeVue($vue, 'Edit', 'editable');
             $this->makeVue($vue, 'Form', 'editable');
@@ -153,7 +156,7 @@ class FrontendGenerator implements GeneratorInterface
                     function (Field $field) {
                         return $field->getRenderable(Renderable::LABEL, $field->getName());
                     },
-                    $this->cardFields
+                    $this->tableFields
                 ),
             ]
         );
@@ -247,6 +250,9 @@ class FrontendGenerator implements GeneratorInterface
 
     protected function makeGraphql(): void
     {
+        /*
+         * card
+         */
         $cardFieldNames = array_map(
             function (Field $field) {
                 return $field->getName();
@@ -272,7 +278,6 @@ query (\$page: Int!) {
     }
 }
 EOF;
-
         $this->collection->push(
             new GeneratedItem(
                 GeneratedItem::TYPE_FRONTEND,
@@ -281,6 +286,45 @@ EOF;
             )
         );
 
+        /*
+         * table
+         */
+        $tableFieldNames = array_map(
+            function (Field $field) {
+                return $field->getName();
+            },
+            $this->tableFields
+        );
+        $tableFieldParameters = implode("\n", $tableFieldNames);
+
+        $tableQuery = <<<EOF
+query (\$page: Int!) {
+    {$this->lowerNamePlural}(page: \$page) {
+        data {
+            id
+            $tableFieldParameters
+        }
+      
+        paginatorInfo {
+            currentPage
+            perPage
+            total
+            lastPage
+        }
+    }
+}
+EOF;
+        $this->collection->push(
+            new GeneratedItem(
+                GeneratedItem::TYPE_FRONTEND,
+                $tableQuery,
+                $this->model->getName() . '/queryTable.graphql'
+            )
+        );
+
+        /*
+         * item
+         */
         $graphqlQuery = $this->model->toGraphqlQuery();
         $itemQuery = <<<EOF
 query (\$id: ID!) {

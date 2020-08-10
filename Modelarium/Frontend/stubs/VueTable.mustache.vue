@@ -20,7 +20,7 @@
 <script>
 import {|StudlyName|}TableItem from "./{|StudlyName|}TableItem";
 import axios from 'axios';
-import listQuery from 'raw-loader!./queryList.graphql';
+import tableQuery from 'raw-loader!./queryTable.graphql';
 
 export default {
   data() {
@@ -70,7 +70,7 @@ export default {
       axios.post(
         '/graphql',
         {
-            query: listQuery,
+            query: tableQuery,
             variables: { page },
         }
       ).then((result) => {
