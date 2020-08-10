@@ -252,9 +252,9 @@ class ModelGenerator extends BaseGenerator
 
                 $targetType = $this->parser->getType($typeName);
                 if (!$targetType) {
-                    throw new Exception("Cannot get type {$typeName} as a relationship to {$this->name}");
+                    throw new Exception("Cannot get type {$typeName} as a relationship to {$this->baseName}");
                 } elseif (!($targetType instanceof ObjectType)) {
-                    throw new Exception("{$typeName} is not a type for a relationship to {$this->name}");
+                    throw new Exception("{$typeName} is not a type for a relationship to {$this->baseName}");
                 }
                 $targetField = null;
                 foreach ($targetType->getFields() as $subField) {

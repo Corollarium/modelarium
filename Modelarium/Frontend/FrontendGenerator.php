@@ -11,6 +11,7 @@ use Formularium\Frontend\Blade\Framework as FrameworkBlade;
 use Formularium\Frontend\HTML\Element\Button;
 use Formularium\Frontend\HTML\Element\Table;
 use Formularium\Frontend\Vue\Framework as FrameworkVue;
+use Formularium\HTMLNode;
 use Formularium\Renderable;
 use Modelarium\GeneratedCollection;
 use Modelarium\GeneratedItem;
@@ -48,16 +49,23 @@ class FrontendGenerator implements GeneratorInterface
     /**
      * String substitution
      *
-     * @var string[]
+     * @var array
      */
     protected $templateParameters = [];
 
     /**
-     * Fields
+     * Card fields
      *
      * @var Field[]
      */
     protected $cardFields = [];
+
+    /**
+     * Table fields
+     *
+     * @var Field[]
+     */
+    protected $tableFields = [];
 
     public function __construct(FrameworkComposer $composer, Model $model)
     {
@@ -193,7 +201,7 @@ class FrontendGenerator implements GeneratorInterface
         return $x;
     }
 
-    protected function makeVue(FrameworkVue $vue, string $component, string $mode, $restrictFields = null): void
+    protected function makeVue(FrameworkVue $vue, string $component, string $mode, array $restrictFields = null): void
     {
         $path = $this->model->getName() . '/' .
             $this->model->getName() . $component . '.vue';
@@ -235,10 +243,6 @@ class FrontendGenerator implements GeneratorInterface
     {
         $filters = [];
         return $filters;
-    }
-
-    protected function createMutation(): string
-    {
     }
 
     protected function makeGraphql(): void

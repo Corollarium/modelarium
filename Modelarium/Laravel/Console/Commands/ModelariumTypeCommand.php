@@ -11,6 +11,11 @@ class ModelariumTypeCommand extends Command
     use GeneratorNameTrait;
 
     /**
+     * @var string
+     */
+    protected $stubDir = '.';
+
+    /**
      * The name and signature of the console command.
      *
      * @var string
@@ -45,6 +50,10 @@ class ModelariumTypeCommand extends Command
     public function handle()
     {
         $name = $this->argument('name');
+        if (!is_string($name)) {
+            $this->error('Invalid name parameter');
+            return;
+        }
         $this->setBaseName($name);
 
         $graphql = <<<EOF
