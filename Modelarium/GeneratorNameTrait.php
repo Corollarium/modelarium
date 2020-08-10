@@ -12,7 +12,7 @@ trait GeneratorNameTrait
     /**
      * @var string
      */
-    protected $name = '';
+    protected $baseName = '';
 
     /**
      * @var string
@@ -38,11 +38,11 @@ trait GeneratorNameTrait
         return $inflector;
     }
 
-    protected function setName(string $name): void
+    protected function setBaseName(string $name): void
     {
-        $this->name = $name;
-        $this->studlyName = Str::studly($this->name);
-        $this->lowerName = mb_strtolower($this->name);
+        $this->baseName = $name;
+        $this->studlyName = Str::studly($this->baseName);
+        $this->lowerName = mb_strtolower($this->baseName);
         $this->lowerNamePlural = $this->getInflector()->pluralize($this->lowerName);
     }
 
@@ -81,9 +81,9 @@ trait GeneratorNameTrait
      *
      * @return  string
      */
-    public function getName()
+    public function getBaseName()
     {
-        return $this->name;
+        return $this->baseName;
     }
 
     /**

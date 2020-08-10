@@ -33,7 +33,7 @@ abstract class BaseGenerator implements GeneratorInterface
     public function __construct(Parser $parser, string $name, $type = null)
     {
         $this->parser = $parser;
-        $this->setName($name);
+        $this->setBaseName($name);
 
         if ($type instanceof Type) {
             $this->type = $type;
