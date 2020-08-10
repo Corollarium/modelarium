@@ -45,7 +45,7 @@ export default {
       axios
         .post("/graphql", {
           query: mutationCreate,
-          variables: this.model,
+          variables: { input: this.model },
         })
         .then((result) => {
           if (result.data.errors) {

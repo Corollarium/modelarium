@@ -63,7 +63,7 @@ class FrontendGenerator implements GeneratorInterface
     {
         $this->composer = $composer;
         $this->model = $model;
-        $this->setName($model->getName());
+        $this->setBaseName($model->getName());
         $this->buildTemplateParameters();
     }
 
@@ -237,6 +237,10 @@ class FrontendGenerator implements GeneratorInterface
         return $filters;
     }
 
+    protected function createMutation(): string
+    {
+    }
+
     protected function makeGraphql(): void
     {
         $cardFieldNames = array_map(
@@ -291,11 +295,10 @@ EOF;
             )
         );
 
-        // TODO: variables
         $createMutation = <<<EOF
-mutation create(\$name: String!) {
-    {$this->lowerName}Create(name: \$name) {
-        TODO
+mutation create(\${$this->lowerName}: Create{$this->studlyName}Input!) {
+    create{$this->studlyName}(input: \${$this->lowerName}) {
+        id
     }
 }
 EOF;
