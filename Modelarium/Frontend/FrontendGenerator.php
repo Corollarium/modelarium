@@ -83,6 +83,13 @@ class FrontendGenerator implements GeneratorInterface
             }, $this->cardFields);
 
             $vue->setFieldModelVariable('model.');
+            $vue->setExtraProps([
+                [
+                    'name' => 'id',
+                    'type' => 'String',
+                    'required' => true
+                ]
+            ]);
             $this->makeJSModel();
             $this->makeVue($vue, 'Card', 'viewable', $cardFieldNames);
             $this->makeVue($vue, 'List', 'viewable');
@@ -107,7 +114,30 @@ class FrontendGenerator implements GeneratorInterface
                 return $field->getRenderable('card', false);
             }
         );
+        $this->tableFields = $this->model->filterField(
+            function (Field $field) {
+                return $field->getRenderable('table', false);
+            }
+        );
+        if (!$this->tableFields) {
+            $this->tableFields = $this->cardFields;
+        }
 
+        $buttonCreate = $this->composer->nodeElement(
+            'Button',
+            [
+                Button::TYPE => ($this->composer->getByName('Vue') ? 'router-link' : 'a'),
+                Button::ATTRIBUTES => [':to' => "'/' + type + '/edit'"],
+            ]
+        )->setContent(
+            '<i class="fa fa-plus"></i>Add new',
+            true,
+            true
+        )->getRenderHTML();
+
+        /*
+         * table
+         */
         $table = $this->composer->nodeElement(
             'Table',
             [
@@ -135,14 +165,18 @@ class FrontendGenerator implements GeneratorInterface
         );
 
         $this->templateParameters = [
-            'submitButton' => $this->composer->element(
+            'buttonSubmit' => $this->composer->element(
                 'Button',
                 [
                     Button::TYPE => 'submit',
                     Element::LABEL => 'Submit'
                 ]
             ),
+            'buttonCreate' => $buttonCreate,
             'tablelist' => $table->getRenderHTML(),
+            'tableItemFields' => array_keys(array_map(function (Field $f) {
+                return $f->getName();
+            }, $this->tableFields)),
             'titleField' => array_key_first($titleFields) ?: 'id'
         ];
     }
@@ -243,6 +277,7 @@ EOF;
         $itemQuery = <<<EOF
 query (\$id: ID!) {
     {$this->lowerName}(id: \$id) {
+        id
         $graphqlQuery
     }
 }
@@ -327,7 +362,9 @@ EOF;
     protected function makeJSModel(): void
     {
         $path = $this->model->getName() . '/model.js';
-        $modelJS = 'const model = ' . json_encode($this->model->getDefault()) .
+        $modelValues = $this->model->getDefault();
+        $modelValues['id'] = 0;
+        $modelJS = 'const model = ' . json_encode($modelValues) .
             ";\n\nexport default model;\n";
         
         $this->collection->push(

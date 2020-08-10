@@ -94,9 +94,14 @@ class ModelariumFrontendCommand extends Command
                 $command = "cd $basepath && yarn prettier --write ";
             }
 
-            foreach ($writtenFiles as $f) {
-                shell_exec($command . $f);
-            }
+            // this runs all prettier commands in parallel.
+            $run = array_reduce(
+                $writtenFiles,
+                function ($carry, $f) use ($command) {
+                    return $carry . '(' . $command . $f . ') & ';
+                }
+            );
+            shell_exec($run . ' wait');
         }
         $this->info('Finished frontend.');
     }

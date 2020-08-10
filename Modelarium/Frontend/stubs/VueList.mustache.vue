@@ -1,12 +1,9 @@
 <template>
   <main class="modelarium-list">
-    <h1 class="modelarium-list__title">Post</h1>
+    <h1 class="modelarium-list__title">{|StudlyName|}</h1>
 
     <div class="modelarium-list__header">
-      <router-link :to="'/' + type + '/edit'">
-        <i class="fa fa-plus"></i>
-        Add new
-      </router-link>
+      {|{buttonCreate}|}
     </div>
 
     <div class="modelarium-list__list" v-if="list.length">

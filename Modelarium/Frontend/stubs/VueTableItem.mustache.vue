@@ -1,8 +1,8 @@
 <template>
   <tr class="modelarium-list__row">
-    {|#props|}
-    <td>{{ {|name|} }}</td>
-    {|/props|}
+    {|#tableItemFields|}
+    <td>{{ {|.|} }}</td>
+    {|/tableItemFields|}
   </tr>
 </template>
 <script>

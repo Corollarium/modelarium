@@ -1,6 +1,6 @@
 <template>
   <form class="modelarium-form" method="POST" @submit.prevent="create">
-    {|{ form }|} {|{ submitButton }|}
+    {|{ form }|} {|{ buttonSubmit }|}
   </form>
 </template>
 
