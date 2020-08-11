@@ -3,7 +3,6 @@
     "description": "Generates scaffolding for frontend and backend from schemas",
     "type": "library",
     "license": "MIT",
-    "version": "0.1.1",
     "keywords": [
         "model",
         "graphql",
