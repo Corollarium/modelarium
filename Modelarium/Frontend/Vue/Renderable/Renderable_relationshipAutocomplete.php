@@ -7,7 +7,7 @@ use Formularium\Field;
 use Formularium\Frontend\HTML\Framework;
 use Formularium\HTMLNode;
 
-class Renderable_associationAutocomplete extends Renderable_relationship
+class Renderable_relationshipAutocomplete extends Renderable_relationship
 {
     public function viewable($value, Field $field, HTMLNode $previous): HTMLNode
     {
