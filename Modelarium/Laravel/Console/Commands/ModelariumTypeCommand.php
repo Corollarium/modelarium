@@ -63,11 +63,12 @@ extend type Query {
 }
 
 extend type Mutation {
-    create{$this->studlyName}(input: Create{$this->studlyName}Input! @spread): {$this->studlyName}! @create
+    upsert{$this->studlyName}(input: {$this->studlyName}Input! @spread): {$this->studlyName}! @upsert
     delete{$this->studlyName}(id: ID!): {$this->studlyName} @delete
 }
 
-input Create{$this->studlyName}Input {
+input {$this->studlyName}Input {
+    id: ID
 }
 
 type {$this->studlyName} {

@@ -137,11 +137,39 @@ class FrontendGenerator implements GeneratorInterface
         $buttonCreate = $this->composer->nodeElement(
             'Button',
             [
-                Button::TYPE => ($this->composer->getByName('Vue') ? 'router-link' : 'a'),
-                Button::ATTRIBUTES => [':to' => "'/' + type + '/edit'"],
+                Button::TYPE => 'a',
+                Button::ATTRIBUTES => ['href' => "/{$this->lowerName}/edit" ],
             ]
         )->setContent(
-            '<i class="fa fa-plus"></i>Add new',
+            '<i class="fa fa-plus"></i> Add new',
+            true,
+            true
+        )->getRenderHTML();
+
+        $buttonEdit = $this->composer->nodeElement(
+            'Button',
+            [
+                Button::TYPE => ($this->composer->getByName('Vue') ? 'router-link' : 'a'),
+                Button::ATTRIBUTES => [':to' => "'/{$this->lowerName}/' + model.id + '/edit'"],
+            ]
+        )->setContent(
+            '<i class="fa fa-pencil"></i> Edit',
+            true,
+            true
+        )->getRenderHTML();
+
+        $buttonDelete = $this->composer->nodeElement(
+            'Button',
+            [
+                Button::TYPE => 'a',
+                Button::COLOR => Button::COLOR_WARNING,
+                Button::ATTRIBUTES => [
+                    'href' => '#',
+                    '@click.prevent' => 'remove'
+                ],
+            ]
+        )->setContent(
+            '<i class="fa fa-trash"></i> Delete',
             true,
             true
         )->getRenderHTML();
@@ -184,6 +212,9 @@ class FrontendGenerator implements GeneratorInterface
                 ]
             ),
             'buttonCreate' => $buttonCreate,
+            'buttonEdit' => $buttonEdit,
+            'buttonDelete' => $buttonDelete,
+            // TODO 'hasCan' => $this->model
             'tablelist' => $table->getRenderHTML(),
             'tableItemFields' => array_keys(array_map(function (Field $f) {
                 return $f->getName();
@@ -343,9 +374,9 @@ EOF;
             )
         );
 
-        $createMutation = <<<EOF
-mutation create(\${$this->lowerName}: Create{$this->studlyName}Input!) {
-    create{$this->studlyName}(input: \${$this->lowerName}) {
+        $upsertMutation = <<<EOF
+mutation upsert(\${$this->lowerName}: {$this->studlyName}Input!) {
+    upsert{$this->studlyName}(input: \${$this->lowerName}) {
         id
     }
 }
@@ -353,8 +384,23 @@ EOF;
         $this->collection->push(
             new GeneratedItem(
                 GeneratedItem::TYPE_FRONTEND,
-                $createMutation,
-                $this->model->getName() . '/mutationCreate.graphql'
+                $upsertMutation,
+                $this->model->getName() . '/mutationUpsert.graphql'
+            )
+        );
+
+        $deleteMutation = <<<EOF
+mutation delete(\$id: ID!) {
+    delete{$this->studlyName}(id: \$id) {
+        id
+    }
+}
+EOF;
+        $this->collection->push(
+            new GeneratedItem(
+                GeneratedItem::TYPE_FRONTEND,
+                $deleteMutation,
+                $this->model->getName() . '/mutationDelete.graphql'
             )
         );
     }

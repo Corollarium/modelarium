@@ -1,12 +1,12 @@
 <template>
-  <form class="modelarium-form" method="POST" @submit.prevent="create">
+  <form class="modelarium-form" method="POST" @submit.prevent="save">
     {|{ form }|} {|{ buttonSubmit }|}
   </form>
 </template>
 
 <script>
 import axios from "axios";
-import mutationCreate from "raw-loader!./mutationCreate.graphql";
+import mutationUpsert from "raw-loader!./mutationUpsert.graphql";
 import itemQuery from "raw-loader!./queryItem.graphql";
 import model from "./model";
 
@@ -41,12 +41,18 @@ export default {
         });
     },
 
-    create() {
+    save() {
       let postData = { ...this.model };
-      delete postData.id;
+      let query;
+
+      // if (!postData.id) {
+      //   // creating
+      //   delete postData.id;
+      // }
+
       axios
         .post("/graphql", {
-          query: mutationCreate,
+          query: mutationUpsert,
           variables: { "{|lowerName|}": postData },
         })
         .then((result) => {
@@ -56,7 +62,7 @@ export default {
             return;
           }
           const data = result.data.data;
-          this.$router.push("/{|lowerName|}/" + data.create{|studlyName|}.id);
+          this.$router.push("/{|lowerName|}/" + data.upsert{|studlyName|}.id);
         });
     },
 

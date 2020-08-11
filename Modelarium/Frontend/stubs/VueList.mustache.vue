@@ -68,24 +68,24 @@ export default {
   },
 
 	methods: {
-        index(page) {
-            axios.post(
-                '/graphql',
-                {
-                    query: listQuery,
-                    variables: { page },
-                }
-            ).then((result) => {
-                if (result.data.errors) {
-                    // TODO
-                    console.error(result.data.errors);
-                    return;
-                }
-                const data = result.data.data;
-                this.$set(this, 'list', data.posts.data);
-                this.$set(this, 'pagination', data.posts.paginatorInfo);
-            });
+    index(page) {
+      axios.post(
+        '/graphql',
+        {
+            query: listQuery,
+            variables: { page },
         }
+      ).then((result) => {
+        if (result.data.errors) {
+            // TODO
+            console.error(result.data.errors);
+            return;
+        }
+        const data = result.data.data;
+        this.$set(this, 'list', data.posts.data);
+        this.$set(this, 'pagination', data.posts.paginatorInfo);
+      });
+    }
 	}
 };
 </script>
