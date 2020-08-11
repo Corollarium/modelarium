@@ -4,6 +4,7 @@ namespace Modelarium\Laravel\Console\Commands;
 
 use Formularium\FrameworkComposer;
 use Formularium\Model;
+use HaydenPierce\ClassFinder\ClassFinder;
 use Illuminate\Console\Command;
 use Modelarium\Frontend\FrontendGenerator;
 
@@ -29,6 +30,11 @@ class ModelariumFrontendCommand extends Command
      * @var string
      */
     protected $description = 'Creates frontend using Modelarium';
+
+    /**
+     * @var FrameworkComposer
+     */
+    protected $composer;
 
     /**
      * Create a new command instance.
@@ -59,19 +65,34 @@ class ModelariumFrontendCommand extends Command
             $frameworks = [$frameworks];
         }
       
-        $composer = FrameworkComposer::create($frameworks);
-        $collection = null;
+        $this->composer = FrameworkComposer::create($frameworks);
 
         if ($name === '*' || $name === 'all') {
             // TODO: all classes
+            $classesInNamespace = ClassFinder::getClassesInNamespace('App\\Models');
+
+            foreach ($classesInNamespace as $class) {
+                $reflection = new \ReflectionClass($class);
+                if (!$reflection->isInstantiable()) {
+                    continue;
+                }
+                $this->generateFromModel($class);
+            }
+            return;
         } elseif (is_array($name)) {
             // TODO
         } else {
-            $model = $name::getFormularium();
-            $generator = new FrontendGenerator($composer, $model);
-            $collection = $generator->generate();
+            $this->generateFromModel($name);
         }
+        $this->info('Finished frontend.');
+    }
 
+    protected function generateFromModel(string $name)
+    {
+        $model = $name::getFormularium();
+        $generator = new FrontendGenerator($this->composer, $model);
+        $collection = $generator->generate();
+    
         if (!$collection) {
             $this->info('Nothing generated.');
             return;
@@ -103,6 +124,5 @@ class ModelariumFrontendCommand extends Command
             );
             shell_exec($run . ' wait');
         }
-        $this->info('Finished frontend.');
     }
 }
