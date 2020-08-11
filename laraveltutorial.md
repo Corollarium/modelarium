@@ -245,9 +245,29 @@ class Post {
 Now let's export the actual frontend files. Let's pick a HTML/Bootstrap/Vue frontend:
 
 ```
-artisan modelarium:frontend '\App\Post' --framework=HTML --framework=Bootstrap --framework=Vue --overwrite --prettier
+artisan modelarium:frontend '\App\Models\Post' --framework=HTML --framework=Bootstrap --framework=Vue --overwrite --prettier
 ```
 
 This will generate the component files in `resources/js/components/Post/`, ready for you to use in your Vue app.
+
+### Setup Laravel Mix in 5 seconds
+
+Here's a very quick and dirty documentation of how to setup Laravel with [Mix](https://laravel.com/docs/7.x/mix#running-mix) to use your components. Setup your [frontend](https://laravel.com/docs/7.x/frontend):
+
+```shell
+// Generate basic scaffolding...
+php artisan ui vue
+
+// Generate login / registration scaffolding...
+php artisan ui vue --auth
+
+npm install
+```
+
+To build it while developing:
+
+```
+npm run watch
+```
 
 ## Authentication
