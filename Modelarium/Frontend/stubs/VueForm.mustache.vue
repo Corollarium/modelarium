@@ -45,11 +45,6 @@ export default {
       let postData = { ...this.model };
       let query;
 
-      // if (!postData.id) {
-      //   // creating
-      //   delete postData.id;
-      // }
-
       axios
         .post("/graphql", {
           query: mutationUpsert,
@@ -58,7 +53,7 @@ export default {
         .then((result) => {
           if (result.data.errors) {
             // TODO
-            console.error(result.data.errors);
+            console.error("errors", result.data.errors);
             return;
           }
           const data = result.data.data;
