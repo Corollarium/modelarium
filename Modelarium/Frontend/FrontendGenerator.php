@@ -186,6 +186,7 @@ class FrontendGenerator implements GeneratorInterface
                     },
                     $this->tableFields
                 ),
+                Table::STRIPED => true
             ]
         );
         /**
