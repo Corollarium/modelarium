@@ -68,7 +68,7 @@ class ModelariumFrontendCommand extends Command
         $this->composer = FrameworkComposer::create($frameworks);
 
         if ($name === '*' || $name === 'all') {
-            // TODO: all classes
+            /** @var array<class-string> $classesInNamespace */
             $classesInNamespace = ClassFinder::getClassesInNamespace('App\\Models');
 
             foreach ($classesInNamespace as $class) {
@@ -87,13 +87,13 @@ class ModelariumFrontendCommand extends Command
         $this->info('Finished frontend.');
     }
 
-    protected function generateFromModel(string $name)
+    protected function generateFromModel(string $name): void
     {
         $model = $name::getFormularium();
         $generator = new FrontendGenerator($this->composer, $model);
         $collection = $generator->generate();
     
-        if (!$collection) {
+        if (!$collection->count()) {
             $this->info('Nothing generated.');
             return;
         }
