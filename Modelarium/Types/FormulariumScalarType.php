@@ -4,6 +4,8 @@ namespace Modelarium\Types;
 
 use Formularium\Datatype;
 use Formularium\DatatypeFactory;
+use Formularium\Exception\ValidatorException;
+use GraphQL\Error\Error;
 
 abstract class FormulariumScalarType extends ScalarType
 {
@@ -48,7 +50,12 @@ abstract class FormulariumScalarType extends ScalarType
      */
     public function parseValue($value)
     {
-        return $this->datatype->validate($value);
+        try {
+            return $this->datatype->validate($value);
+        }
+        catch (ValidatorException $e) {
+            throw new Error($e->getMessage());
+        }
     }
 
     /**

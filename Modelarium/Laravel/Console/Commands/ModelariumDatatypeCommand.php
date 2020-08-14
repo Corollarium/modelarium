@@ -85,7 +85,7 @@ class ModelariumDatatypeCommand extends Command
         }
         $scalars = \Modelarium\Util::scalars(
             $datatypes,
-            $ns
+            $ns . '\\Types'
         );
         \Safe\file_put_contents(base_path('graphql/types.graphql'), $scalars);
 
