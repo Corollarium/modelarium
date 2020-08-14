@@ -8,7 +8,14 @@ use Nette\PhpGenerator\PhpNamespace;
 
 final class Util
 {
-    public static function generateLighthouseTypeFile(string $name, string $ns = 'Modelarium\\Types'): string
+    /**
+     * Undocumented function
+     *
+     * @param string $name The type name
+     * @param string $ns The namespace
+     * @return string
+     */
+    public static function generateLighthouseTypeFile(string $name, string $ns): string
     {
         $date = date('c');
         $HEADER = <<<EOF
@@ -53,25 +60,12 @@ EOF;
                 continue;
             }
 
-            $data = self::generateLighthouseTypeFile($name);
-
-            // TODO $filename = __DIR__ . '/../Modelarium/Types/Datatype_' . $name . '.php';
-            // TODO \Safe\file_put_contents($filename, $data['php]);
-
             $graphql[] = "scalar $typeName @scalar(class: \"" .
                 str_replace('\\', '\\\\', $ns . '\\Datatype_' . $name) .
                 "\")";
         }
         
         return $graphql;
-    }
-
-    public static function build(): string
-    {
-        $ns = 'xxx';
-        $graphql = self::scalars(Formularium::getDatatypeNames(), $ns);
-        
-        return implode("\n\n", $graphql);
     }
 
     /**
