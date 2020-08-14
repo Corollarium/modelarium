@@ -22,6 +22,7 @@ class ServiceProvider extends LaravelServiceProvider
                 \Modelarium\Laravel\Console\Commands\ModelariumInitCommand::class,
                 \Modelarium\Laravel\Console\Commands\ModelariumFrontendCommand::class,
                 \Modelarium\Laravel\Console\Commands\ModelariumScaffoldCommand::class,
+                \Modelarium\Laravel\Console\Commands\ModelariumDatatypeCommand::class,
                 \Modelarium\Laravel\Console\Commands\ModelariumTypeCommand::class,
             ]);
         }
@@ -33,8 +34,8 @@ class ServiceProvider extends LaravelServiceProvider
         );
 
         $this->publishes([
-            __DIR__ . '/../Types/Graphql/directives.graphql' => base_path('graphql/directives.graphql'),
-            __DIR__ . '/../Types/Graphql/scalars.graphql' => base_path('graphql/scalars.graphql'),
+            __DIR__ . '/../Types/Graphql/directives.graphql' => base_path('graphql/modelariumdirectives.graphql'),
+            __DIR__ . '/../Types/Graphql/scalars.graphql' => base_path('graphql/modelariumscalars.graphql'),
         ], 'schema');
 
         $this->publishes([

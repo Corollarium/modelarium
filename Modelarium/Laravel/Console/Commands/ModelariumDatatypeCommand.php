@@ -4,6 +4,7 @@ namespace Modelarium\Laravel\Console\Commands;
 
 use Formularium\DatatypeFactory;
 use Formularium\Exception\Exception;
+use HaydenPierce\ClassFinder\ClassFinder;
 use Illuminate\Console\Command;
 
 class ModelariumDatatypeCommand extends Command
@@ -15,10 +16,10 @@ class ModelariumDatatypeCommand extends Command
      */
     protected $signature = 'modelarium:datatype
         {name : The datatype name}
-        {--basetype= : the basetype it inherits from ("string"), if there is one.}
-        {--namespace= : the class namespace. Defaults to "\\App\\Datatypes"}
-        {--path= : path to save the file. Defaults to "basepath("app\\Datatypes") }
-        {--test-path= : path to save the file. Defaults to "basepath("tests/Unit") }
+        {--basetype=string : the basetype it inherits from ("string"), if there is one.}
+        {--namespace=App\\Datatypes : the class namespace. Defaults to "App\\Datatypes"}
+        {--path= : path to save the file. Defaults to base_path("app/Datatypes") }
+        {--test-path= : path to save the file. Defaults to base_path("tests/Unit") }
     ';
 
     /**
@@ -45,22 +46,49 @@ class ModelariumDatatypeCommand extends Command
      */
     public function handle()
     {
+        $name = $this->argument('name');
+        $ns = $this->option('namespace');
+        $path = $this->option('path') ?: base_path("app/Datatypes");
+
+        if (!is_dir($path)) {
+            \Safe\mkdir($path, 0777, true);
+        }
+
         // call formularium
         $this->call('formularium:datatype', [
-            'name' => $this->argument('name'),
-            '--basetype' => $this->argument('basetype'),
-            '--namespace' => $this->argument('namespace'),
-            '--path' => $this->argument('path'),
-            '--test-path' => $this->argument('test-path'),
+            'name' => $name,
+            '--basetype' => $this->option('basetype'),
+            '--namespace' => $ns,
+            '--path' => $path,
+            '--test-path' => $this->option('test-path') ?: base_path("tests/Unit"),
         ]);
 
-        // regenerate graphql
-        // TODO \Modelarium\Util::scalars()
+        // create class
+        $php = \Modelarium\Util::generateLighthouseTypeFile($name, $ns . '\\Types');
+        $filename = $path . "/Types/Datatype_{$name}.php";
+        if (!is_dir($path . "/Types")) {
+            \Safe\mkdir($path . "/Types", 0777, true);
+        }
+        \Safe\file_put_contents($filename, $php);
 
-        // LaravelProcessor::getDirectivesGraphqlString(
-        //     [ 'Modelarium\\Laravel\\Lighthouse\\Directives' ,
-        //     'App\\Directives'
-        //     ]
-        // );
+        // regenerate graphql
+        $datatypes = [];
+        /** @var array<class-string> $classesInNamespace */
+        $classesInNamespace = ClassFinder::getClassesInNamespace($ns . '\\Types');
+        foreach ($classesInNamespace as $class) {
+            $reflection = new \ReflectionClass($class);
+            if (!$reflection->isInstantiable()) {
+                continue;
+            }
+
+            $datatypes[$class] = substr($class, strpos($class, "Datatype_") + mb_strlen("Datatype_"));
+        }
+        $scalars = \Modelarium\Util::scalars(
+            $datatypes,
+            $ns
+        );
+        \Safe\file_put_contents(base_path('graphql/types.graphql'), $scalars);
+
+        $this->info('Remember to add `#import types.graphql` to your `graphql/schema.graphql` file.');
     }
 }
