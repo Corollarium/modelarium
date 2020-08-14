@@ -7,6 +7,8 @@ use Formularium\Exception\Exception;
 use HaydenPierce\ClassFinder\ClassFinder;
 use Illuminate\Console\Command;
 
+use function Safe\substr;
+
 class ModelariumDatatypeCommand extends Command
 {
     /**
@@ -47,7 +49,15 @@ class ModelariumDatatypeCommand extends Command
     public function handle()
     {
         $name = $this->argument('name');
+        if (!is_string($name)) {
+            $this->error('Name must be a string');
+            return;
+        }
         $ns = $this->option('namespace');
+        if (!is_string($ns)) {
+            $this->error('Namespace must be a string');
+            return;
+        }
         $path = $this->option('path') ?: base_path("app/Datatypes");
 
         if (!is_dir($path)) {
