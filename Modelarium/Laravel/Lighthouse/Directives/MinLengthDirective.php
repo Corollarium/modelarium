@@ -3,7 +3,7 @@
 namespace Modelarium\Laravel\Lighthouse\Directives;
 
 use Closure;
-use Formularium\DatatypeFactory;
+use Formularium\Factory\DatatypeFactory;
 use Formularium\Validator\MinLength;
 use GraphQL\Type\Definition\ResolveInfo;
 use Illuminate\Contracts\Validation\Factory as ValidationFactory;

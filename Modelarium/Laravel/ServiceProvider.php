@@ -2,7 +2,7 @@
 
 namespace Modelarium\Laravel;
 
-use Formularium\DatatypeFactory;
+use Formularium\Factory\DatatypeFactory;
 use Formularium\Formularium;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider as LaravelServiceProvider;

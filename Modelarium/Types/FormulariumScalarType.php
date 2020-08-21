@@ -3,7 +3,7 @@
 namespace Modelarium\Types;
 
 use Formularium\Datatype;
-use Formularium\DatatypeFactory;
+use Formularium\Factory\DatatypeFactory;
 use Formularium\Exception\ValidatorException;
 use GraphQL\Error\Error;
 

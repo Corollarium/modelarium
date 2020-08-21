@@ -2,7 +2,7 @@
 
 namespace Modelarium;
 
-use Formularium\DatatypeFactory;
+use Formularium\Factory\DatatypeFactory;
 use Formularium\Formularium;
 
 // TODO: Laravel??
