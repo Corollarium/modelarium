@@ -44,8 +44,6 @@ SDL;
 
         // Wrap around the resolver
         $wrappedResolver = function ($root, array $args, GraphQLContext $context, ResolveInfo $info) use ($previousResolver): string {
-            error_log("xxxxxx");
-
             // Call the resolver, passing along the resolver arguments
             /** @var string $result */
             $result = $previousResolver($root, $args, $context, $info);
