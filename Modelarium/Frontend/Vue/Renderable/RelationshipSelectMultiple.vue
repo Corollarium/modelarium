@@ -130,6 +130,11 @@ export default {
       type: String,
       required: true,
     },
+
+    query: {
+      type: Function,
+      required: true,
+    },
   },
 
   computed: {
@@ -151,7 +156,10 @@ export default {
 
   methods: {
     loadData() {
-      // TODO
+      // TODO: load
+      this.query(selectableQuery).then((data) => {
+        this.$set(this, "selectable", data);
+      });
     },
 
     addItem(item) {
