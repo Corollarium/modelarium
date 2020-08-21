@@ -31,6 +31,8 @@ What it doesn't do:
 
 See [the full documentation for Modelarium](https://corollarium.github.io/modelarium/).
 
+See [a hello world project](https://github.com/Corollarium/modelarium-helloworld).
+
 See [a sample project](https://github.com/Corollarium/modelarium-example).
 
 ## Sponsors
