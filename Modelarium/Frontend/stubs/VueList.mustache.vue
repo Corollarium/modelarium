@@ -15,7 +15,10 @@
 
       <{|StudlyName|}Card v-for="l in list" :key="l.id" v-bind="l"></{|StudlyName|}Card>
 
-      <Pagination v-bind="pagination"></Pagination>
+      <Pagination
+        v-bind="pagination"
+        @page="pagination.currentPage = $event"
+      ></Pagination>
     </div>
     <div class="modelarium-list__empty" v-else>
       Nothing found.

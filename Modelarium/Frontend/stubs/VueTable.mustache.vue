@@ -9,7 +9,10 @@
     <div class="modelarium-table__container" v-if="list.length">
       {|{ tablelist }|}
 
-      <Pagination v-bind="pagination"></Pagination>
+      <Pagination
+        v-bind="pagination"
+        @page="pagination.currentPage = $event"
+      ></Pagination>
     </div>
     <div class="modelarium-table__empty" v-else>
       Nothing found.

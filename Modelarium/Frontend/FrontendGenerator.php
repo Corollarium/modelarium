@@ -10,6 +10,7 @@ use Formularium\FrameworkComposer;
 use Formularium\Frontend\Blade\Framework as FrameworkBlade;
 use Formularium\Frontend\HTML\Element\Button;
 use Formularium\Frontend\HTML\Element\Table;
+use Formularium\Frontend\Vue\Element\Pagination as PaginationVue;
 use Formularium\Frontend\Vue\Framework as FrameworkVue;
 use Formularium\HTMLNode;
 use Formularium\Renderable;
@@ -111,11 +112,31 @@ class FrontendGenerator implements GeneratorInterface
             $this->makeVue($vue, 'Form', 'editable');
             $this->makeVueRoutes();
             $this->makeVueIndex();
+            $this->makeVuePaginationComponent();
         }
 
         $this->makeGraphql();
 
         return $this->collection;
+    }
+
+    protected function makeVuePaginationComponent(): void
+    {
+        $pagination = $this->composer->nodeElement(
+            'Pagination',
+            [
+            ]
+        );
+        $html = $pagination->getRenderHTML();
+        $script = PaginationVue::script();
+
+        $this->collection->push(
+            new GeneratedItem(
+                GeneratedItem::TYPE_FRONTEND,
+                "<template>\n$html\n</template>\n<script>\n$script\n</script>\n",
+                "Pagination.vue"
+            )
+        );
     }
 
     protected function buildTemplateParameters(): void
