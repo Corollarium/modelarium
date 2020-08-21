@@ -225,6 +225,12 @@ class FrontendGenerator implements GeneratorInterface
             }
         );
 
+        $spinner = $this->composer->nodeElement('Spinner')
+        ->addAttribute(
+            'v-if',
+            'isLoading'
+        )->getRenderHTML();
+        var_dump($spinner);
         $this->templateParameters = [
             'buttonSubmit' => $this->composer->element(
                 'Button',
@@ -237,6 +243,7 @@ class FrontendGenerator implements GeneratorInterface
             'buttonEdit' => $buttonEdit,
             'buttonDelete' => $buttonDelete,
             // TODO 'hasCan' => $this->model
+            'spinner' => $spinner,
             'tablelist' => $table->getRenderHTML(),
             'tableItemFields' => array_keys(array_map(function (Field $f) {
                 return $f->getName();

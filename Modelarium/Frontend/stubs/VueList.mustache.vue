@@ -13,8 +13,10 @@
         {|/filters|}
       </div>
 
+
       <{|StudlyName|}Card v-for="l in list" :key="l.id" v-bind="l"></{|StudlyName|}Card>
 
+      {|{ spinner }|}
       <Pagination
         v-bind="pagination"
         @page="pagination.currentPage = $event"
@@ -36,6 +38,7 @@ export default {
     return {
       type: "{|lowerName|}",
       list: [],
+      isLoading: false,
       pagination: {
         currentPage: 1,
         lastPage: 1,
@@ -72,6 +75,7 @@ export default {
 
 	methods: {
     index(page) {
+      this.isLoading = true;
       axios.post(
         '/graphql',
         {
@@ -87,6 +91,8 @@ export default {
         const data = result.data.data;
         this.$set(this, 'list', data.posts.data);
         this.$set(this, 'pagination', data.posts.paginatorInfo);
+      }).finally(() => {
+        this.isLoading = false;
       });
     }
 	}
