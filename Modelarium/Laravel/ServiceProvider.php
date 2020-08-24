@@ -30,7 +30,7 @@ class ServiceProvider extends LaravelServiceProvider
         Formularium::appendDatatypeNamespace('App\\Datatypes');
         Formularium::appendValidatorNamespace('App\\Validators');
         DatatypeFactory::registerFactory(
-            'Modelarium\\Laravel\\Datatypes\\Datatype_relationship::factoryName'
+            'Modelarium\\Laravel\\Datatypes\\RelationshipFactory::factoryName'
         );
 
         $this->publishes([
