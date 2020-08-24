@@ -19,8 +19,8 @@ Your models and operations are described as a Graphql files. It uses [Formulariu
 
 Reference:
 
-- [all supported datatypes](./datatypes.md)
-- [all supported directives](./directives.md)
+- [all supported datatypes](./api-datatypes.md)
+- [all supported directives](./api-directives.md)
 
 ## Sponsors
 

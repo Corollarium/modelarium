@@ -41,7 +41,7 @@ jobs:
       env:
         - DOCUMENTATION=yes
       before_deploy:
-        - composer apidocs
+        - composer apidoc
       script: skip
       deploy:
         provider: pages:git

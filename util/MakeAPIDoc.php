@@ -6,36 +6,46 @@ use Formularium\Factory\DatatypeFactory;
 use Formularium\Formularium;
 use Modelarium\Laravel\Processor as LaravelProcessor;
 
-$datatypes = DatatypeFactory::getNames();
-$datatypeMD = <<<EOF
-# Datatypes\n\n
+function datatypes()
+{
+    $markdown = DatatypeFactory::map(
+        function (\ReflectionClass $reflection): array {
+            $class = $reflection->getName();
+    
+            /**
+             * @var Datatype $d
+             */
+            $d = new $class(); // TODO: factory would be better
+            return [
+                'name' => $class,
+                'value' => $d->getMetadata()->toMarkdown()
+            ];
+        }
+    );
 
-Automatically generated documentation for default datatypes from Formularium and Modelarium.
+    ksort($markdown);
 
-EOF;
+    $datatypeAPI = '
+# Datatypes
 
-foreach ($datatypes as $name) {
-    $datatypeMD .= <<<EOF
+List of validators and its parameters generated automatically.
 
-## $name 
+' . join("\n", $markdown);
 
-TODO: description
-
-EOF;
+    file_put_contents(__DIR__ . '/../docs/api-datatypes.md', $datatypeAPI);
 }
 
-$filename = __DIR__ . '/../docs/datatypes.md';
-\Safe\file_put_contents($filename, $datatypeMD);
-
-$directiveMD = <<<EOF
+function directives()
+{
+    $directiveMD = <<<EOF
 # Directives\n\n
 
 Directives supported by Modelarium.
 
 EOF;
-$directives = LaravelProcessor::getDirectivesGraphql();
-foreach ($directives as $name => $directive) {
-    $directiveMD .= <<<EOF
+    $directives = LaravelProcessor::getDirectivesGraphql();
+    foreach ($directives as $name => $directive) {
+        $directiveMD .= <<<EOF
 
 ## @$name
 
@@ -44,7 +54,11 @@ $directive
 ```
 
 EOF;
+    }
+    $filename = __DIR__ . '/../docs/api-directives.md';
+    \Safe\file_put_contents($filename, $directiveMD);
 }
-$filename = __DIR__ . '/../docs/directives.md';
-\Safe\file_put_contents($filename, $directiveMD);
+
+datatypes();
+directives();
 echo "Generated.\n";
