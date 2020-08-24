@@ -409,6 +409,7 @@ EOF;
         $namespace->addUse('\\Illuminate\\Database\\Eloquent\\Relations\\MorphTo');
         $namespace->addUse('\\Illuminate\\Database\\Eloquent\\Relations\\MorphToMany');
         $namespace->addUse('\\Illuminate\\Support\\Facades\\Auth');
+        $namespace->addUse('\\Modelarium\\Laravel\\Datatypes\\Datatype_relationship');
 
         $this->class = $namespace->addClass('Base' . $this->studlyName);
         $this->class->setExtends($this->parentClassName)
@@ -417,7 +418,7 @@ EOF;
 
         $this->methodRandom = new Method('getRandomData');
         $this->methodRandom->addBody(
-            '$data = static::getFormularium()->getRandom();' . "\n"
+            '$data = static::getFormularium()->getRandom(get_called_class() . \'::getRandomDataFilterFields\');' . "\n"
         );
 
         $this->processGraphql();
@@ -477,11 +478,24 @@ EOF;
             ->addBody('return $data;');
         $this->class->addMember($this->methodRandom);
 
+        $this->class->addMethod('getRandomDataFilterFields')
+            ->setPublic()
+            ->setStatic()
+            ->setReturnType('bool')
+            ->addComment("Filters fields used for random data generation.")
+            ->addBody('
+$d = $f->getDatatype();
+if ($d instanceof Datatype_relationship) {
+    return false;
+}
+return true;')
+            ->addParameter('f')->setType('Formularium\Field');
+
         // TODO perhaps we can use PolicyGenerator->policyClasses to auto generate
         $this->class->addMethod('getCanAttribute')
             ->setPublic()
             ->setReturnType('array')
-            ->addComment('@return \Formularium\Model')
+            ->addComment("Returns the policy permissions for actions such as editing or deleting.\n@return \Formularium\Model")
             ->addBody(
                 '$policy = new \\App\\Policies\\' . $this->studlyName . 'Policy();' . "\n" .
                 '$user = Auth::user();' . "\n" .

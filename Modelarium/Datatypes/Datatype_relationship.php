@@ -46,7 +46,7 @@ abstract class Datatype_relationship extends Datatype
     public function __construct(string $source, string $target, string $relationship, bool $isInverse)
     {
         $stringInverse = $isInverse ? 'inverse:' : '';
-        $name = "relationship:{$relationship}:{$stringInverse}$source:$target";
+        $name = "relationship:{$stringInverse}{$relationship}:$source:$target";
         parent::__construct($name, 'relationship');
         $this->source = $source;
         $this->target = $target;
@@ -69,5 +69,13 @@ abstract class Datatype_relationship extends Datatype
     public function getLaravelSQLType(string $name, array $options = []): string
     {
         return "unsignedBigInteger(\"{$name}_id\")";
+    }
+
+    /**
+     * @return  bool
+     */
+    public function getIsInverse()
+    {
+        return $this->isInverse;
     }
 }
