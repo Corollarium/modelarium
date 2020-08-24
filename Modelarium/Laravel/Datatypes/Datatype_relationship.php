@@ -7,11 +7,6 @@ use Formularium\Model;
 
 class Datatype_relationship extends \Modelarium\Datatypes\Datatype_relationship
 {
-    public static function getNamespace(): string
-    {
-        return __NAMESPACE__;
-    }
-
     public function getDefault()
     {
         return 0;

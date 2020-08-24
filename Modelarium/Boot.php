@@ -8,5 +8,5 @@ use Formularium\Formularium;
 // TODO: Laravel??
 // init our magical relationship datatype generator
 DatatypeFactory::registerFactory(
-    'Modelarium\\Laravel\\Datatypes\\Datatype_relationship::factoryName'
+    'Modelarium\\Laravel\\Datatypes\\RelationshipFactory::factoryName'
 );
