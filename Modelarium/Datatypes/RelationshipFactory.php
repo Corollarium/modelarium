@@ -36,7 +36,7 @@ abstract class RelationshipFactory
     {
         $matches = [];
         if (preg_match(
-            '/^relationship(?P<inverse>:inverse)?:(?P<mode>M?11|1N|N1|NN):(?P<source>[a-zA-Z0-9]+):(?P<target>[a-zA-Z0-9]+)$/',
+            '/^relationship(?P<inverse>:inverse)?:(?P<mode>M?(11|1N|N1|NN)):(?P<source>[a-zA-Z0-9]+):(?P<target>[a-zA-Z0-9]+)$/',
             $name,
             $matches
         )) {
