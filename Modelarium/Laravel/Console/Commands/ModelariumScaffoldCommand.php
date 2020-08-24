@@ -74,34 +74,31 @@ class ModelariumScaffoldCommand extends Command
             $files[] = __DIR__ . '/../../Graphql/definitionsLighthouse.graphql';
         }
 
-        if ($name === '*' || $name === 'all') {
-            $path = base_path('graphql');
-            $dir = \Safe\scandir($path);
+        $path = base_path('graphql');
+        $dir = \Safe\scandir($path);
 
-            // parse directives from lighthouse
-            $modelNames = array_diff($dir, array('.', '..'));
-            
-            foreach ($modelNames as $n) {
-                if (mb_strpos($n, '.graphql') === false) {
-                    continue;
+        // parse directives from lighthouse
+        $modelNames = array_diff($dir, array('.', '..'));
+        
+        foreach ($modelNames as $n) {
+            if (mb_strpos($n, '.graphql') === false) {
+                continue;
+            }
+            $files[] = base_path('graphql/' . $n);
+        }
+        $processor->processFiles($files);
+
+        $files = $processor->getCollection();
+        if ($name && $name !== '*' && $name !== 'all') {
+            $files = $files->filter(
+                function (GeneratedItem $g) use ($name) {
+                    return mb_stripos($g->filename, $name);
                 }
-                $files[] = base_path('graphql/' . $n);
-            }
-            $processor->processFiles($files);
-        } elseif (!$name || is_array($name)) {
-            $this->error('Invalid name parameter');
-            return;
-        } else {
-            try {
-                $data = \Safe\file_get_contents($this->getPathGraphql($name));
-                $processor->processString($data);
-            } catch (\Safe\Exceptions\FilesystemException $e) {
-                $this->error("Cannot open model $name");
-            }
+            );
         }
 
         $this->writeFiles(
-            $processor->getCollection(),
+            $files,
             base_path(),
             (bool)$this->option('overwrite')
         );
