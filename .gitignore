@@ -462,3 +462,4 @@ composer.lock
 *.scss.map
 
 docs/coverage-report
+composer.local.json
