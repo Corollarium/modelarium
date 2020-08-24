@@ -3,6 +3,7 @@
 namespace Modelarium\Laravel;
 
 use Formularium\Factory\DatatypeFactory;
+use Formularium\Factory\ValidatorFactory;
 use Formularium\Formularium;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider as LaravelServiceProvider;
@@ -27,8 +28,8 @@ class ServiceProvider extends LaravelServiceProvider
             ]);
         }
 
-        Formularium::appendDatatypeNamespace('App\\Datatypes');
-        Formularium::appendValidatorNamespace('App\\Validators');
+        DatatypeFactory::appendNamespace('App\\Datatypes');
+        ValidatorFactory::appendNamespace('App\\Validators');
         DatatypeFactory::registerFactory(
             'Modelarium\\Laravel\\Datatypes\\RelationshipFactory::factoryName'
         );

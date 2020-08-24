@@ -3,6 +3,7 @@
 require(__DIR__ . '/../vendor/autoload.php');
 
 use Formularium\Datatype;
+use Formularium\Factory\DatatypeFactory;
 use Formularium\Formularium;
 use Illuminate\Support\Str;
 use Modelarium\Laravel\Processor as LaravelProcessor;
@@ -13,7 +14,7 @@ use function Safe\file_put_contents;
 use function Safe\realpath;
 
 $ns = "Modelarium\\Types";
-$formulariumTypes = Formularium::getDatatypeNames();
+$formulariumTypes = DatatypeFactory::getNames();
 foreach ($formulariumTypes as $classname => $type) {
     $stub = ModelariumUtil::generateLighthouseTypeFile($type, $ns);
     $filename = __DIR__ . '/../Modelarium/Types/Datatype_' . $type . '.php';
