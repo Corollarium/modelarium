@@ -10,6 +10,7 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\UnionType;
 use Modelarium\BaseGenerator;
 use Modelarium\Datatypes\Datatype_relationship;
+use Modelarium\Datatypes\RelationshipFactory;
 use Modelarium\Exception\Exception;
 use Modelarium\FormulariumUtils;
 use Modelarium\GeneratedCollection;
@@ -202,13 +203,15 @@ class ModelGenerator extends BaseGenerator
         $sourceTypeName = $this->lowerName;
         $targetTypeName = $lowerName;
         $relationship = null;
+        $isInverse = false;
 
         foreach ($directives as $directive) {
             $name = $directive->name->value;
             switch ($name) {
             case 'belongsTo':
                 $generateRandom = true;
-                $relationship = 'N1'; // TODO
+                $relationship = RelationshipFactory::RELATIONSHIP_ONE_TO_MANY;
+                $isInverse = true;
                 $this->class->addMethod($lowerName)
                     ->setPublic()
                     ->setReturnType('\\Illuminate\\Database\\Eloquent\\Relations\\BelongsTo')
@@ -217,7 +220,8 @@ class ModelGenerator extends BaseGenerator
 
             case 'belongsToMany':
                 $generateRandom = true;
-                $relationship = 'NN'; // TODO
+                $relationship = RelationshipFactory::RELATIONSHIP_MANY_TO_MANY;
+                $isInverse = true;
                 $this->class->addMethod($lowerNamePlural)
                     ->setPublic()
                     ->setReturnType('\\Illuminate\\Database\\Eloquent\\Relations\\BelongsTo')
@@ -225,7 +229,8 @@ class ModelGenerator extends BaseGenerator
                 break;
 
             case 'hasOne':
-                $relationship = '11'; // TODO
+                $relationship = RelationshipFactory::RELATIONSHIP_ONE_TO_ONE;
+                $isInverse = false;
                 $this->class->addMethod($lowerName)
                     ->setPublic()
                     ->setReturnType('\\Illuminate\\Database\\Eloquent\\Relations\\HasOne')
@@ -233,7 +238,8 @@ class ModelGenerator extends BaseGenerator
                 break;
 
             case 'hasMany':
-                $relationship = '1N'; // TODO, NN?
+                $relationship = RelationshipFactory::RELATIONSHIP_ONE_TO_MANY;
+                $isInverse = false;
                 $target = $this->getInflector()->singularize($targetClass);
                 $this->class->addMethod($lowerNamePlural)
                     ->setPublic()
@@ -245,10 +251,11 @@ class ModelGenerator extends BaseGenerator
             case 'morphMany':
             case 'morphToMany':
                 if ($name === 'morphOne') {
-                    $relationship = '11'; // Datatype_relationship::RELATIONSHIP_ONE_TO_ONE; // TODO
+                    $relationship = RelationshipFactory::MORPH_ONE_TO_ONE;
                 } else {
-                    $relationship = 'N1'; // Datatype_relationship::RELATIONSHIP_ONE_TO_MANY; // TODO
+                    $relationship = RelationshipFactory::MORPH_ONE_TO_MANY;
                 }
+                $isInverse = false;
 
                 $targetType = $this->parser->getType($typeName);
                 if (!$targetType) {
@@ -275,7 +282,8 @@ class ModelGenerator extends BaseGenerator
                 break;
     
             case 'morphTo':
-                $relationship = 'N1'; // Datatype_relationship::RELATIONSHIP_ONE_TO_MANY; // TODO
+                $relationship = RelationshipFactory::MORPH_ONE_TO_MANY; // TODO
+                $isInverse = true;
                 $this->class->addMethod($field->name)
                     ->setReturnType('\\Illuminate\\Database\\Eloquent\\Relations\\MorphTo')
                     ->setPublic()
@@ -283,7 +291,8 @@ class ModelGenerator extends BaseGenerator
                 break;
 
             case 'morphedByMany':
-                $relationship = 'NN';// TODO Datatype_relationship::RELATIONSHIP_MANY_TO_MANY; // TODO
+                $relationship = RelationshipFactory::MORPH_MANY_TO_MANY; // TODO
+                $isInverse = true;
                 $typeMap = $this->parser->getSchema()->getTypeMap();
        
                 foreach ($typeMap as $name => $object) {
@@ -324,7 +333,8 @@ class ModelGenerator extends BaseGenerator
             throw new Exception("Could not find a relationship in {$typeName}");
         }
 
-        $relationshipDatatype = "relationship:$relationship:$sourceTypeName:$targetTypeName";
+        $relationshipDatatype = "relationship:" . ($isInverse ? "inverse:" : "") .
+            "$relationship:$sourceTypeName:$targetTypeName";
 
         $this->processField($relationshipDatatype, $field, $directives, $isRequired);
 

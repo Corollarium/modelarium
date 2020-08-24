@@ -14,12 +14,13 @@ use function Safe\preg_match;
 abstract class RelationshipFactory
 {
     public const RELATIONSHIP = "RELATIONSHIP";
-    public const RELATIONSHIP_ONE_TO_ONE = "RELATIONSHIP_ONE_TO_ONE";
-    public const RELATIONSHIP_ONE_TO_MANY = "RELATIONSHIP_ONE_TO_MANY";
-    public const RELATIONSHIP_MANY_TO_MANY  = "RELATIONSHIP_MANY_TO_MANY";
-    public const MORPH_ONE_TO_ONE = "RELATIONSHIP_ONE_TO_ONE";
-    public const MORPH_ONE_TO_MANY = "RELATIONSHIP_ONE_TO_MANY";
-    public const MORPH_MANY_TO_MANY  = "RELATIONSHIP_MANY_TO_MANY";
+    public const RELATIONSHIP_ONE_TO_ONE = "11";
+    public const RELATIONSHIP_ONE_TO_MANY = "1N";
+    public const RELATIONSHIP_MANY_TO_MANY  = "NN";
+    public const MORPH_ONE_TO_ONE = "M11";
+    public const MORPH_ONE_TO_MANY = "M1N";
+    public const MORPH_MANY_TO_MANY  = "MNN";
+
     private function __construct()
     {
         // nothing
@@ -35,27 +36,22 @@ abstract class RelationshipFactory
     {
         $matches = [];
         if (preg_match(
-            '/^relationship(?P<inverse>inverse)?:(?P<mode>11|1N|N1|NN):(?P<source>[a-zA-Z0-9]+):(?P<target>[a-zA-Z0-9]+)$/',
+            '/^relationship(?P<inverse>:inverse)?:(?P<mode>M?11|1N|N1|NN):(?P<source>[a-zA-Z0-9]+):(?P<target>[a-zA-Z0-9]+)$/',
             $name,
             $matches
         )) {
-            $mode = null;
-            switch ($matches['mode']) {
-                case '11':
-                    $mode = self::RELATIONSHIP_ONE_TO_ONE;
-                    break;
-                case '1N':
-                    $mode = self::RELATIONSHIP_ONE_TO_MANY;
-                    break;
-                case 'NN':
-                case 'N1': // TODO
-                    $mode = self::RELATIONSHIP_MANY_TO_MANY;
-                    break;
-                // TODO: morph
-                default:
-                    throw new ClassNotFoundException('Invalid relationship');
+            $relationships = [
+                self::RELATIONSHIP_ONE_TO_ONE,
+                self::RELATIONSHIP_ONE_TO_MANY,
+                self::RELATIONSHIP_MANY_TO_MANY,
+                self::MORPH_ONE_TO_ONE,
+                self::MORPH_ONE_TO_MANY,
+                self::MORPH_MANY_TO_MANY,
+            ];
+            if (!in_array($matches['mode'], $relationships)) {
+                throw new ClassNotFoundException('Invalid relationship');
             }
-            return static::factory($matches['source'], $matches['target'], $mode, (bool)$matches['inverse']);
+            return static::factory($matches['source'], $matches['target'], $matches['mode'], (bool)$matches['inverse']);
         }
         throw new ClassNotFoundException('Invalid relationship');
     }
@@ -76,7 +72,7 @@ abstract class RelationshipFactory
         $className = "Datatype_{$relationship}{$inverse}_{$source}_{$target}";
         $fqn = "$namespace\\$className";
         if (!class_exists($fqn)) {
-            class_alias(static::class, $fqn, true);
+            class_alias($namespace . "\\Datatype_relationship", $fqn, true);
         }
         return new $fqn($source, $target, $relationship, $isInverse);
     }

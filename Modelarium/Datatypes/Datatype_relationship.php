@@ -45,8 +45,8 @@ abstract class Datatype_relationship extends Datatype
 
     public function __construct(string $source, string $target, string $relationship, bool $isInverse)
     {
-        $stringInverse = $isInverse ? 'true' : 'false';
-        $name = "relationship:$relationship:{$stringInverse}:$source:$target";
+        $stringInverse = $isInverse ? 'inverse:' : '';
+        $name = "relationship:{$relationship}:{$stringInverse}$source:$target";
         parent::__construct($name, 'relationship');
         $this->source = $source;
         $this->target = $target;
