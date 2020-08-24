@@ -71,15 +71,7 @@ class ModelariumScaffoldCommand extends Command
         ];
 
         if ($this->option('lighthouse')) {
-            // TODO: see issue #2
-            // generate lighthouse directives
-            // $output = new BufferedOutput();
-            // $this->call('lighthouse:ide-helper');
-            // $output->fetch();
-
-            $files[] = base_path('schema-directives.graphql');
-        } else {
-            $files[] = base_path(__DIR__ . '/../../Graphql/definitionsLighthouse.graphql');
+            $files[] = __DIR__ . '/../../Graphql/definitionsLighthouse.graphql';
         }
 
         if ($name === '*' || $name === 'all') {
