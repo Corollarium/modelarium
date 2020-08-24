@@ -2,10 +2,11 @@
 
 require(__DIR__ . '/../vendor/autoload.php');
 
+use Formularium\Factory\DatatypeFactory;
 use Formularium\Formularium;
 use Modelarium\Laravel\Processor as LaravelProcessor;
 
-$datatypes = Formularium::getDatatypeNames();
+$datatypes = DatatypeFactory::getNames();
 $datatypeMD = <<<EOF
 # Datatypes\n\n
 
