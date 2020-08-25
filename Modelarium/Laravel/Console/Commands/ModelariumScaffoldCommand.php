@@ -6,6 +6,7 @@ use Illuminate\Console\Command;
 use Modelarium\GeneratedCollection;
 use Modelarium\GeneratedItem;
 use Modelarium\Laravel\Processor as LaravelProcessor;
+use Modelarium\Laravel\Targets\ModelGenerator;
 use Symfony\Component\Console\Output\BufferedOutput;
 
 class ModelariumScaffoldCommand extends Command
@@ -20,6 +21,7 @@ class ModelariumScaffoldCommand extends Command
     protected $signature = 'modelarium:scaffold
         {name : The model name. Use "*" or "all" for all models}
         {--framework=* : The frameworks to use}
+        {--modelDir= : directory to create models. default: app/Models}
         {--overwrite : overwrite files if they exist}
         {--lighthouse : use lighthouse directives}
         {--everything : make everything}
@@ -65,6 +67,10 @@ class ModelariumScaffoldCommand extends Command
         $processor->setRunSeed($this->option('seed') || $this->option('everything'));
         $processor->setRunPolicy($this->option('policy') || $this->option('everything'));
         $processor->setRunEvent($this->option('event') || $this->option('everything'));
+
+        if ($this->option('modelDir')) {
+            ModelGenerator::setModelDir($this->option('modelDir'));
+        }
 
         $files = [
             __DIR__ . '/../../../Types/Graphql/scalars.graphql'

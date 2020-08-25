@@ -27,6 +27,11 @@ class ModelGenerator extends BaseGenerator
     protected $stubDir = __DIR__ . "/stubs/";
 
     /**
+     * @var string
+     */
+    protected static $modelDir = 'app/Models/';
+
+    /**
      * @var ObjectType
      */
     protected $type = null;
@@ -365,7 +370,7 @@ class ModelGenerator extends BaseGenerator
             case 'migrationRememberToken':
                 $this->hidden[] = 'remember_token';
                 break;
-            case 'extends':
+            case 'modelExtends':
                 foreach ($directive->arguments as $arg) {
                     /**
                      * @var \GraphQL\Language\AST\ArgumentNode $arg
@@ -422,6 +427,9 @@ EOF;
         );
 
         $this->processGraphql();
+
+        // this might have changed
+        $this->class->setExtends($this->parentClassName);
 
         foreach ($this->traits as $trait) {
             $this->class->addTrait($trait);
@@ -540,6 +548,11 @@ return true;')
 
     public function getGenerateFilename(bool $base = true): string
     {
-        return $this->getBasePath('app/Models/' . ($base ? 'Base' : '') . $this->studlyName . '.php');
+        return $this->getBasePath(self::$modelDir . '/' . ($base ? 'Base' : '') . $this->studlyName . '.php');
+    }
+
+    public static function setModelDir(string $dir): void
+    {
+        self::$modelDir = $dir;
     }
 }
