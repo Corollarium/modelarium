@@ -92,7 +92,11 @@ class ModelariumScaffoldCommand extends Command
         if ($name && $name !== '*' && $name !== 'all') {
             $files = $files->filter(
                 function (GeneratedItem $g) use ($name) {
-                    return mb_stripos($g->filename, $name);
+                    if (is_array($name)) {
+                        throw new \Exception('Arrays not supported yet');
+                    } else {
+                        return mb_stripos($g->filename, $name);
+                    }
                 }
             );
         }

@@ -230,7 +230,6 @@ class FrontendGenerator implements GeneratorInterface
             'v-if',
             'isLoading'
         )->getRenderHTML();
-        var_dump($spinner);
         $this->templateParameters = [
             'buttonSubmit' => $this->composer->element(
                 'Button',
