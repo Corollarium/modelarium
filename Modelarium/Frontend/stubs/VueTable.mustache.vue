@@ -84,8 +84,8 @@ export default {
             return;
         }
         const data = result.data.data;
-        this.$set(this, 'list', data.posts.data);
-        this.$set(this, 'pagination', data.posts.paginatorInfo);
+        this.$set(this, 'list', data.{|lowerNamePlural|}.data);
+        this.$set(this, 'pagination', data.{|lowerNamePlural|}.paginatorInfo);
       }).finally(() => {
         this.isLoading = false;
       });

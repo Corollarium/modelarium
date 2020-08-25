@@ -30,4 +30,23 @@ class Datatype_relationship extends \Modelarium\Datatypes\Datatype_relationship
         }
         throw new ValidatorException('Invalid relationship value');
     }
+
+    /**
+     * Returns the Graphql query for this datatype.
+     *
+     * @param string $name The field name
+     * @return string
+     */
+    public function getGraphqlField(string $name): string
+    {
+        if ($this->isInverse) {
+            return '';
+        }
+        $model = new $this->targetClass();
+        /**
+         * @var \Formularium\Model $formularium
+         */
+        $f = $model->getFormularium();
+        return $name . "{\nid\n" . $f->toGraphqlQuery() . '}';
+    }
 }
