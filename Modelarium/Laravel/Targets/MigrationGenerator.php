@@ -393,9 +393,11 @@ class MigrationGenerator extends BaseGenerator
         ];
 
         if ($this->mode === self::MODE_CREATE) {
+            $context['className'] = 'Create' . $this->studlyName;
             $context['dummyCode'] = join("\n            ", $this->createCode);
             $context['dummyPostCreateCode'] = join("\n            ", $this->postCreateCode);
         } else {
+            $context['className'] = 'Patch' . $this->studlyName . date('YmdHis');
             $context['dummyCode'] = '// TODO: write the patch please';
             $context['dummyPostCreateCode'] = '';
         }
