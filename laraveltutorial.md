@@ -31,15 +31,15 @@ At this point you are ready to go, just write your schema. We extend Graphql SDL
 ```graphql
 type Post @migrationTimestamps {
   id: ID!
-  title: String! @MinLength(value: 5) @MaxLength(value: 25)
-  content: Text! @MinLength(value: 15) @MaxLength(value: 1000)
+  title: String!
+  content: Text!
   user: User!
     @belongsTo
     @migrationForeign(onDelete: "cascade", onUpdate: "cascade")
 }
 ```
 
-`Post` has a series of directives to control its behavior, such as creating timestamps for the database entry, declaring minimum and maximum lengths for the fields and foreign keys.
+`Post` has a series of directives to control its behavior, such as creating timestamps for the database entry and foreign keys.
 
 Since we are declaring a `belongsTo` relationship, We'll also need to declare the relationship to `User`, adding this to the `type User` in `user.graphql`:
 
@@ -142,8 +142,6 @@ php artisan modelarium:scaffold '*' --everything --lighthouse
 
 You can change the policy to this to avoid needing to authenticate for this tutorial. This opens it for everyone:
 
-TODO: filling user_id.
-
 ```php
     public function create(?User $user): bool
     {
@@ -166,6 +164,50 @@ mutation {
   }
 }
 ```
+
+## Data types
+
+We want the titles of our posts to have between 10 and 50 characters, so let's create a new data type. By creating a new data type you ensure that there's a single point for validation, random generation, metadata etc for that type. This allows you to customize SQL row types, for example, and if any point in the future you need to modify the validation it's easy to do it.
+
+Create it:
+
+```
+$ ./artisan modelarium:datatype title --basetype=string
+Created title at modelarium-example/app/Datatypes/Datatype_title.php.
+Created title test at modelarium-example/tests/Unit/titleTest.php.
+Finished. You might want to run `composer dump-autoload`
+Remember to add `#import types.graphql` to your `graphql/schema.graphql` file.
+```
+
+So add `#import types.graphql` to your `graphql/schema.graphql` file. `types.graphql` has all the types you generate in your application and is regenerated when a new one is created.
+
+In `Datatypes/Datatype_title.php` we set this up. We're inheriting from `string`, so it's easy to just modify its parameters:
+
+```php
+class Datatype_title extends \Formularium\Datatype\Datatype_string
+{
+    public function __construct(string $typename = 'title', string $basetype = 'string')
+    {
+        $this->MIN_STRING_LENGTH = 15;
+        $this->MAX_STRING_LENGTH = 50;
+        parent::__construct($typename, $basetype);
+    }
+}
+```
+
+That's it, you can now use `Title` (note the upper case, as it's usual in graphql):
+
+```graphql
+type Post @migrationTimestamps {
+  id: ID!
+  title: Title!
+  # ...
+}
+```
+
+You should create data types before you use them, and ideally before you generate your scaffolding, since they might change the migrations, models etc. While Modelarium regenerates files, it's best to avoid unnecessary migrations converting rows.
+
+If you needed something more complex you could override `public function validate($value, Model $model = null)`. Formularium [provides several validators](https://corollarium.github.io/Formularium/api-validators.html) that you can use, and you can always implement tests yourself.
 
 ## Frontend
 
@@ -192,8 +234,6 @@ type Post @migrationTimestamps {
   id: ID!
   title: String!
     @modelFillable
-    @MinLength(value: 5)
-    @MaxLength(value: 25)
     @renderable(
       label: "Title"
       comment: "Please add a descriptive title"
