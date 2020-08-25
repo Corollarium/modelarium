@@ -65,13 +65,17 @@ class ModelariumDatatypeCommand extends Command
         }
 
         // call formularium
-        $this->call('formularium:datatype', [
+        $formulariumCall = $this->call('formularium:datatype', [
             'name' => $name,
             '--basetype' => $this->option('basetype'),
             '--namespace' => $ns,
             '--path' => $path,
             '--test-path' => $this->option('test-path') ?: base_path("tests/Unit"),
         ]);
+        if ($formulariumCall) {
+            $this->error('Error calling formularium:datatype');
+            return;
+        }
 
         // create class
         $php = \Modelarium\Util::generateLighthouseTypeFile($name, $ns . '\\Types');
