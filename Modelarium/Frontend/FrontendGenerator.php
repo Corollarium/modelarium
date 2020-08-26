@@ -384,7 +384,7 @@ EOF;
         /*
          * item
          */
-        $graphqlQuery = $this->model->toGraphqlQuery();
+        $graphqlQuery = $this->model->toGraphqlQuery();// TODO: filter !fillable, hidden
         $itemQuery = <<<EOF
 query (\$id: ID!) {
     {$this->lowerName}(id: \$id) {

@@ -68,7 +68,7 @@ class ModelariumScaffoldCommand extends Command
         $processor->setRunPolicy($this->option('policy') || $this->option('everything'));
         $processor->setRunEvent($this->option('event') || $this->option('everything'));
 
-        if ($this->option('modelDir')) {
+        if ($this->option('modelDir') && is_string($this->option('modelDir'))) {
             ModelGenerator::setModelDir($this->option('modelDir'));
         }
 

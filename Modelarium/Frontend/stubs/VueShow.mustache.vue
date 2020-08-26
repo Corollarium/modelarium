@@ -43,7 +43,7 @@ export default {
             return;
           }
           const data = result.data.data;
-          this.$set(this, "model", data.post);
+          this.$set(this, "model", data.{|lowerName|});
         });
     },
 

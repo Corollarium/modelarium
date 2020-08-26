@@ -142,7 +142,7 @@ class PolicyGenerator extends BaseGenerator
             ->addBody(
                 'return false;'
             );
-        $method->addParameter('user')->setType('\\App\\Models\\User');
+        $method->addParameter('user')->setType('\\App\\Models\\User')->setNullable(true);
 
         if ($find) {
             $method->addParameter('model')->setType('\\App\\Models\\' . $modelClassName);

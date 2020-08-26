@@ -44,9 +44,9 @@ class Datatype_relationship extends \Modelarium\Datatypes\Datatype_relationship
         }
         $model = new $this->targetClass();
         /**
-         * @var \Formularium\Model $formularium
+         * @var \Formularium\Model $formulariumModel
          */
-        $f = $model->getFormularium();
-        return $name . "{\nid\n" . $f->toGraphqlQuery() . '}';
+        $formulariumModel = $model->getFormularium();
+        return $name . "{\nid\n" . $formulariumModel->toGraphqlQuery() . '}';
     }
 }
