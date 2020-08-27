@@ -34,8 +34,8 @@ type Post @migrationTimestamps {
   title: String!
   content: Text!
   user: User!
-    @belongsTo
-    @migrationForeign(onDelete: "cascade", onUpdate: "cascade")
+  @belongsTo
+  @migrationForeign(onDelete: "cascade", onUpdate: "cascade")
 }
 ```
 
@@ -129,8 +129,8 @@ input CreatePostInput {
 
 extend type Mutation {
   createPost(input: CreatePostInput! @spread): Post!
-    @create
-    @can(ability: "create")
+  @create
+  @can(ability: "create")
 }
 ```
 
@@ -223,8 +223,8 @@ php artisan ui vue --auth
 # install npm deps
 npm install
 
-# add prettier to generate well formatted code
-npm add prettier
+# add npm deps for modelarium scaffolding
+npm add prettier raw-loader vue-router
 ```
 
 It's time to generate our Vue code now. Let's add some new directives to control rendering. The `@renderable` directive passes arguments to the frontend generator.
@@ -233,21 +233,19 @@ It's time to generate our Vue code now. Let's add some new directives to control
 type Post @migrationTimestamps {
   id: ID!
   title: String!
-    @modelFillable
-    @renderable(
-      label: "Title"
-      comment: "Please add a descriptive title"
-      placeholder: "Type here"
-      size: "large"
-    )
+  @modelFillable
+  @renderable(
+    label: "Title"
+    comment: "Please add a descriptive title"
+    placeholder: "Type here"
+    size: "large"
+  )
   content: Text!
-    @modelFillable
-    @MinLength(value: 15)
-    @MaxLength(value: 1000)
-    @renderable(label: "Content", comment: "Your post contents")
+  @modelFillable
+  @renderable(label: "Content", comment: "Your post contents")
   user: User!
-    @belongsTo
-    @migrationForeign(onDelete: "cascade", onUpdate: "cascade")
+  @belongsTo
+  @migrationForeign(onDelete: "cascade", onUpdate: "cascade")
   comments: [Comment!]! @hasMany
 }
 ```
@@ -311,3 +309,14 @@ npm run watch
 ```
 
 ## Authentication
+
+By default Modelarium creates models in `app/Models` instead of `app`. For this to work with authentication you should change this in `config/auth.php`. You can also pass `--modelDir=app` if you prefer Laravel's default behavior.
+
+```php
+    'providers' => [
+        'users' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\User::class,
+        ],
+    ]
+```
