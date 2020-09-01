@@ -2,6 +2,7 @@
 
 namespace Modelarium\Laravel\Targets;
 
+use Illuminate\Support\Str;
 use GraphQL\Language\AST\DirectiveNode;
 use GraphQL\Type\Definition\BooleanType;
 use GraphQL\Type\Definition\CustomScalarType;
@@ -462,6 +463,7 @@ EOF;
         $context = [
             'dummyCode' => $dummyCode,
             'dummytablename' => "{$type1}_{$type2}",
+            'className' => Str::studly($this->mode) . Str::studly($type1) . Str::studly($type2),
             'modelSchemaCode' => ''
         ];
         $contents = $this->templateStub('migration', $context);
