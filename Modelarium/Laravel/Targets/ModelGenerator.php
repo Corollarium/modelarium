@@ -3,6 +3,9 @@
 namespace Modelarium\Laravel\Targets;
 
 use Formularium\Datatype;
+use Formularium\Extradata;
+use Formularium\ExtradataParameter;
+use Formularium\Model;
 use Illuminate\Support\Str;
 use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
@@ -18,6 +21,7 @@ use Modelarium\GeneratedItem;
 use Modelarium\Parser;
 use Modelarium\Types\FormulariumScalarType;
 use Nette\PhpGenerator\Method;
+use GraphQL\Language\AST\DirectiveNode;
 
 class ModelGenerator extends BaseGenerator
 {
@@ -71,9 +75,9 @@ class ModelGenerator extends BaseGenerator
     /**
      * fields
      *
-     * @var array
+     * @var Model
      */
-    protected $fields = [];
+    protected $fModel = null;
 
     /**
      *
@@ -90,6 +94,7 @@ class ModelGenerator extends BaseGenerator
 
     public function generate(): GeneratedCollection
     {
+        $this->fModel = Model::create($this->studlyName);
         $x = new GeneratedCollection([
             new GeneratedItem(
                 GeneratedItem::TYPE_MODEL,
@@ -146,7 +151,7 @@ class ModelGenerator extends BaseGenerator
             );
         }
 
-        $this->fields[$fieldName] = $field->toArray();
+        $this->fModel->appendField($field);
     }
 
     protected function processBasetype(
@@ -229,7 +234,7 @@ class ModelGenerator extends BaseGenerator
                 $isInverse = true;
                 $this->class->addMethod($lowerNamePlural)
                     ->setPublic()
-                    ->setReturnType('\\Illuminate\\Database\\Eloquent\\Relations\\BelongsTo')
+                    ->setReturnType('\\Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany')
                     ->setBody("return \$this->belongsToMany($targetClass::class);");
                 break;
 
@@ -344,12 +349,32 @@ class ModelGenerator extends BaseGenerator
         $this->processField($relationshipDatatype, $field, $directives, $isRequired);
 
         if ($generateRandom) {
-            $this->methodRandom->addBody(
-                '$data["' . $lowerName . '_id"] = function () {' . "\n" .
+            if ($relationship == RelationshipFactory::RELATIONSHIP_MANY_TO_MANY || $relationship == RelationshipFactory::MORPH_MANY_TO_MANY) {
+                // TODO: do we generate it? seed should do it?
+            } else {
+                $this->methodRandom->addBody(
+                    '$data["' . $lowerName . '_id"] = function () {' . "\n" .
                 '    return factory(' . $targetClass . '::class)->create()->id;'  . "\n" .
                 '};'
+                );
+            }
+        }
+    }
+
+    protected function directiveToExtradata(DirectiveNode $directive): Extradata
+    {
+        $metadataArgs = [];
+        foreach ($directive->arguments as $arg) {
+            $metadataArgs[] = new ExtradataParameter(
+                $arg->name->value,
+                // @phpstan-ignore-next-line
+                $arg->value->value
             );
         }
+        return new Extradata(
+            $directive->name->value,
+            $metadataArgs
+        );
     }
 
     protected function processDirectives(
@@ -357,6 +382,8 @@ class ModelGenerator extends BaseGenerator
     ): void {
         foreach ($directives as $directive) {
             $name = $directive->name->value;
+            $this->fModel->appendExtradata($this->directiveToExtradata($directive));
+
             switch ($name) {
             case 'migrationSoftDeletes':
                 $this->traits[] = '\Illuminate\Database\Eloquent\SoftDeletes';
@@ -385,24 +412,6 @@ class ModelGenerator extends BaseGenerator
                 }
             }
         }
-    }
-
-    protected function formulariumModel(
-
-    ): string {
-        foreach ($this->fields as $f) {
-            $string = <<<EOF
-            new \Formularium\Field(
-                '{$f->name}',
-                '',
-                [ // renderable
-                ],
-                [ // validators
-                ]
-            ),
-EOF;
-        }
-        return '';
     }
 
     public function generateString(): string
@@ -461,7 +470,7 @@ EOF;
             ->addBody(
                 "return ?;\n",
                 [
-                    $this->fields
+                    $this->fModel->serialize()
                 ]
             );
 
@@ -471,10 +480,10 @@ EOF;
             ->setReturnType('\Formularium\Model')
             ->addComment('@return \Formularium\Model')
             ->addBody(
-                '$model = \Formularium\Model::create(?, static::getFields());' . "\n" .
+                '$model = \Formularium\Model::fromStruct(static::getFields());' . "\n" .
                 'return $model;',
                 [
-                    $this->studlyName,
+                    //$this->studlyName,
                 ]
             );
         
