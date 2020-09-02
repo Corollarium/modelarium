@@ -102,6 +102,8 @@ class FrontendGenerator implements GeneratorInterface
                     'required' => true
                 ]
             ]);
+            $this->vuePublish();
+            $this->makeVuePaginationComponent();
             $this->makeJSModel();
             $this->makeVue($vue, 'Card', 'viewable', $cardFieldNames);
             $this->makeVue($vue, 'List', 'viewable');
@@ -112,12 +114,36 @@ class FrontendGenerator implements GeneratorInterface
             $this->makeVue($vue, 'Form', 'editable');
             $this->makeVueRoutes();
             $this->makeVueIndex();
-            $this->makeVuePaginationComponent();
         }
 
         $this->makeGraphql();
 
         return $this->collection;
+    }
+
+    protected function vuePublish(): void
+    {
+        $this->collection->push(
+            new GeneratedItem(
+                GeneratedItem::TYPE_FRONTEND,
+                file_get_contents(__DIR__ . "/Vue/Renderable/RelationshipAutocomplete.vue"),
+                "Modelarium/RelationshipAutocomplete.vue"
+            )
+        );
+        $this->collection->push(
+            new GeneratedItem(
+                GeneratedItem::TYPE_FRONTEND,
+                file_get_contents(__DIR__ . "/Vue/Renderable/RelationshipSelect.vue"),
+                "Modelarium/RelationshipSelect.vue"
+            )
+        );
+        // $this->collection->push(
+        //     new GeneratedItem(
+        //         GeneratedItem::TYPE_FRONTEND,
+        //         file_get_contents(__DIR__ . "/Vue/Renderable/RelationshipSelectMultiple.vue"),
+        //         "Modelarium/RelationshipSelectMultiple.vue"
+        //     )
+        // );
     }
 
     protected function makeVuePaginationComponent(): void
@@ -134,7 +160,7 @@ class FrontendGenerator implements GeneratorInterface
             new GeneratedItem(
                 GeneratedItem::TYPE_FRONTEND,
                 "<template>\n$html\n</template>\n<script>\n$script\n</script>\n",
-                "Pagination.vue"
+                "Modelarium/Pagination.vue"
             )
         );
     }
@@ -384,7 +410,17 @@ EOF;
         /*
          * item
          */
-        $graphqlQuery = $this->model->toGraphqlQuery();// TODO: filter !fillable, hidden
+        $graphqlQuery = $this->model->mapFields(
+            function (Field $f) {
+                // TODO, hidden is not available. we don't have the directives here.
+                if ($f->getRenderable('modelHidden', false) !== false) {
+                    return null;
+                }
+                return $f->toGraphqlQuery();
+            }
+        );
+        $graphqlQuery = join("\n", $graphqlQuery);
+
         $itemQuery = <<<EOF
 query (\$id: ID!) {
     {$this->lowerName}(id: \$id) {

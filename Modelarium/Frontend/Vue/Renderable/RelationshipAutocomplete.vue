@@ -1,35 +1,20 @@
 <template>
-  <input
-    v-model="query"
-    type="text"
-    name=""
-    class="modelarium-autocomplete"
-    autocomplete="off"
-  >
-    <option v-for="o in options" v-bind:key="o.id" :value="o.id">
-      {{ o.name }}
-    </option>
-  </select>
+  <div class="modelarium-autocomplete">
+    <select
+      v-model="query"
+      type="text"
+      name=""
+      class="modelarium-autocomplete__select"
+      autocomplete="off"
+    >
+      <option v-for="o in options" v-bind:key="o.id" :value="o.id">
+        {{ o.name }}
+      </option>
+    </select>
+  </div>
 </template>
 <script>
 import axios from "axios";
-
-query($page: Int!) {
-    posts(page: $page) {
-        data {
-            id
-            title
-        }
-
-        paginatorInfo {
-            currentPage
-            perPage
-            total
-            lastPage
-        }
-    }
-}
-
 
 export default {
   data() {
@@ -39,33 +24,32 @@ export default {
   },
 
   props: {
-      "listQuery": {
-          type: String,
-          required: true
-      }
+    listQuery: {
+      type: String,
+      required: true,
+    },
   },
 
   methods: {
     fetch(page = 1) {
-      return axios.post(
-        '/graphql',
-        {
-            query: listQuery,
-            variables: {
-                page,
-                query: 
-            },
-        }
-      ).then((result) => {
-        if (result.data.errors) {
+      return axios
+        .post("/graphql", {
+          query: listQuery,
+          variables: {
+            page,
+            query,
+          },
+        })
+        .then((result) => {
+          if (result.data.errors) {
             // TODO
             console.error(result.data.errors);
             return;
-        }
-        const data = result.data.data;
-        this.$set(this, 'list', data.posts.data);
-        this.$set(this, 'pagination', data.posts.paginatorInfo);
-      });
+          }
+          const data = result.data.data;
+          this.$set(this, "list", data.posts.data);
+          this.$set(this, "pagination", data.posts.paginatorInfo);
+        });
     },
   },
 };

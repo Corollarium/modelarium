@@ -3,10 +3,12 @@
 namespace Modelarium;
 
 use Formularium\Factory\DatatypeFactory;
-use Formularium\Formularium;
+use Formularium\Factory\RenderableFactory;
 
-// TODO: Laravel??
 // init our magical relationship datatype generator
 DatatypeFactory::registerFactory(
     'Modelarium\\Laravel\\Datatypes\\RelationshipFactory::factoryName'
+);
+RenderableFactory::appendNamespace(
+    'Modelarium\\Frontend'
 );

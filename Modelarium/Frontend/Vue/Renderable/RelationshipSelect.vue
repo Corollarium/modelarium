@@ -1,12 +1,8 @@
 <template>
   <select
-    id="{{id}}"
-    name="$field->getName()"
-    class="{{class}}"
-    title="$field->getRenderable(static::LABEL, '')"
-    {{required}}
-    {{multiple}}
-    disabled="disabled"
+    :name="name"
+    class="modelarium-relationshipselect__select"
+    :required="required"
     autocomplete="off"
   >
     <option v-for="o in options" v-bind:key="o.id" :value="o.id">
@@ -22,6 +18,15 @@ export default {
     return {
       options: [],
     };
+  },
+  props: {
+    name: {
+      type: String,
+    },
+    required: {
+      type: Boolean,
+      default: false,
+    },
   },
   methods: {
     async fetch() {
