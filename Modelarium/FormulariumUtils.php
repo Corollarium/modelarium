@@ -3,9 +3,12 @@
 namespace Modelarium;
 
 use Formularium\Exception\ClassNotFoundException;
+use Formularium\Extradata;
+use Formularium\ExtradataParameter;
 use Formularium\Field;
 use Formularium\Factory\ValidatorFactory;
 use Formularium\Metadata;
+use GraphQL\Language\AST\DirectiveNode;
 use GraphQL\Language\AST\NodeList;
 use Modelarium\Exception\Exception;
 
@@ -18,6 +21,7 @@ class FormulariumUtils
     ): Field {
         $validators = [];
         $renderable = [];
+        $extradata = [];
         foreach ($directives as $directive) {
             $name = $directive->name->value;
 
@@ -33,6 +37,8 @@ class FormulariumUtils
                 }
                 continue;
             }
+
+            $extradata[] = FormulariumUtils::directiveToExtradata($directive);
 
             $validator = null;
             try {
@@ -72,7 +78,24 @@ class FormulariumUtils
             $fieldName,
             $datatypeName,
             $renderable,
-            $validators
+            $validators,
+            $extradata
+        );
+    }
+
+    public static function directiveToExtradata(DirectiveNode $directive): Extradata
+    {
+        $metadataArgs = [];
+        foreach ($directive->arguments as $arg) {
+            $metadataArgs[] = new ExtradataParameter(
+                $arg->name->value,
+                // @phpstan-ignore-next-line
+                $arg->value->value
+            );
+        }
+        return new Extradata(
+            $directive->name->value,
+            $metadataArgs
         );
     }
 }

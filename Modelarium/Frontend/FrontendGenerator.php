@@ -111,7 +111,17 @@ class FrontendGenerator implements GeneratorInterface
             $this->makeVue($vue, 'TableItem', 'viewable', $tableFieldNames);
             $this->makeVue($vue, 'Show', 'viewable');
             $this->makeVue($vue, 'Edit', 'editable');
-            $this->makeVue($vue, 'Form', 'editable');
+            $this->makeVue(
+                $vue,
+                'Form',
+                'editable',
+                function (Field $f) {
+                    if (!$f->getExtradata('modelFillable', false)) {
+                        return false;
+                    }
+                    return true;
+                }
+            );
             $this->makeVueRoutes();
             $this->makeVueIndex();
         }
@@ -289,7 +299,14 @@ class FrontendGenerator implements GeneratorInterface
         return $x;
     }
 
-    protected function makeVue(FrameworkVue $vue, string $component, string $mode, array $restrictFields = null): void
+    /**
+     * @param FrameworkVue $vue
+     * @param string $component
+     * @param string $mode
+     * @param string[]|callable $restrictFields
+     * @return void
+     */
+    protected function makeVue(FrameworkVue $vue, string $component, string $mode, $restrictFields = null): void
     {
         $path = $this->model->getName() . '/' .
             $this->model->getName() . $component . '.vue';

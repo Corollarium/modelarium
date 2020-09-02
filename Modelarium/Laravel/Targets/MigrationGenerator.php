@@ -204,7 +204,7 @@ class MigrationGenerator extends BaseGenerator
             return;
         }
 
-        $isManytoMany = false;
+        $isManyToMany = false;
         foreach ($directives as $directive) {
             $name = $directive->name->value;
             switch ($name) {
@@ -245,7 +245,7 @@ class MigrationGenerator extends BaseGenerator
                 $type2 = $lowerName;
 
                 // we only generate once, so use a comparison for that
-                $isManytoMany = true;
+                $isManyToMany = true;
                 if (strcasecmp($type1, $type2) < 0) {
                     $this->generateManyToManyTable($type1, $type2);
                 }
@@ -258,7 +258,7 @@ class MigrationGenerator extends BaseGenerator
                 break;
 
             case 'morphedByMany':
-                $isManytoMany = true;
+                $isManyToMany = true;
                 $relation = Parser::getDirectiveArgumentByName($directive, 'relation', $lowerName);
                 $this->generateManyToManyMorphTable($this->lowerName, $relation);
                 break;
@@ -270,7 +270,7 @@ class MigrationGenerator extends BaseGenerator
             switch ($name) {
             case 'migrationForeign':
                 
-                if (!$isManytoMany) {
+                if (!$isManyToMany) {
                     $arguments = array_merge(
                         [
                             'references' => 'id',

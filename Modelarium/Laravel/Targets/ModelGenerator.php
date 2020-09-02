@@ -125,6 +125,9 @@ class ModelGenerator extends BaseGenerator
 
         $scalarType = $this->parser->getScalarType($typeName);
 
+        /**
+         * @var Field $field
+         */
         $field = null;
         if (!$scalarType) {
             // probably another model
@@ -361,28 +364,12 @@ class ModelGenerator extends BaseGenerator
         }
     }
 
-    protected function directiveToExtradata(DirectiveNode $directive): Extradata
-    {
-        $metadataArgs = [];
-        foreach ($directive->arguments as $arg) {
-            $metadataArgs[] = new ExtradataParameter(
-                $arg->name->value,
-                // @phpstan-ignore-next-line
-                $arg->value->value
-            );
-        }
-        return new Extradata(
-            $directive->name->value,
-            $metadataArgs
-        );
-    }
-
     protected function processDirectives(
         \GraphQL\Language\AST\NodeList $directives
     ): void {
         foreach ($directives as $directive) {
             $name = $directive->name->value;
-            $this->fModel->appendExtradata($this->directiveToExtradata($directive));
+            $this->fModel->appendExtradata(FormulariumUtils::directiveToExtradata($directive));
 
             switch ($name) {
             case 'migrationSoftDeletes':
