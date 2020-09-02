@@ -12,7 +12,6 @@ Your models and operations are described as a Graphql files. It uses [Formulariu
 - ["I don't read tutorials, I want to see hello world code"](https://github.com/Corollarium/modelarium-helloworld)
 - ["I don't read tutorials and I want something more complicated than hello world"](https://github.com/Corollarium/modelarium-example)
 - [why modelarium was created](./philosophy.md)
-- [directive documentation](./directives.md)
 - [creating new datatypes](./datatype.md)
 - [creating new validators](./validator.md)
 - [Laravel scaffolding in detail](./laravel.md)
