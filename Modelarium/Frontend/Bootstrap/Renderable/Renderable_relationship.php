@@ -3,13 +3,13 @@
 namespace Modelarium\Frontend\Bootstrap\Renderable;
 
 use Formularium\Field;
+use Formularium\Frontend\Bootstrap\RenderableBootstrapWrapperTrait;
 use Formularium\Renderable;
-use Formularium\Frontend\Bootstrap\RenderableBootstrapTrait;
 use Formularium\HTMLNode;
 
 class Renderable_relationship extends Renderable
 {
-    use RenderableBootstrapTrait;
+    use RenderableBootstrapWrapperTrait;
     
     public function viewable($value, Field $field, HTMLNode $previous): HTMLNode
     {
@@ -24,12 +24,12 @@ class Renderable_relationship extends Renderable
      * @param HTMLNode $previous
      * @return HTMLNode
      */
-    public function _editable($value, Field $field, HTMLNode $previous): HTMLNode
+    public function editable($value, Field $field, HTMLNode $previous): HTMLNode
     {
         foreach ($previous->get('select') as $input) {
             $input->addAttribute('class', 'custom-select');
         }
 
-        return $previous;
+        return $this->wrapper($value, $field, $this->bootstrapify($value, $field, $previous, 'select'));
     }
 }
