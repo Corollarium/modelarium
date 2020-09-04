@@ -60,13 +60,13 @@ type User
 }
 ```
 
-Here's a sample `Post` Model, with validation of the length of the fields and foreign keys:
+Here's a sample `Post` Model, with custom data types for validation and data generation:
 
 ```graphql
 type Post @migrationTimestamps {
   id: ID!
-  title: String! @MinLength(value: 5) @MaxLength(value: 25)
-  description: Text! @MinLength(value: 15) @MaxLength(value: 1000)
+  title: Title!
+  description: Text!
   user: User! @belongsTo @foreign(onDelete: "cascade", onUpdate: "cascade")
 }
 ```
