@@ -80,7 +80,7 @@ class Renderable_relationship extends Renderable
 
         // replace the <select> with our component
         foreach ($previous->get('select') as $input) {
-            $classes = $input->getTag('class');
+            $classes = $input->getAttribute('class');
             $input->setTag('RelationshipSelect')
                 ->setAttributes(
                     [
