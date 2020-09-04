@@ -9,11 +9,13 @@ import axios from "axios";
 import mutationUpsert from "raw-loader!./mutationUpsert.graphql";
 import itemQuery from "raw-loader!./queryItem.graphql";
 import model from "./model";
+{|{imports}|}
 
 export default {
   data() {
     return {
       model: model,
+      {|{extraData}|}
     };
   },
 

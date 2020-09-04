@@ -46,6 +46,7 @@ export default {
         lastPage: 1,
         html: "",
       },
+      {|{extraData}|}
     };
   },
 

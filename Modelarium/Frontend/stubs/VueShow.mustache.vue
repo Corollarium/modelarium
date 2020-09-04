@@ -22,6 +22,7 @@ export default {
         edit: true,
         delete: true,
       },
+      {|{extraData}|}
     };
   },
 

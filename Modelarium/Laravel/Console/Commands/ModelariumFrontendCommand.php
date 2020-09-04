@@ -32,9 +32,9 @@ class ModelariumFrontendCommand extends Command
     protected $description = 'Creates frontend using Modelarium';
 
     /**
-     * @var FrameworkComposer
+     * @var string[] List of Frameworks to be passed to the FrameworkComposer
      */
-    protected $composer;
+    protected $frameworks;
 
     /**
      * Create a new command instance.
@@ -56,17 +56,15 @@ class ModelariumFrontendCommand extends Command
         $name = $this->argument('name');
 
         // setup stuff
-        $frameworks = $this->option('framework');
-        if (empty($frameworks)) {
+        $this->frameworks = $this->option('framework');
+        if (empty($this->frameworks)) {
             $this->error('If you are generating frontend you need to specify frameworks. Example: `--framework=HTML --framework=Bootstrap --framework=Vue`');
             return;
         }
-        if (!is_array($frameworks)) {
-            $frameworks = [$frameworks];
+        if (!is_array($this->frameworks)) {
+            $this->frameworks = [$this->frameworks];
         }
       
-        $this->composer = FrameworkComposer::create($frameworks);
-
         if ($name === '*' || $name === 'all') {
             /** @var array<class-string> $classesInNamespace */
             $classesInNamespace = ClassFinder::getClassesInNamespace('App\\Models');
@@ -89,8 +87,10 @@ class ModelariumFrontendCommand extends Command
 
     protected function generateFromModel(string $name): void
     {
+        $composer = FrameworkComposer::create($this->frameworks);
         $model = $name::getFormularium();
-        $generator = new FrontendGenerator($this->composer, $model);
+
+        $generator = new FrontendGenerator($composer, $model);
         $collection = $generator->generate();
     
         if (!$collection->count()) {

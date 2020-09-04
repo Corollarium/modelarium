@@ -2,9 +2,7 @@
   <main class="modelarium-table">
     <h1 class="modelarium-table__title">{|StudlyName|}</h1>
 
-    <div class="modelarium-table__header">
-      {|{buttonCreate}|}
-    </div>
+    <div class="modelarium-table__header">{|{buttonCreate}|}</div>
 
     <div class="modelarium-table__container" v-if="list.length">
       {|{ tablelist }|} {|{ spinner }|}
@@ -13,9 +11,7 @@
         @page="pagination.currentPage = $event"
       ></Pagination>
     </div>
-    <div class="modelarium-table__empty" v-else>
-      Nothing found.
-    </div>
+    <div class="modelarium-table__empty" v-else>Nothing found.</div>
   </main>
 </template>
 
@@ -37,6 +33,7 @@ export default {
         lastPage: 1,
         html: "",
       },
+      {|{extraData}|}
     };
   },
 

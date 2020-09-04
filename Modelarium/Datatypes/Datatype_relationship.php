@@ -78,4 +78,34 @@ abstract class Datatype_relationship extends Datatype
     {
         return $this->isInverse;
     }
+
+    /**
+     * Get datatype name
+     *
+     * @return  string
+     */
+    public function getSource()
+    {
+        return $this->source;
+    }
+
+    /**
+     * Get the value of target
+     *
+     * @return  string
+     */
+    public function getTarget()
+    {
+        return $this->target;
+    }
+
+    /**
+     * Get the value of targetClass
+     *
+     * @return  string
+     */
+    public function getTargetClass()
+    {
+        return $this->targetClass;
+    }
 }
