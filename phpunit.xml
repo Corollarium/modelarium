@@ -14,8 +14,10 @@
         <whitelist processUncoveredFilesFromWhitelist="true">
             <directory suffix=".php">Modelarium</directory>
             <exclude>
+                <file>Modelarium/Boot.php</file>
                 <directory>Modelarium/Laravel/Targets/stubs</directory>
                 <directory>Modelarium/Laravel/Console</directory>
+                <directory>Modelarium/Frontend</directory>
                 <file>Modelarium/Laravel/ServiceProvider.php</file>
             </exclude>
         </whitelist>
