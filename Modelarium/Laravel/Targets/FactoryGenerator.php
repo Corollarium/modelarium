@@ -5,6 +5,7 @@ namespace Modelarium\Laravel\Targets;
 use Modelarium\BaseGenerator;
 use Modelarium\GeneratedCollection;
 use Modelarium\GeneratedItem;
+use Illuminate\Support\Str;
 
 class FactoryGenerator extends BaseGenerator
 {
@@ -26,7 +27,12 @@ class FactoryGenerator extends BaseGenerator
 
     public function generateString(): string
     {
-        return $this->templateStub('factory');
+        // @phpstan-ignore-next-line
+        $laravelVersion = app()->version();
+        if (Str::startsWith($laravelVersion, '6.x') || Str::startsWith($laravelVersion, '7.x')) {
+            return $this->templateStub('factory');
+        }
+        return $this->templateStub('factory8');
     }
 
     public function getGenerateFilename(): string
