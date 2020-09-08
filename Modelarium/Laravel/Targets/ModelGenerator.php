@@ -5,6 +5,7 @@ namespace Modelarium\Laravel\Targets;
 use Formularium\Datatype;
 use Formularium\Extradata;
 use Formularium\ExtradataParameter;
+use Formularium\Field;
 use Formularium\Model;
 use Illuminate\Support\Str;
 use GraphQL\Type\Definition\ListOfType;
