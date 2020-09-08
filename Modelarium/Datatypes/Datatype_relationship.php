@@ -108,4 +108,14 @@ abstract class Datatype_relationship extends Datatype
     {
         return $this->targetClass;
     }
+
+    /**
+     * Get one of RelationshipFactory con
+     *
+     * @return  string
+     */
+    public function getRelationship()
+    {
+        return $this->relationship;
+    }
 }

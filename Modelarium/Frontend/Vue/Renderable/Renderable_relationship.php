@@ -11,6 +11,7 @@ use Formularium\HTMLNode;
 use Formularium\Frontend\Vue\RenderableVueTrait;
 use Formularium\Frontend\Vue\Framework as VueFramework;
 use Modelarium\Datatypes\Datatype_relationship;
+use Modelarium\Datatypes\RelationshipFactory;
 
 class Renderable_relationship extends Renderable
 {
@@ -79,11 +80,23 @@ class Renderable_relationship extends Renderable
         $targetStudly = Str::studly($datatype->getTarget());
         $vue->appendImport($query, "raw-loader!../" . $targetStudly . "/queryList.graphql");
         $vue->appendExtraData($query, $query);
+        
+        $relationship = $datatype->getRelationship();
+        if ($relationship === RelationshipFactory::RELATIONSHIP_MANY_TO_MANY ||
+            $relationship === RelationshipFactory::MORPH_MANY_TO_MANY
+            // TODO: inverses 1:n?
+        ) {
+            $component = 'RelationshipMultiple';
+        } elseif ($field->getRenderable('relationshipSelect', false)) { // TODO: document
+            $component = 'RelationshipSelect';
+        } else {
+            $component = 'RelationshipAutocomplete';
+        }
 
         // replace the <select> with our component
-        foreach ($previous->get('select') as $input) {
+        foreach (array_merge($previous->get('select'), $previous->get('input')) as $input) {
             $classes = $input->getAttribute('class');
-            $input->setTag('RelationshipSelect')
+            $input->setTag($component)
                 ->setAttributes(
                     [
                         'name' => $field->getName(),

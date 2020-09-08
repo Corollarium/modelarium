@@ -30,6 +30,8 @@ class Renderable_relationship extends Renderable
             $input->addAttribute('class', 'custom-select');
         }
 
-        return $this->wrapper($value, $field, $this->bootstrapify($value, $field, $previous, 'select'));
+        $previous = $this->bootstrapify($value, $field, $previous, 'select');
+        $previous = $this->bootstrapify($value, $field, $previous, 'input');
+        return $this->wrapper($value, $field, $previous);
     }
 }

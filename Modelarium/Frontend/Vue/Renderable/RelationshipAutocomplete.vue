@@ -9,19 +9,19 @@
     </select>
     <div class="modelarium-autocomplete__header">
       <router-link
-        :to="'/' + type + '/edit/'"
+        :to="'/' + targetType + '/edit/'"
         target="_blank"
         title="Add a new value for this field"
         class="modelarium-autocomplete__button"
       >
-        <span>＋ ➕Add new</span>
+        <span>＋ Add new</span>
       </router-link>
     </div>
     <div class="modelarium-autocomplete__container">
       <input
         v-model="selectableQuery"
         type="text"
-        class="modelarium-selectmultiple__search"
+        :class="'modelarium-autocomplete__search ' + htmlClass"
         autocomplete="off"
         placeholder="search..."
       />
@@ -57,6 +57,7 @@
 export default {
   data() {
     return {
+      value: [],
       errorMessage: "",
       selectable: [],
       selectableQuery: "",
@@ -124,7 +125,8 @@ export default {
 
   watch: {
     selectableQuery(newval) {
-      this.loadData();
+      // TODO: debounce, avoid multiple calls
+      this.fetch();
     },
   },
 
@@ -161,8 +163,15 @@ export default {
     removeItem(item) {
       this.value = this.value.filter((value) => item.id != value.id);
     },
+
+    removeAll(item) {
+      this.$set(this, "value", []);
+    },
   },
 };
 </script>
 
-<style></style>
+<style>
+.modelarium-autocomplete__container {
+}
+</style>

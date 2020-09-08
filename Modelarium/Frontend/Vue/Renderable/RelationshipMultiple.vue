@@ -1,5 +1,5 @@
 <template>
-  <div class="modelarium-selectmultiple">
+  <div class="modelarium-multiple">
     <select :name="name" multiple="multiple" style="display: none">
       <option
         v-for="item in selectionVisible"
@@ -7,38 +7,38 @@
         :value="item.id"
       ></option>
     </select>
-    <div class="modelarium-selectmultiple__header">
+    <div class="modelarium-multiple__header">
       <router-link
         :to="'/' + type + '/edit/'"
         target="_blank"
         title="Add a new value for this field"
-        class="modelarium-selectmultiple__button"
+        class="modelarium-multiple__button"
       >
         <span>＋ ➕Add new</span>
       </router-link>
       <a
         href="#"
-        class="modelarium-selectmultiple__button"
+        class="modelarium-multiple__button"
         title="Reload values of this field"
         @click.prevent="loadData"
       >
         <span>↻ Refresh</span>
       </a>
     </div>
-    <div class="modelarium-selectmultiple__container">
-      <div class="modelarium-selectmultiple__selectable">
+    <div class="modelarium-multiple__container">
+      <div class="modelarium-multiple__selectable">
         <input
           v-model="selectableQuery"
           type="text"
-          class="modelarium-selectmultiple__search"
+          class="modelarium-multiple__search"
           autocomplete="off"
           placeholder="filter..."
         />
-        <ul class="modelarium-selectmultiple__list" tabindex="-1" title="">
+        <ul class="modelarium-multiple__list" tabindex="-1" title="">
           <li
             v-for="item in selectionVisible"
             :key="item.id"
-            class="modelarium-selectmultiple__item--selectable"
+            class="modelarium-multiple__item--selectable"
             @click="addItem(item)"
           >
             <slot v-bind:item="item">
@@ -48,26 +48,26 @@
         </ul>
         <button
           type="button"
-          class="modelarium-selectmultiple__all"
+          class="modelarium-multiple__all"
           @click="selectAll"
         >
           Select all ⇒
         </button>
       </div>
-      <div class="modelarium-selectmultiple__decoration">⇄</div>
-      <div class="modelarium-selectmultiple__selection">
+      <div class="modelarium-multiple__decoration">⇄</div>
+      <div class="modelarium-multiple__selection">
         <input
           v-model="selectionQuery"
           type="text"
-          class="modelarium-selectmultiple__search"
+          class="modelarium-multiple__search"
           autocomplete="off"
           placeholder="filter..."
         />
-        <ul class="modelarium-selectmultiple__list" tabindex="-1" title="">
+        <ul class="modelarium-multiple__list" tabindex="-1" title="">
           <li
             v-for="item in selectionVisible"
             :key="item.id"
-            class="modelarium-selectmultiple__item--selection"
+            class="modelarium-multiple__item--selection"
             @click="removeItem(item)"
           >
             <slot v-bind:item="item">
@@ -77,14 +77,14 @@
         </ul>
         <button
           type="button"
-          class="modelarium-selectmultiple__all"
+          class="modelarium-multiple__all"
           @click="removeAll"
         >
           ⇐ Remove all
         </button>
       </div>
     </div>
-    <p class="modelarium-selectmultiple__message modelarium__message">
+    <p class="modelarium-multiple__message modelarium__message">
       {{ errorMessage }}
     </p>
   </div>

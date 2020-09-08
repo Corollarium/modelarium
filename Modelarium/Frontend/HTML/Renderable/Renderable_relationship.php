@@ -7,6 +7,7 @@ use Formularium\Field;
 use Formularium\Frontend\HTML\Framework;
 use Formularium\Frontend\HTML\Renderable;
 use Formularium\HTMLNode;
+use Modelarium\Datatypes\RelationshipFactory;
 
 class Renderable_relationship extends Renderable
 {
@@ -29,8 +30,23 @@ class Renderable_relationship extends Renderable
      */
     public function editableSelect($value, Field $field, HTMLNode $previous): HTMLNode
     {
-        $input = new HTMLNode('select');
-    
+        /**
+         * @var Datatype_relationship $datatype
+         */
+        $datatype = $field->getDatatype();
+        $relationship = $datatype->getRelationship();
+
+        if ($relationship === RelationshipFactory::RELATIONSHIP_MANY_TO_MANY ||
+            $relationship === RelationshipFactory::MORPH_MANY_TO_MANY
+            // TODO: inverses 1:n?
+        ) {
+            $input = new HTMLNode('input');
+        } elseif ($field->getRenderable('relationshipSelect', false)) { // TODO: document
+            $input = new HTMLNode('select');
+        } else {
+            $input = new HTMLNode('input');
+        }
+
         $renderable = $field->getRenderables();
         $input->setAttributes([
             'id' => $field->getName() . Framework::counter(),
