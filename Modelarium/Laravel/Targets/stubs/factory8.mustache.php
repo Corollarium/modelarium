@@ -25,6 +25,6 @@ class {|studlyName|}Factory extends Factory
      */
     public function definition()
     {
-        return App\Models\{|studlyName|}::getRandomData();
+        return {|studlyName|}::getRandomData();
     }
 }
