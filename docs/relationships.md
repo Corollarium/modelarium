@@ -2,8 +2,6 @@
 
 Modelarium handles relationships pretty automatically, making seeds and factories work trivially and providing an easy way to pick relationships in forms.
 
-In general
-
 # Frontend
 
 ## Single selector
