@@ -56,12 +56,14 @@ class ModelariumFrontendCommand extends Command
         $name = $this->argument('name');
 
         // setup stuff
+        // @phpstan-ignore-next-line
         $this->frameworks = $this->option('framework');
         if (empty($this->frameworks)) {
             $this->error('If you are generating frontend you need to specify frameworks. Example: `--framework=HTML --framework=Bootstrap --framework=Vue`');
             return;
         }
         if (!is_array($this->frameworks)) {
+            // @phpstan-ignore-next-line
             $this->frameworks = [$this->frameworks];
         }
       

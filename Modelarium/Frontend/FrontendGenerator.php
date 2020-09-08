@@ -115,7 +115,7 @@ class FrontendGenerator implements GeneratorInterface
                 'Form',
                 'editable',
                 function (Field $f) {
-                    if (!$f->getExtradata('modelFillable', false)) {
+                    if (!$f->getExtradata('modelFillable')) {
                         return false;
                     }
                     return true;

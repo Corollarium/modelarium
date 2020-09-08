@@ -10,6 +10,7 @@ use Formularium\Renderable;
 use Formularium\HTMLNode;
 use Formularium\Frontend\Vue\RenderableVueTrait;
 use Formularium\Frontend\Vue\Framework as VueFramework;
+use Modelarium\Datatypes\Datatype_relationship;
 
 class Renderable_relationship extends Renderable
 {
@@ -58,13 +59,14 @@ class Renderable_relationship extends Renderable
          * @var Datatype_relationship $datatype
          */
         $datatype = $field->getDatatype();
-        /**
-         * @var Formularium\Model $targetModel
-         */
+        // @phpstan-ignore-next-line
         $targetModel = call_user_func($datatype->getTargetClass() . '::getFormularium');
-        if (!$targetModel) {
+        if ($targetModel === false) {
             throw new ClassNotFoundException("Cannot find model " . $datatype->getTarget());
         }
+        /**
+         * @var \Formularium\Model $targetModel
+         */
 
         // get the title field
         $titleField = $targetModel->firstField(
