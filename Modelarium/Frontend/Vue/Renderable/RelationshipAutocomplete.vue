@@ -1,43 +1,143 @@
 <template>
   <div class="modelarium-autocomplete">
-    <select
-      v-model="query"
-      type="text"
-      name=""
-      class="modelarium-autocomplete__select"
-      autocomplete="off"
-    >
-      <option v-for="o in options" v-bind:key="o.id" :value="o.id">
-        {{ o.name }}
-      </option>
+    <select :name="name" multiple="multiple" style="display: none">
+      <option
+        v-for="item in selectionVisible"
+        :key="item.id"
+        :value="item.id"
+      ></option>
     </select>
+    <div class="modelarium-autocomplete__header">
+      <router-link
+        :to="'/' + type + '/edit/'"
+        target="_blank"
+        title="Add a new value for this field"
+        class="modelarium-autocomplete__button"
+      >
+        <span>＋ ➕Add new</span>
+      </router-link>
+    </div>
+    <div class="modelarium-autocomplete__container">
+      <input
+        v-model="selectableQuery"
+        type="text"
+        class="modelarium-selectmultiple__search"
+        autocomplete="off"
+        placeholder="search..."
+      />
+      <div class="modelarium-autocomplete__selection">
+        <ul class="modelarium-autocomplete__list" tabindex="-1" title="">
+          <li
+            v-for="item in selectionVisible"
+            :key="item.id"
+            class="modelarium-autocomplete__item--selection"
+            @click="removeItem(item)"
+          >
+            <slot v-bind:item="item">
+              <span>{{ item[fieldName] }}</span>
+            </slot>
+          </li>
+        </ul>
+        <button
+          type="button"
+          class="modelarium-autocomplete__all"
+          @click="removeAll"
+        >
+          Remove all
+        </button>
+      </div>
+    </div>
+    <p class="modelarium-autocomplete__message modelarium__message">
+      {{ errorMessage }}
+    </p>
   </div>
 </template>
-<script>
-import axios from "axios";
 
+<script>
 export default {
   data() {
     return {
-      options: [],
+      errorMessage: "",
+      selectable: [],
+      selectableQuery: "",
     };
   },
 
   props: {
-    listQuery: {
+    /**
+     * The form field name
+     */
+    name: {
       type: String,
-      required: true,
+    },
+    /**
+     * html classes applied on <select></select>
+     */
+    htmlClass: {
+      type: String,
+    },
+    /**
+     * The field in the relationship that is used as a title
+     */
+    titleField: {
+      type: String,
+    },
+    /**
+     * The target type, such as 'post'
+     */
+    targetType: {
+      type: String,
+    },
+    /**
+     * The target type plural, such as 'posts'
+     */
+    targetTypePlural: {
+      type: String,
+    },
+
+    /**
+     * The GraphQL query
+     */
+    query: {
+      type: String,
+    },
+
+    /**
+     * Is this field required?
+     */
+    required: {
+      type: Boolean,
+      default: false,
+    },
+  },
+
+  computed: {
+    selectionVisible() {
+      if (!this.selectionQuery) {
+        return this.value;
+      }
+      return this.value.filter(
+        (i) => i[this.titleField].indexOf(this.selectionQuery) != -1
+      );
+    },
+  },
+
+  watch: {
+    selectableQuery(newval) {
+      this.loadData();
     },
   },
 
   methods: {
-    fetch(page = 1) {
-      return axios
+    async fetch() {
+      this.isLoading = true;
+      axios
         .post("/graphql", {
-          query: listQuery,
+          query: this.query,
           variables: {
-            page,
-            query,
+            page: 1,
+            // TODO: query: selectableQuery,
+            ...this.queryVariables,
           },
         })
         .then((result) => {
@@ -47,10 +147,22 @@ export default {
             return;
           }
           const data = result.data.data;
-          this.$set(this, "list", data.posts.data);
-          this.$set(this, "pagination", data.posts.paginatorInfo);
+          this.$set(this, "selectable", data[this.targetTypePlural].data);
+        })
+        .finally(() => {
+          this.isLoading = false;
         });
+    },
+
+    addItem(item) {
+      this.value.push(item);
+    },
+
+    removeItem(item) {
+      this.value = this.value.filter((value) => item.id != value.id);
     },
   },
 };
 </script>
+
+<style></style>

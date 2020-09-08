@@ -86,7 +86,7 @@ class Renderable_relationship extends Renderable
                     [
                         'name' => $field->getName(),
                         'htmlClass' => $classes,
-                        'nameField' => ($titleField ? $titleField->getName() : 'id'),
+                        'titleField' => ($titleField ? $titleField->getName() : 'id'),
                         ':query' => $query,
                         'targetType' => $datatype->getTarget(),
                         'targetTypePlural' => $inflector->pluralize(mb_strtolower($datatype->getTarget())),

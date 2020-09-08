@@ -7,8 +7,8 @@
     :disabled="isLoading"
   >
     <option v-if="isLoading" value="" selected data-default>loading</option>
-    <option v-else v-for="o in options" v-bind:key="o.id" :value="o.id">
-      {{ o[nameField] }}
+    <option v-else v-for="o in selectable" v-bind:key="o.id" :value="o.id">
+      {{ o[titleField] }}
     </option>
   </select>
 </template>
@@ -18,32 +18,73 @@ import axios from "axios";
 export default {
   data() {
     return {
-      options: [],
+      selectable: [],
       isLoading: true,
     };
   },
   props: {
+    /**
+     * The form field name
+     */
     name: {
       type: String,
     },
+    /**
+     * html classes applied on <select></select>
+     */
     htmlClass: {
       type: String,
     },
-    nameField: {
+    /**
+     * The field in the relationship that is used as a title
+     */
+    titleField: {
       type: String,
     },
+    /**
+     * The target type, such as 'post'
+     */
     targetType: {
       type: String,
     },
+    /**
+     * The target type plural, such as 'posts'
+     */
     targetTypePlural: {
       type: String,
     },
+
+    /**
+     * The GraphQL query
+     */
     query: {
       type: String,
     },
+
+    /**
+     * The GraphQL query
+     */
+    queryVariables: {
+      type: Object,
+      default: () => {
+        return {};
+      },
+    },
+
+    /**
+     * Is this field required?
+     */
     required: {
       type: Boolean,
       default: false,
+    },
+
+    /**
+     * The GraphQL query
+     */
+    maxItems: {
+      type: Number,
+      default: 100,
     },
   },
   mounted() {
@@ -55,7 +96,11 @@ export default {
       axios
         .post("/graphql", {
           query: this.query,
-          variables: { page: 1 },
+          variables: {
+            page: 1,
+            first: this.maxItems,
+            ...this.queryVariables,
+          },
         })
         .then((result) => {
           if (result.data.errors) {
@@ -64,7 +109,7 @@ export default {
             return;
           }
           const data = result.data.data;
-          this.$set(this, "options", data[this.targetTypePlural].data);
+          this.$set(this, "selectable", data[this.targetTypePlural].data);
         })
         .finally(() => {
           this.isLoading = false;

@@ -1,6 +1,6 @@
 <template>
   <div class="modelarium-selectmultiple">
-    <select :name="name" multiple="multiple" style="display: none;">
+    <select :name="name" multiple="multiple" style="display: none">
       <option
         v-for="item in selectionVisible"
         :key="item.id"
@@ -102,38 +102,50 @@ export default {
   },
 
   props: {
-    value: {
-      type: Array,
-      required: true,
-    },
-
     /**
      * The form field name
      */
     name: {
       type: String,
-      required: true,
     },
-
     /**
-     * The form field type (as in the URL /type/:id)
+     * html classes applied on <select></select>
      */
-    type: {
+    htmlClass: {
       type: String,
-      required: true,
     },
-
     /**
      * The field in the relationship that is used as a title
      */
     titleField: {
       type: String,
-      required: true,
+    },
+    /**
+     * The target type, such as 'post'
+     */
+    targetType: {
+      type: String,
+    },
+    /**
+     * The target type plural, such as 'posts'
+     */
+    targetTypePlural: {
+      type: String,
     },
 
+    /**
+     * The GraphQL query
+     */
     query: {
-      type: Function,
-      required: true,
+      type: String,
+    },
+
+    /**
+     * Is this field required?
+     */
+    required: {
+      type: Boolean,
+      default: false,
     },
   },
 
@@ -143,7 +155,7 @@ export default {
         return this.value;
       }
       return this.value.filter(
-        (i) => i["this.titleField"].indexOf(this.selectionQuery) != -1
+        (i) => i[this.titleField].indexOf(this.selectionQuery) != -1
       );
     },
   },
@@ -155,11 +167,29 @@ export default {
   },
 
   methods: {
-    loadData() {
-      // TODO: load
-      this.query(selectableQuery).then((data) => {
-        this.$set(this, "selectable", data);
-      });
+    async fetch() {
+      this.isLoading = true;
+      axios
+        .post("/graphql", {
+          query: this.query,
+          variables: {
+            page: 1,
+            // TODO: query: selectableQuery,
+            ...this.queryVariables,
+          },
+        })
+        .then((result) => {
+          if (result.data.errors) {
+            // TODO
+            console.error(result.data.errors);
+            return;
+          }
+          const data = result.data.data;
+          this.$set(this, "selectable", data[this.targetTypePlural].data);
+        })
+        .finally(() => {
+          this.isLoading = false;
+        });
     },
 
     addItem(item) {
