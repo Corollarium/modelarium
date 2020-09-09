@@ -1,13 +1,42 @@
 <template>
-  <div class="modelarium-autocomplete">
-    <select :name="name" multiple="multiple" style="display: none">
+  <div class="modelarium-autocomplete" :data-attribute="name">
+    <select :name="name" :multiple="isMultiple" style="display: none">
       <option
         v-for="item in selectionVisible"
         :key="item.id"
         :value="item.id"
+        selected="selected"
       ></option>
     </select>
-    <div class="modelarium-autocomplete__header">
+    <div class="modelarium-autocomplete__container">
+      <autocomplete
+        :search="autocompleteSearch"
+        @submit="onSubmit"
+        :get-result-value="autocompleteGetResultValue"
+        :placeholder="placeholder"
+        :aria-label="placeholder"
+      ></autocomplete>
+      <!--
+      <input
+        v-model="selectableQuery"
+        type="text"
+        :list="dataListId"
+        :class="'modelarium-autocomplete__search ' + htmlClass"
+        autocomplete="off"
+        placeholder="search..."
+      />
+      <slot>
+        <datalist :id="dataListId">
+          <option
+            v-for="item in selectable"
+            :key="item.id"
+            class="modelarium-autocomplete__item--selection"
+            :value="item.id"
+            :label="item[titleField]"
+          />
+        </datalist>
+      </slot>
+      -->
       <router-link
         :to="'/' + targetType + '/edit/'"
         target="_blank"
@@ -16,16 +45,7 @@
       >
         <span>＋ Add new</span>
       </router-link>
-    </div>
-    <div class="modelarium-autocomplete__container">
-      <input
-        v-model="selectableQuery"
-        type="text"
-        :class="'modelarium-autocomplete__search ' + htmlClass"
-        autocomplete="off"
-        placeholder="search..."
-      />
-      <div class="modelarium-autocomplete__selection">
+      <div class="modelarium-autocomplete__selection" v-if="isMultiple">
         <ul class="modelarium-autocomplete__list" tabindex="-1" title="">
           <li
             v-for="item in selectionVisible"
@@ -34,7 +54,7 @@
             @click="removeItem(item)"
           >
             <slot v-bind:item="item">
-              <span>{{ item[fieldName] }}</span>
+              <span>{{ item[titleField] }}</span>
             </slot>
           </li>
         </ul>
@@ -54,12 +74,21 @@
 </template>
 
 <script>
+import Autocomplete from "@trevoreyre/autocomplete-vue/dist/autocomplete.esm";
+
 export default {
+  components: {
+    Autocomplete,
+  },
+
   data() {
     return {
       value: [],
       errorMessage: "",
       selectable: [],
+      /**
+       * What the user is typing
+       */
       selectableQuery: "",
     };
   },
@@ -71,24 +100,28 @@ export default {
     name: {
       type: String,
     },
+
     /**
      * html classes applied on <select></select>
      */
     htmlClass: {
       type: String,
     },
+
     /**
      * The field in the relationship that is used as a title
      */
     titleField: {
       type: String,
     },
+
     /**
      * The target type, such as 'post'
      */
     targetType: {
       type: String,
     },
+
     /**
      * The target type plural, such as 'posts'
      */
@@ -110,9 +143,26 @@ export default {
       type: Boolean,
       default: false,
     },
+
+    /**
+     *
+     */
+    isMultiple: {
+      type: Boolean,
+      default: false,
+    },
+
+    placeholder: {
+      type: String,
+      default: "search...",
+    },
   },
 
   computed: {
+    dataListId() {
+      return "datalist-" + targetType;
+    },
+
     selectionVisible() {
       if (!this.selectionQuery) {
         return this.value;
@@ -123,17 +173,36 @@ export default {
     },
   },
 
-  watch: {
-    selectableQuery(newval) {
-      // TODO: debounce, avoid multiple calls
-      this.fetch();
-    },
-  },
-
   methods: {
+    saveSelectionAndReset(e) {
+      let val = e.target.value;
+      if (val) {
+        this.optionVal = val;
+      }
+      e.target.value = "";
+    },
+
+    onSubmit(result) {
+      if (this.isMultiple) {
+        this.value.push({ ...result });
+      } else {
+        this.$set(this, "value", [{ ...result }]);
+      }
+      this.$emit("input", this.value);
+    },
+
+    autocompleteSearch(input) {
+      this.selectableQuery = input;
+      return this.fetch();
+    },
+
+    autocompleteGetResultValue(result) {
+      return result[this.titleField];
+    },
+
     async fetch() {
       this.isLoading = true;
-      axios
+      return axios
         .post("/graphql", {
           query: this.query,
           variables: {
@@ -149,7 +218,9 @@ export default {
             return;
           }
           const data = result.data.data;
-          this.$set(this, "selectable", data[this.targetTypePlural].data);
+          const results = data[this.targetTypePlural].data;
+          this.$set(this, "selectable", results);
+          return results;
         })
         .finally(() => {
           this.isLoading = false;
