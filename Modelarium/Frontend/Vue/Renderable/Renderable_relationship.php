@@ -30,8 +30,47 @@ class Renderable_relationship extends Renderable
      */
     public function viewable($value, Field $field, HTMLNode $previous): HTMLNode
     {
-        $previous = $this->_viewable($value, $field, $previous);
-        // TODO: replace with <Card></Card>, props
+        /**
+         * @var VueFramework $vue
+         */
+        $vue = $this->framework;
+        /**
+         * @var Datatype_relationship $datatype
+         */
+        $datatype = $field->getDatatype();
+
+        $relationship = $datatype->getRelationship();
+        if ($relationship === RelationshipFactory::RELATIONSHIP_ONE_TO_ONE ||
+            (
+                $relationship === RelationshipFactory::RELATIONSHIP_ONE_TO_MANY && !$datatype->getIsInverse()
+            )
+        ) {
+            $isMultiple = true;
+        } else {
+            $isMultiple = false; // TODO
+        }
+
+        if ($isMultiple) {
+            $previous = new HtmlNode(
+                'div' // TODO: list?
+            );
+            $p = new HtmlNode(
+                $datatype->getTarget() . 'Card',
+                [
+                    'v-for' => 'item in ' . $vue->getFieldModelVariable() . $datatype->getTargetPlural(),
+                    'v-bind' => 'item', // TODO: check
+                    ':key' => 'item.id' // TODO: check
+                ]
+            );
+            $previous->appendContent($p);
+        } else {
+            $previous = new HtmlNode(
+                $datatype->getTarget() . 'Card',
+                [
+                    'v-bind' => $vue->getFieldModelVariable() . $datatype->getTarget()
+                ]
+            );
+        }
         return $previous;
     }
 
@@ -104,7 +143,7 @@ class Renderable_relationship extends Renderable
                         'titleField' => ($titleField ? $titleField->getName() : 'id'),
                         ':query' => $query,
                         'targetType' => $datatype->getTarget(),
-                        'targetTypePlural' => $inflector->pluralize(mb_strtolower($datatype->getTarget())),
+                        'targetTypePlural' => $datatype->getTargetPlural(),
                         'v-model' => $mvar . $field->getName()
                     ]
                 );

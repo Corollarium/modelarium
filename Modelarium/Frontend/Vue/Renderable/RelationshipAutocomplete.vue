@@ -10,11 +10,12 @@
     </select>
     <div class="modelarium-autocomplete__container">
       <autocomplete
+        :debounceTime="200"
         :search="autocompleteSearch"
-        @submit="onSubmit"
         :get-result-value="autocompleteGetResultValue"
         :placeholder="placeholder"
         :aria-label="placeholder"
+        @submit="onSubmit"
       ></autocomplete>
       <!--
       <input
@@ -184,9 +185,9 @@ export default {
 
     onSubmit(result) {
       if (this.isMultiple) {
-        this.value.push({ ...result });
+        this.value.push(result.id);
       } else {
-        this.$set(this, "value", [{ ...result }]);
+        this.$set(this, "value", result.id);
       }
       this.$emit("input", this.value);
     },

@@ -3,6 +3,7 @@
 namespace Modelarium\Datatypes;
 
 use Formularium\Datatype;
+use Doctrine\Inflector\InflectorFactory;
 use Illuminate\Support\Str;
 
 abstract class Datatype_relationship extends Datatype
@@ -107,6 +108,12 @@ abstract class Datatype_relationship extends Datatype
     public function getTargetClass()
     {
         return $this->targetClass;
+    }
+
+    public function getTargetPlural()
+    {
+        $inflector = InflectorFactory::create()->build();
+        return $inflector->pluralize(mb_strtolower($this->getTarget()));
     }
 
     /**
