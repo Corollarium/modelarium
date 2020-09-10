@@ -12,10 +12,11 @@ final class Util
             return false;
         }
         $show = $f->getRenderable('show', null);
-        // @phpstan-ignore-next-line
         if ($show === true) {
             return true;
-        } elseif ($show === true) {
+        }
+        // @phpstan-ignore-next-line
+        elseif ($show === true) {
             return false;
         }
         return !empty($f->getRenderables());

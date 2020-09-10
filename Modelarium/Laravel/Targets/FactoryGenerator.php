@@ -28,7 +28,7 @@ class FactoryGenerator extends BaseGenerator
     public function generateString(): string
     {
         $laravelVersion = '7.x'; // default
-        if (is_callable('app')) {
+        if (function_exists('app')) {
             // @phpstan-ignore-next-line
             $laravelVersion = app()->version();
         }
