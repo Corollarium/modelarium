@@ -27,8 +27,11 @@ class FactoryGenerator extends BaseGenerator
 
     public function generateString(): string
     {
-        // @phpstan-ignore-next-line
-        $laravelVersion = app()->version();
+        $laravelVersion = '7.x'; // default
+        if (is_callable('app')) {
+            // @phpstan-ignore-next-line
+            $laravelVersion = app()->version();
+        }
         if (Str::startsWith($laravelVersion, '6.') || Str::startsWith($laravelVersion, '7.')) {
             return $this->templateStub('factory');
         }
