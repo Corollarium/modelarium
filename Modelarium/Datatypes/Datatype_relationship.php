@@ -85,7 +85,7 @@ abstract class Datatype_relationship extends Datatype
     /**
      * @return  bool
      */
-    public function getIsInverse()
+    public function getIsInverse(): bool
     {
         return $this->isInverse;
     }
@@ -95,7 +95,7 @@ abstract class Datatype_relationship extends Datatype
      *
      * @return  string
      */
-    public function getSource()
+    public function getSource(): string
     {
         return $this->source;
     }
@@ -105,7 +105,7 @@ abstract class Datatype_relationship extends Datatype
      *
      * @return  string
      */
-    public function getTarget()
+    public function getTarget(): string
     {
         return $this->target;
     }
@@ -115,12 +115,12 @@ abstract class Datatype_relationship extends Datatype
      *
      * @return  string
      */
-    public function getTargetClass()
+    public function getTargetClass(): string
     {
         return $this->targetClass;
     }
 
-    public function getTargetPlural()
+    public function getTargetPlural(): string
     {
         $inflector = InflectorFactory::create()->build();
         return $inflector->pluralize(mb_strtolower($this->getTarget()));
