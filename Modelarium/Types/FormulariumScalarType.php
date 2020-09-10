@@ -52,8 +52,7 @@ abstract class FormulariumScalarType extends ScalarType
     {
         try {
             return $this->datatype->validate($value);
-        }
-        catch (ValidatorException $e) {
+        } catch (ValidatorException $e) {
             throw new Error($e->getMessage());
         }
     }
@@ -90,11 +89,13 @@ abstract class FormulariumScalarType extends ScalarType
      * Returns the Graphql query for this datatype.
      *
      * @param string $name The field name
+     * @param array $params User supplied list of parameters, which may be used
+     * to control behavior (like recursion)
      * @return string
      */
-    public function getGraphqlField(string $name): string
+    public function getGraphqlField(string $name, array $params = []): string
     {
-        return $this->datatype->getGraphqlField($name); // TODO: studlycase?
+        return $this->datatype->getGraphqlField($name, $params); // TODO: studlycase?
     }
 
     /**

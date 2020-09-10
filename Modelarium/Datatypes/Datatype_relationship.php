@@ -9,6 +9,16 @@ use Illuminate\Support\Str;
 abstract class Datatype_relationship extends Datatype
 {
     /**
+     * Key for getGraphqlField() params. If false, do not recurse to relationship fields, only id.
+     */
+    const RECURSE = 'RECURSE';
+
+    /**
+     * Key for getGraphqlField() params
+     */
+    const RECURSE_INVERSE = 'RECURSE_INVERSE';
+
+    /**
      * One of RelationshipFactory con
      * @var string
      */

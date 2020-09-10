@@ -428,20 +428,17 @@ EOF;
          */
         $graphqlQuery = $this->model->mapFields(
             function (Field $f) {
-                // TODO, hidden is not available. we don't have the directives here.
-                if ($f->getRenderable('modelHidden', false) !== false) {
-                    return null;
-                }
-                return $f->toGraphqlQuery();
+                return \Modelarium\Frontend\Util::fieldShow($f) ? $f->toGraphqlQuery() : null;
             }
         );
-        $graphqlQuery = join("\n", $graphqlQuery);
+        $graphqlQuery = join("\n", array_filter($graphqlQuery));
 
         $itemQuery = <<<EOF
 query (\$id: ID!) {
     {$this->lowerName}(id: \$id) {
         id
         $graphqlQuery
+        can
     }
 }
 EOF;

@@ -2,6 +2,7 @@
 
 namespace Modelarium\Laravel\Console\Commands;
 
+use Formularium\Field;
 use Formularium\FrameworkComposer;
 use Formularium\Model;
 use HaydenPierce\ClassFinder\ClassFinder;

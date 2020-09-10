@@ -3,6 +3,7 @@
 namespace Modelarium\Laravel\Datatypes;
 
 use Formularium\Exception\ValidatorException;
+use Formularium\Field;
 use Formularium\Model;
 
 class Datatype_relationship extends \Modelarium\Datatypes\Datatype_relationship
@@ -35,18 +36,31 @@ class Datatype_relationship extends \Modelarium\Datatypes\Datatype_relationship
      * Returns the Graphql query for this datatype.
      *
      * @param string $name The field name
+     * @param array $params User supplied list of parameters, which may be used
+     * to control behavior (like recursion)
      * @return string
      */
-    public function getGraphqlField(string $name): string
+    public function getGraphqlField(string $name, array $params = []): string
     {
-        if ($this->isInverse) {
-            return '';
+        if (!($params[self::RECURSE] ?? true)) {
+            return null;
         }
-        $model = new $this->targetClass();
+        if (!($params[self::RECURSE_INVERSE] ?? true) && $this->isInverse) {
+            return null;
+        }
+        
+        $model = $this->getTargetClass();
         /**
          * @var \Formularium\Model $formulariumModel
          */
-        $formulariumModel = $model->getFormularium();
-        return $name . "{\nid\n" . $formulariumModel->toGraphqlQuery() . '}';
+        $formulariumModel = call_user_func("$model::getFormularium");
+        $graphqlQuery = $formulariumModel->mapFields(
+            function (Field $f) {
+                return \Modelarium\Frontend\Util::fieldShow($f) ? $f->toGraphqlQuery([self::RECURSE => false]) : null;
+            }
+        );
+        $graphqlQuery = join("\n", array_filter($graphqlQuery));
+
+        return $name . "{\nid\n" . $graphqlQuery . '}';
     }
 }
