@@ -409,6 +409,7 @@ class ModelGenerator extends BaseGenerator
         $namespace->addUse('\\Illuminate\\Database\\Eloquent\\Relations\\HasOne');
         $namespace->addUse('\\Illuminate\\Database\\Eloquent\\Relations\\HasMany');
         $namespace->addUse('\\Illuminate\\Database\\Eloquent\\Relations\\MorphTo');
+        $namespace->addUse('\\Illuminate\\Database\\Eloquent\\Relations\\MorphOne');
         $namespace->addUse('\\Illuminate\\Database\\Eloquent\\Relations\\MorphToMany');
         $namespace->addUse('\\Illuminate\\Support\\Facades\\Auth');
         $namespace->addUse('\\Modelarium\\Laravel\\Datatypes\\Datatype_relationship');
