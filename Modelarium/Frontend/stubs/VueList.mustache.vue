@@ -15,7 +15,6 @@
         {|/filters|}
       </div>
 
-
       <{|StudlyName|}Card v-for="l in list" :key="l.id" v-bind="l"></{|StudlyName|}Card>
 
       <Pagination

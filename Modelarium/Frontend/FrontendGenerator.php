@@ -262,7 +262,7 @@ class FrontendGenerator implements GeneratorInterface
 
         $spinner = $this->composer->nodeElement('Spinner')
         ->addAttribute(
-            'v-if',
+            'v-show',
             'isLoading'
         )->getRenderHTML();
         $this->templateParameters = [
