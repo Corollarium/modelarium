@@ -412,6 +412,7 @@ class ModelGenerator extends BaseGenerator
         $namespace->addUse('\\Illuminate\\Database\\Eloquent\\Relations\\MorphOne');
         $namespace->addUse('\\Illuminate\\Database\\Eloquent\\Relations\\MorphToMany');
         $namespace->addUse('\\Illuminate\\Support\\Facades\\Auth');
+        $namespace->addUse('\\Formularium\\Exception\\NoRandomException');
         $namespace->addUse('\\Modelarium\\Laravel\\Datatypes\\Datatype_relationship');
 
         $this->class = $namespace->addClass('Base' . $this->studlyName);
@@ -421,7 +422,7 @@ class ModelGenerator extends BaseGenerator
 
         $this->methodRandom = new Method('getRandomData');
         $this->methodRandom->addBody(
-            '$data = static::getFormularium()->getRandom(get_called_class() . \'::getRandomDataFilterFields\');' . "\n"
+            '$data = static::getFormularium()->getRandom(get_called_class() . \'::getRandomFieldData\');' . "\n"
         );
 
         $this->processGraphql();
@@ -484,17 +485,16 @@ class ModelGenerator extends BaseGenerator
             ->addBody('return $data;');
         $this->class->addMember($this->methodRandom);
 
-        $this->class->addMethod('getRandomDataFilterFields')
+        $this->class->addMethod('getRandomFieldData')
             ->setPublic()
             ->setStatic()
-            ->setReturnType('bool')
-            ->addComment("Filters fields used for random data generation.")
+            ->addComment("Filters fields and generate random data. Throw NoRandomException for fields you don't want to generate random data, or return a valid value.")
             ->addBody('
 $d = $f->getDatatype();
 if ($d instanceof Datatype_relationship) {
-    return false;
+    throw new NoRandomException($f->getName());
 }
-return true;')
+return $f->getDatatype()->getRandom();')
             ->addParameter('f')->setType('Formularium\Field');
 
         // TODO perhaps we can use PolicyGenerator->policyClasses to auto generate
