@@ -4,8 +4,10 @@
 
     <div class="modelarium-table__header">{|{buttonCreate}|}</div>
 
+    {|{ spinner }|}
+
     <div class="modelarium-table__container" v-if="list.length">
-      {|{ tablelist }|} {|{ spinner }|}
+      {|{ tablelist }|}
       <Pagination
         v-bind="pagination"
         @page="pagination.currentPage = $event"
@@ -25,7 +27,7 @@ export default {
     return {
       type: "{|lowerName|}",
       list: [],
-      isLoading: false,
+      isLoading: true,
       pagination: {
         currentPage: 1,
         lastPage: 1,

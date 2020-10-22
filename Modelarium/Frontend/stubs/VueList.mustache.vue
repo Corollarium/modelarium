@@ -6,6 +6,8 @@
       {|{buttonCreate}|}
     </div>
 
+    {|{ spinner }|}
+
     <div class="modelarium-list__list" v-if="list.length">
       <div class="modelarium-list__filters">
         {|#filters|}
@@ -16,7 +18,6 @@
 
       <{|StudlyName|}Card v-for="l in list" :key="l.id" v-bind="l"></{|StudlyName|}Card>
 
-      {|{ spinner }|}
       <Pagination
         v-bind="pagination"
         @page="pagination.currentPage = $event"
@@ -38,7 +39,7 @@ export default {
     return {
       type: "{|lowerName|}",
       list: [],
-      isLoading: false,
+      isLoading: true,
       pagination: {
         currentPage: 1,
         lastPage: 1,
