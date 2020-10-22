@@ -110,6 +110,8 @@ export default {
           }
           const data = result.data.data;
           this.$set(this, "selectable", data[this.targetTypePlural].data);
+          // TODO: notify if more than 1 page const paginatorInfo = data[this.targetTypePlural].paginatorInfo;
+          // this.$set(this, "paginatorInfo", paginatorInfo);
         })
         .finally(() => {
           this.isLoading = false;

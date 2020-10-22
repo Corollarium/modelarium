@@ -17,6 +17,7 @@
         :aria-label="placeholder"
         @submit="onSubmit"
       ></autocomplete>
+      <div>Total results: {{ paginatorInfo.total }}</div>
       <!--
       <input
         v-model="selectableQuery"
@@ -86,11 +87,23 @@ export default {
     return {
       value: [],
       errorMessage: "",
+      /**
+       * Returned results
+       */
       selectable: [],
       /**
        * What the user is typing
        */
       selectableQuery: "",
+      /**
+       * Pagination about returned results
+       */
+      paginatorInfo: {
+        currentPage: 0,
+        lastPage: 0,
+        perPage: 0,
+        total: 0,
+      },
     };
   },
 
@@ -184,10 +197,15 @@ export default {
     },
 
     onSubmit(result) {
+      console.log(result);
       if (this.isMultiple) {
         this.value.push(result.id);
       } else {
-        this.$set(this, "value", result.id);
+        if (result) {
+          this.$set(this, "value", result.id);
+        } else {
+          this.$set(this, "value", 0);
+        }
       }
       this.$emit("input", this.value);
     },
@@ -220,7 +238,9 @@ export default {
           }
           const data = result.data.data;
           const results = data[this.targetTypePlural].data;
+          const paginatorInfo = data[this.targetTypePlural].paginatorInfo;
           this.$set(this, "selectable", results);
+          this.$set(this, "paginatorInfo", paginatorInfo);
           return results;
         })
         .finally(() => {
