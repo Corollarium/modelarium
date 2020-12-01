@@ -93,6 +93,13 @@ class ModelGenerator extends BaseGenerator
      */
     protected $methodRandom = null;
 
+    /**
+     * If true, we have timestamps on the migration.
+     *
+     * @var boolean
+     */
+    protected $migrationTimestamps = false;
+
     public function generate(): GeneratedCollection
     {
         $this->fModel = Model::create($this->studlyName);
@@ -185,7 +192,7 @@ class ModelGenerator extends BaseGenerator
                     ->setBody("return {$this->studlyName}::firstWhere('$fieldName', \$value);")
                     ->addParameter('value');
                 break;
-
+            
             case 'casts':
                 foreach ($directive->arguments as $arg) {
                     /**
@@ -396,6 +403,9 @@ class ModelGenerator extends BaseGenerator
             case 'migrationRememberToken':
                 $this->hidden[] = 'remember_token';
                 break;
+            case 'migrationTimestamps':
+                $this->migrationTimestamps = true;
+                break;
             case 'modelExtends':
                 foreach ($directive->arguments as $arg) {
                     /**
@@ -457,11 +467,13 @@ class ModelGenerator extends BaseGenerator
             ->setComment("The attributes that should be hidden for arrays.\n@var array")
             ->setInitialized();
 
-        $this->class->addProperty('casts')
-            ->setProtected()
-            ->setValue($this->casts)
-            ->setComment("The attributes that should be cast to native types.\n@var array")
-            ->setInitialized();
+        if (!$this->migrationTimestamps) {
+            $this->class->addProperty('timestamps')
+                ->setPublic()
+                ->setValue(false)
+                ->setComment("Do not set timestamps.\n@var boolean")
+                ->setInitialized();
+        }
 
         $this->class->addMethod('getFields')
             ->setPublic()
