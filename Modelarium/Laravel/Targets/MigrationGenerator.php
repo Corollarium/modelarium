@@ -433,7 +433,7 @@ EOF;
             $contents,
             $this->getBasePath(
                 'database/migrations/' .
-                date('Y_m_d_His_') .
+                date('Y_m_d_His') .
                 str_pad((string)(static::$counter++), 3, "0", STR_PAD_LEFT) . // so we keep the same order of types in schema
                 '_' . $this->mode . '_' .
                 $relation .
@@ -473,7 +473,7 @@ EOF;
             $contents,
             $this->getBasePath(
                 'database/migrations/' .
-                date('Y_m_d_His_') .
+                date('Y_m_d_His') .
                 str_pad((string)(static::$counter++), 3, "0", STR_PAD_LEFT) . // so we keep the same order of types in schema
                 '_' . $this->mode . '_' .
                 $type1 . '_' . $type2 .
@@ -518,7 +518,7 @@ EOF;
 
         return $this->getBasePath(
             'database/migrations/' .
-            date('Y_m_d_His_') .
+            date('Y_m_d_His') .
             str_pad((string)(static::$counter++), 3, "0", STR_PAD_LEFT) . // so we keep the same order of types in schema
             '_' . $this->mode . '_' .
             $basename . '_table.php'
