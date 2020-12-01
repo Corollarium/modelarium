@@ -475,6 +475,14 @@ class ModelGenerator extends BaseGenerator
                 ->setInitialized();
         }
 
+        if ($this->casts) {
+            $this->class->addProperty('casts')
+                ->setProtected()
+                ->setValue($this->casts)
+                ->setComment("The attributes that should be cast.\n@var array")
+                ->setInitialized();
+        }
+
         $this->class->addMethod('getFields')
             ->setPublic()
             ->setStatic()

@@ -254,7 +254,8 @@ class MigrationGenerator extends BaseGenerator
             case 'morphTo':
                 $relation = Parser::getDirectiveArgumentByName($directive, 'relation', $lowerName);
                 $base = '$table->unsignedBigInteger("' . $relation . '_id")';
-                $extra[] = '$table->string("' . $relation . '_type");';
+                $extra[] = '$table->string("' . $relation . '_type")' .
+                    ($isRequired ? '' : '->nullable()') . ';';
                 break;
 
             case 'morphedByMany':
