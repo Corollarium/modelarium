@@ -175,6 +175,17 @@ class ModelGenerator extends BaseGenerator
             case 'modelHidden':
                 $this->hidden[] = $fieldName;
                 break;
+
+            case 'migrationUniqueIndex':
+                $this->class->addMethod('from' . Str::studly($fieldName))
+                    ->setPublic()
+                    ->setStatic()
+                    ->setReturnType('\\App\\Models\\' . $this->studlyName)
+                    ->addComment("Factory from the $fieldName unique index")
+                    ->setBody("return {$this->studlyName}::firstWhere('$fieldName', \$value);")
+                    ->addParameter('value');
+                break;
+
             case 'casts':
                 foreach ($directive->arguments as $arg) {
                     /**
@@ -344,7 +355,7 @@ class ModelGenerator extends BaseGenerator
             }
         }
         if (!$relationship) {
-            throw new Exception("Could not find a relationship in {$typeName}");
+            throw new Exception("Could not find a relationship in {$typeName} for {$field->name} in {$sourceTypeName}");
         }
 
         $relationshipDatatype = "relationship:" . ($isInverse ? "inverse:" : "") .
