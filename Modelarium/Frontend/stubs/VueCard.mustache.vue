@@ -6,14 +6,6 @@
   </div>
 </template>
 <script>
-export default {
-  props: {|{propsCode}|},
-
-  computed: {
-    link() {
-      return "/{| lowerName |}/" + this.id;
-    },
-  },
-};
+{|{script}|}
 </script>
 <style></style>

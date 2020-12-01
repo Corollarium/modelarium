@@ -93,8 +93,8 @@ class FrontendGenerator implements GeneratorInterface
                 return $f->getName();
             }, $this->tableFields);
 
-            $vue->setFieldModelVariable('model.');
-            $vue->setExtraProps([
+            $vue->setFieldModelVariable('model.')
+                ->setExtraProps([
                 [
                     'name' => 'id',
                     'type' => 'String',
@@ -104,10 +104,13 @@ class FrontendGenerator implements GeneratorInterface
             $this->vuePublish();
             $this->makeVuePaginationComponent();
             $this->makeJSModel();
+
+            $this->vueCodeItem($vue);
             $this->makeVue($vue, 'Card', 'viewable', $cardFieldNames);
+            $this->vueCodeItem($vue);
+            $this->makeVue($vue, 'TableItem', 'viewable', $tableFieldNames);
             $this->makeVue($vue, 'List', 'viewable');
             $this->makeVue($vue, 'Table', 'viewable');
-            $this->makeVue($vue, 'TableItem', 'viewable', $tableFieldNames);
             $this->makeVue($vue, 'Show', 'viewable');
             $this->makeVue($vue, 'Edit', 'editable');
             $this->makeVue(
@@ -286,6 +289,11 @@ class FrontendGenerator implements GeneratorInterface
         ];
     }
 
+    protected function vueCodeItem(FrameworkVue $vue)
+    {
+        $vue->getVueCode()->appendComputed('link', 'return "/' . $this->lowerName . '/" + this.id');
+    }
+
     public function templateCallback(string $stub, FrameworkVue $vue, array $data, Model $m): string
     {
         $x = $this->templateFile(
@@ -341,6 +349,7 @@ class FrontendGenerator implements GeneratorInterface
                 )
             );
         }
+        $vue->resetVueCode();
     }
 
     protected function getFilters(): array

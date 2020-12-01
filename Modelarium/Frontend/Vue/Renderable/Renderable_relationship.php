@@ -117,8 +117,8 @@ class Renderable_relationship extends Renderable
         // import graphql query
         $query = 'relationList' . $targetModel->getName() . 'Query';
         $targetStudly = Str::studly($datatype->getTarget());
-        $vue->appendImport($query, "raw-loader!../" . $targetStudly . "/queryList.graphql");
-        $vue->appendExtraData($query, $query);
+        $vue->getVueCode()->appendImport($query, "raw-loader!../" . $targetStudly . "/queryList.graphql");
+        $vue->getVueCode()->appendExtraData($query, $query);
         
         $relationship = $datatype->getRelationship();
         if ($relationship === RelationshipFactory::RELATIONSHIP_MANY_TO_MANY ||
