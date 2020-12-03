@@ -18,6 +18,12 @@
             "Modelarium/Boot.php"
         ]
     },
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/mcaskill/composer-merge-plugin"
+        }
+    ],
     "require": {
         "php": ">=7.2.0",
         "doctrine/inflector": "^2.0",
@@ -31,7 +37,7 @@
         "haydenpierce/class-finder": "^0.4.2",
         "nuwave/lighthouse": "^4.15",
         "zordius/lightncandy": "^1.2",
-        "wikimedia/composer-merge-plugin": "dev-master"
+        "wikimedia/composer-merge-plugin": "dev-feature/composer-v2 as 1.5.0"
     },
     "require-dev": {
         "phpunit/phpunit": "^7",
