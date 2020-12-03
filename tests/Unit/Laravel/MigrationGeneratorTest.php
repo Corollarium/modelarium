@@ -175,4 +175,10 @@ final class MigrationGeneratorTest extends TestCase
         $this->assertNotNull($data);
         $this->assertStringContainsString('$table->year(\'year\');', $data);
     }
+
+    public function testEnums()
+    {
+        $this->markTestIncomplete();
+        // TODO: assert enum type files created
+    }
 }

@@ -1,0 +1,10 @@
+enum Enumeratester {
+  FIRST
+  SECOND
+  THIRD
+}
+
+type Enumtyper {
+  id: ID!
+  enumerator: Enumeratester!
+}

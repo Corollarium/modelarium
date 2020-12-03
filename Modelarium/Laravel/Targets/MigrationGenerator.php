@@ -2,6 +2,8 @@
 
 namespace Modelarium\Laravel\Targets;
 
+use Formularium\Exception\ClassNotFoundException;
+use Formularium\Factory\DatatypeFactory;
 use Illuminate\Support\Str;
 use GraphQL\Language\AST\DirectiveNode;
 use GraphQL\Type\Definition\BooleanType;
@@ -18,10 +20,14 @@ use GraphQL\Type\Definition\StringType;
 use GraphQL\Type\Definition\UnionType;
 use Modelarium\BaseGenerator;
 use Modelarium\Exception\Exception;
+use Modelarium\Exception\ScalarNotFoundException;
 use Modelarium\GeneratedCollection;
 use Modelarium\GeneratedItem;
 use Modelarium\Parser;
+use Modelarium\Types\FormulariumScalarType;
+use Nette\PhpGenerator\ClassType;
 
+use function Safe\array_combine;
 use function Safe\rsort;
 
 function getStringBetween(string $string, string $start, string $end): string
@@ -139,7 +145,56 @@ class MigrationGenerator extends BaseGenerator
         } elseif ($type instanceof FloatType) {
             $base = '$table->float("' . $fieldName . '")';
         } elseif ($type instanceof EnumType) {
-            throw new Exception("Enum is not supported here as a type field");
+            $ourType = $this->parser->getScalarType($type->name);
+            if (!$ourType) {
+                $parsedValues = $type->config['values'];
+                $enumValues = array_combine(array_keys($parsedValues), array_keys($parsedValues));
+
+                // let's create this for the user
+                $code = DatatypeFactory::generate(
+                    $type->name,
+                    'enum',
+                    'App\\Datatypes',
+                    'Tests\\Unit',
+                    function (ClassType $enumClass) use ($enumValues) {
+                        $enumClass->addConstant('CHOICES', $enumValues);
+                        $enumClass->getMethod('__construct')->addBody('$this->choices = self::CHOICES;');
+                    }
+                );
+        
+                try {
+                    $path = base_path('app/Datatypes');
+                    $lowerTypeName = mb_strtolower($type->name);
+
+                    $retval = DatatypeFactory::generateFile(
+                        $code,
+                        $path,
+                        base_path('tests/Unit/')
+                    );
+
+                    $php = \Modelarium\Util::generateLighthouseTypeFile($lowerTypeName, 'App\\Datatypes\\Types');
+                    $filename = $path . "/Types/Datatype_{$lowerTypeName}.php";
+                    if (!is_dir($path . "/Types")) {
+                        \Safe\mkdir($path . "/Types", 0777, true);
+                    }
+                    \Safe\file_put_contents($filename, $php);
+            
+                    // recreate scalars
+                    \Modelarium\Util::generateScalarFiles('App\\Datatypes', base_path('graphql/types.graphql'));
+
+                    // load php files
+                    require_once($retval['filename']);
+                    require_once($filename);
+                    $this->parser->appendClass($type->name, 'App\\Datatypes\\Types\\Datatype_' . $lowerTypeName);
+
+                    $ourType = $this->parser->getScalarType($type->name);
+                } catch (Exception $e) {
+                    $this->error($e->getMessage());
+                }
+            }
+            if (!($ourType instanceof FormulariumScalarType)) {
+                throw new Exception("Enum {$type->name} {$fieldName} is not a FormulariumScalarType");
+            }
         } elseif ($type instanceof UnionType) {
             return;
         } elseif ($type instanceof CustomScalarType) {

@@ -85,23 +85,7 @@ class ModelariumDatatypeCommand extends Command
         }
         \Safe\file_put_contents($filename, $php);
 
-        // regenerate graphql
-        $datatypes = [];
-        /** @var array<class-string> $classesInNamespace */
-        $classesInNamespace = ClassFinder::getClassesInNamespace($ns . '\\Types');
-        foreach ($classesInNamespace as $class) {
-            $reflection = new \ReflectionClass($class);
-            if (!$reflection->isInstantiable()) {
-                continue;
-            }
-
-            $datatypes[$class] = substr($class, strpos($class, "Datatype_") + mb_strlen("Datatype_"));
-        }
-        $scalars = \Modelarium\Util::scalars(
-            $datatypes,
-            $ns . '\\Types'
-        );
-        \Safe\file_put_contents(base_path('graphql/types.graphql'), $scalars);
+        \Modelarium\Util::generateScalarFiles($ns, base_path('graphql/types.graphql'));
 
         $this->info('Remember to add `#import types.graphql` to your `graphql/schema.graphql` file.');
     }

@@ -5,6 +5,7 @@ namespace Modelarium;
 use Formularium\Formularium;
 use Illuminate\Support\Str;
 use Nette\PhpGenerator\PhpNamespace;
+use HaydenPierce\ClassFinder\ClassFinder;
 
 final class Util
 {
@@ -62,7 +63,7 @@ EOF;
 
             $graphql[] = "scalar $typeName @scalar(class: \"" .
                 str_replace('\\', '\\\\', $ns . '\\Datatype_' . $name) .
-                "\")";
+                "\")\n";
         }
         
         return $graphql;
@@ -79,4 +80,25 @@ EOF;
             LaravelProcessor::getDirectivesGraphqlString()
         );
     } */
+
+    public static function generateScalarFiles(string $ns, string $path)
+    {
+        // regenerate graphql
+        $datatypes = [];
+        /** @var array<class-string> $classesInNamespace */
+        $classesInNamespace = ClassFinder::getClassesInNamespace($ns . '\\Types');
+        foreach ($classesInNamespace as $class) {
+            $reflection = new \ReflectionClass($class);
+            if (!$reflection->isInstantiable()) {
+                continue;
+            }
+
+            $datatypes[$class] = substr($class, strpos($class, "Datatype_") + mb_strlen("Datatype_"));
+        }
+        $scalars = \Modelarium\Util::scalars(
+            $datatypes,
+            $ns . '\\Types'
+        );
+        \Safe\file_put_contents($path, $scalars);
+    }
 }

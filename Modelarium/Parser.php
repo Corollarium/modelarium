@@ -280,6 +280,7 @@ class Parser
      *
      * @param string $datatype
      * @return ScalarType
+     * @throws ScalarNotFoundException
      */
     public function getScalarType(string $datatype): ?ScalarType
     {
@@ -374,5 +375,10 @@ class Parser
             }
         }
         return $default;
+    }
+
+    public function appendClass(string $scalarName, string $className)
+    {
+        $this->scalars[$scalarName] = $className;
     }
 }
