@@ -131,7 +131,7 @@ directive @modelNotifiable on OBJECT
 """
 Generate renderable
 """
-directive @renderable on FIELD_DEFINITION
+directive @renderable on FIELD_DEFINITION | OBJECT
 
 type Can {
   ability: String!

@@ -5,6 +5,6 @@
 
 namespace Modelarium\Types;
 
-class Datatype_timestamp extends FormulariumScalarType
+class Datatype_languageiso2 extends FormulariumScalarType
 {
 }
