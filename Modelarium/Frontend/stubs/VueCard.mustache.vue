@@ -1,8 +1,10 @@
 <template>
   <div class="{|lowerName|}-card">
-    <router-link :to="link">
-      {{ {| titleField |} }}
-    </router-link>
+    <div {|{containerAtts}|}>
+      <router-link :to="link">
+        {{ {| titleField |} }}
+      </router-link>
+    </div>
   </div>
 </template>
 <script>

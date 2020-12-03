@@ -536,7 +536,10 @@ EOF;
         $this->collection->push(
             new GeneratedItem(
                 GeneratedItem::TYPE_FRONTEND,
-                $this->templateFile($this->stubDir . "/routes.mustache.js"),
+                $this->templateFile(
+                    $this->stubDir . "/routes.mustache.js",
+                    [ 'routeName' => $this->lowerName ]
+                ),
                 $path
             )
         );

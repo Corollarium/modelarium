@@ -1,6 +1,6 @@
 <template>
   <div class="modelarium-show">
-    {|{ form }|}
+    <div {|{containerAtts}|}>{|{ form }|}</div>
 
     <div class="modelarium-show__buttons">
       {|{buttonEdit}|} {|{buttonDelete}|}
