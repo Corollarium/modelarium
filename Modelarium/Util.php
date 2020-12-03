@@ -81,7 +81,15 @@ EOF;
         );
     } */
 
-    public static function generateScalarFiles(string $ns, string $path)
+
+    /**
+     * Generate the scalar Graphql file
+     *
+     * @param string $ns The namespace of the PHP classes
+     * @param string $path The path to the file
+     * @return void
+     */
+    public static function generateScalarFile(string $ns, string $path): void
     {
         // regenerate graphql
         $datatypes = [];
@@ -93,7 +101,7 @@ EOF;
                 continue;
             }
 
-            $datatypes[$class] = substr($class, strpos($class, "Datatype_") + mb_strlen("Datatype_"));
+            $datatypes[$class] = mb_substr($class, strpos($class, "Datatype_") + mb_strlen("Datatype_"));
         }
         $scalars = \Modelarium\Util::scalars(
             $datatypes,

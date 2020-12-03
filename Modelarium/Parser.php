@@ -377,8 +377,16 @@ class Parser
         return $default;
     }
 
-    public function appendClass(string $scalarName, string $className)
+    /**
+     * Appends a scalar in realtime
+     *
+     * @param string $scalarName The scalar name
+     * @param string $className The FQCN
+     * @return self
+     */
+    public function appendScalar(string $scalarName, string $className): self
     {
         $this->scalars[$scalarName] = $className;
+        return $this;
     }
 }

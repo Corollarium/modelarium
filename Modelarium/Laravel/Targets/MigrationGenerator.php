@@ -182,12 +182,12 @@ class MigrationGenerator extends BaseGenerator
                 \Safe\file_put_contents($filename, $php);
         
                 // recreate scalars
-                \Modelarium\Util::generateScalarFiles('App\\Datatypes', base_path('graphql/types.graphql'));
+                \Modelarium\Util::generateScalarFile('App\\Datatypes', base_path('graphql/types.graphql'));
 
                 // load php files that were just created
                 require_once($retval['filename']);
                 require_once($filename);
-                $this->parser->appendClass($type->name, 'App\\Datatypes\\Types\\Datatype_' . $lowerTypeName);
+                $this->parser->appendScalar($type->name, 'App\\Datatypes\\Types\\Datatype_' . $lowerTypeName);
                 $ourType = $this->parser->getScalarType($type->name);
             }
             if (!($ourType instanceof FormulariumScalarType)) {

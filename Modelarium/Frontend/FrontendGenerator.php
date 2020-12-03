@@ -93,8 +93,8 @@ class FrontendGenerator implements GeneratorInterface
                 return $f->getName();
             }, $this->tableFields);
 
-            $vue->setFieldModelVariable('model.')
-                ->setExtraProps([
+            $vue->setFieldModelVariable('model.');
+            $vue->getVueCode()->setExtraProps([
                 [
                     'name' => 'id',
                     'type' => 'String',
@@ -289,7 +289,7 @@ class FrontendGenerator implements GeneratorInterface
         ];
     }
 
-    protected function vueCodeItem(FrameworkVue $vue)
+    protected function vueCodeItem(FrameworkVue $vue): void
     {
         $vue->getVueCode()->appendComputed('link', 'return "/' . $this->lowerName . '/" + this.id');
     }

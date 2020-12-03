@@ -43,17 +43,17 @@ class Datatype_relationship extends \Modelarium\Datatypes\Datatype_relationship
     public function getGraphqlField(string $name, array $params = []): string
     {
         if (!($params[self::RECURSE] ?? true)) {
-            return null;
+            return '';
         }
         if (!($params[self::RECURSE_INVERSE] ?? true) && $this->isInverse) {
-            return null;
+            return '';
         }
         
         $model = $this->getTargetClass();
         /**
          * @var \Formularium\Model $formulariumModel
          */
-        $formulariumModel = call_user_func("$model::getFormularium");
+        $formulariumModel = call_user_func("$model::getFormularium"); /** @phpstan-ignore-line */
         $graphqlQuery = $formulariumModel->mapFields(
             function (Field $f) {
                 return \Modelarium\Frontend\Util::fieldShow($f) ? $f->toGraphqlQuery([self::RECURSE => false]) : null;

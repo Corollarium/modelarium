@@ -85,7 +85,7 @@ class ModelariumDatatypeCommand extends Command
         }
         \Safe\file_put_contents($filename, $php);
 
-        \Modelarium\Util::generateScalarFiles($ns, base_path('graphql/types.graphql'));
+        \Modelarium\Util::generateScalarFile($ns, base_path('graphql/types.graphql'));
 
         $this->info('Remember to add `#import types.graphql` to your `graphql/schema.graphql` file.');
     }
