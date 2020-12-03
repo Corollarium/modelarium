@@ -2,6 +2,7 @@
 
 namespace Modelarium\Laravel\Targets;
 
+use Formularium\Datatype\Datatype_enum;
 use Formularium\Exception\ClassNotFoundException;
 use Formularium\Factory\DatatypeFactory;
 use Illuminate\Support\Str;
@@ -146,9 +147,11 @@ class MigrationGenerator extends BaseGenerator
             $base = '$table->float("' . $fieldName . '")';
         } elseif ($type instanceof EnumType) {
             $ourType = $this->parser->getScalarType($type->name);
+            $parsedValues = $type->config['values'];
+
             if (!$ourType) {
-                $parsedValues = $type->config['values'];
-                $enumValues = array_combine(array_keys($parsedValues), array_keys($parsedValues));
+                $parsedKeys = array_keys($parsedValues);
+                $enumValues = array_combine($parsedKeys, $parsedKeys);
 
                 // let's create this for the user
                 $code = DatatypeFactory::generate(
@@ -162,38 +165,45 @@ class MigrationGenerator extends BaseGenerator
                     }
                 );
         
-                try {
-                    $path = base_path('app/Datatypes');
-                    $lowerTypeName = mb_strtolower($type->name);
+                $path = base_path('app/Datatypes');
+                $lowerTypeName = mb_strtolower($type->name);
 
-                    $retval = DatatypeFactory::generateFile(
-                        $code,
-                        $path,
-                        base_path('tests/Unit/')
-                    );
+                $retval = DatatypeFactory::generateFile(
+                    $code,
+                    $path,
+                    base_path('tests/Unit/')
+                );
 
-                    $php = \Modelarium\Util::generateLighthouseTypeFile($lowerTypeName, 'App\\Datatypes\\Types');
-                    $filename = $path . "/Types/Datatype_{$lowerTypeName}.php";
-                    if (!is_dir($path . "/Types")) {
-                        \Safe\mkdir($path . "/Types", 0777, true);
-                    }
-                    \Safe\file_put_contents($filename, $php);
-            
-                    // recreate scalars
-                    \Modelarium\Util::generateScalarFiles('App\\Datatypes', base_path('graphql/types.graphql'));
-
-                    // load php files
-                    require_once($retval['filename']);
-                    require_once($filename);
-                    $this->parser->appendClass($type->name, 'App\\Datatypes\\Types\\Datatype_' . $lowerTypeName);
-
-                    $ourType = $this->parser->getScalarType($type->name);
-                } catch (Exception $e) {
-                    $this->error($e->getMessage());
+                $php = \Modelarium\Util::generateLighthouseTypeFile($lowerTypeName, 'App\\Datatypes\\Types');
+                $filename = $path . "/Types/Datatype_{$lowerTypeName}.php";
+                if (!is_dir($path . "/Types")) {
+                    \Safe\mkdir($path . "/Types", 0777, true);
                 }
+                \Safe\file_put_contents($filename, $php);
+        
+                // recreate scalars
+                \Modelarium\Util::generateScalarFiles('App\\Datatypes', base_path('graphql/types.graphql'));
+
+                // load php files that were just created
+                require_once($retval['filename']);
+                require_once($filename);
+                $this->parser->appendClass($type->name, 'App\\Datatypes\\Types\\Datatype_' . $lowerTypeName);
+                $ourType = $this->parser->getScalarType($type->name);
             }
             if (!($ourType instanceof FormulariumScalarType)) {
                 throw new Exception("Enum {$type->name} {$fieldName} is not a FormulariumScalarType");
+            }
+
+            /**
+             * @var FormulariumScalarType $ourType
+             */
+            /**
+             * @var Datatype_enum $ourDatatype
+             */
+            $ourDatatype = $ourType->getDatatype();
+            $currentChoices = $ourDatatype->getChoices();
+            if (array_diff_key($currentChoices, $parsedValues) || array_diff_key($parsedValues, $currentChoices)) {
+                // TODO???
             }
         } elseif ($type instanceof UnionType) {
             return;
