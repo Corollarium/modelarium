@@ -13,7 +13,7 @@ class RenderableDirective extends BaseDirective implements DefinedDirective
 """
 Generate renderable
 """
-directive @renderable on FIELD_DEFINITION
+directive @renderable on FIELD_DEFINITION | OBJECT
 SDL;
     }
 }

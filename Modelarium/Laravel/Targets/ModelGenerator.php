@@ -419,6 +419,18 @@ class ModelGenerator extends BaseGenerator
                         $this->parentClassName = $value;
                     }
                 }
+                break;
+            case 'renderable':
+                foreach ($directive->arguments as $arg) {
+                    /**
+                     * @var \GraphQL\Language\AST\ArgumentNode $arg
+                     */
+
+                    $argName = $arg->name->value;
+                    $argValue = $arg->value->value; /** @phpstan-ignore-line */
+                    $this->fModel->appendRenderable($argName, $argValue);
+                }
+                break;
             }
         }
     }
