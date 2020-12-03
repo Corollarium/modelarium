@@ -5,7 +5,6 @@ require(__DIR__ . '/../vendor/autoload.php');
 use Formularium\Datatype;
 use Formularium\Factory\DatatypeFactory;
 use Formularium\Formularium;
-use Illuminate\Support\Str;
 use Modelarium\Laravel\Processor as LaravelProcessor;
 use Modelarium\Util as ModelariumUtil;
 

@@ -6,6 +6,7 @@ use Modelarium\BaseGenerator;
 use Modelarium\GeneratedCollection;
 use Modelarium\GeneratedItem;
 use Illuminate\Support\Str;
+use Modelarium\Laravel\Util as LaravelUtil;
 
 class FactoryGenerator extends BaseGenerator
 {
@@ -27,11 +28,7 @@ class FactoryGenerator extends BaseGenerator
 
     public function generateString(): string
     {
-        $laravelVersion = '7.x'; // default
-        if (function_exists('app')) {
-            // @phpstan-ignore-next-line
-            $laravelVersion = app()->version();
-        }
+        $laravelVersion = LaravelUtil::getLaravelVersion();
         if (Str::startsWith($laravelVersion, '6.') || Str::startsWith($laravelVersion, '7.')) {
             return $this->templateStub('factory');
         }

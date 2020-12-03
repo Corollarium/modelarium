@@ -7,7 +7,6 @@ namespace Database\Factories;
 
 use App\Models\{|studlyName|};
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Str;
 
 class {|studlyName|}Factory extends Factory
 {
