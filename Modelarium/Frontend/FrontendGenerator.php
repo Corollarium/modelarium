@@ -179,6 +179,8 @@ class FrontendGenerator implements GeneratorInterface
 
     protected function buildTemplateParameters(): void
     {
+        $hasVue = $this->composer->getByName('Vue');
+
         $this->cardFields = $this->model->filterField(
             function (Field $field) {
                 return $field->getRenderable('card', false);
@@ -208,8 +210,10 @@ class FrontendGenerator implements GeneratorInterface
         $buttonEdit = $this->composer->nodeElement(
             'Button',
             [
-                Button::TYPE => ($this->composer->getByName('Vue') ? 'router-link' : 'a'),
-                Button::ATTRIBUTES => [':to' => "'/{$this->lowerName}/' + model.id + '/edit'"],
+                Button::TYPE => ($hasVue ? 'router-link' : 'a'),
+                Button::ATTRIBUTES => [
+                    ':to' => "'/{$this->lowerName}/' + model.id + '/edit'"
+                ] + ($hasVue ? [ "v-if" => 'can.edit' ]: []),
             ]
         )->setContent(
             '<i class="fa fa-pencil"></i> Edit',
@@ -225,7 +229,7 @@ class FrontendGenerator implements GeneratorInterface
                 Button::ATTRIBUTES => [
                     'href' => '#',
                     '@click.prevent' => 'remove'
-                ],
+                ] + ($hasVue ? [ "v-if" => 'can.delete' ]: []),
             ]
         )->setContent(
             '<i class="fa fa-trash"></i> Delete',
