@@ -2,7 +2,6 @@
 
 namespace Modelarium;
 
-use Formularium\Formularium;
 use GraphQL\Error\SyntaxError;
 use GraphQL\Language\AST\ArgumentNode;
 use GraphQL\Language\AST\DirectiveNode;
