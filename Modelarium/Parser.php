@@ -121,7 +121,7 @@ class Parser
             $end = $e->getPositions()[0] + 50;
             $start = $start <= 0 ? 0 : $start;
             $end = $end >= $source->length ? $source->length : $end;
-            echo $e->message, "\nat: ...", substr($source->body, $start, $end - $start), '...';
+            echo $e->message, "\nat: ...", mb_substr($source->body, $start, $end - $start), '...';
             throw $e;
         }
 

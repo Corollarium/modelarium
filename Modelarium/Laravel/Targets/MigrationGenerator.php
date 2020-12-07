@@ -30,6 +30,7 @@ use Nette\PhpGenerator\ClassType;
 
 use function Safe\array_combine;
 use function Safe\rsort;
+use function Safe\date;
 
 function getStringBetween(string $string, string $start, string $end): string
 {

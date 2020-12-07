@@ -6,6 +6,7 @@ use Doctrine\Inflector\InflectorFactory;
 use Illuminate\Support\Str;
 use LightnCandy\LightnCandy;
 use Modelarium\Exception\Exception;
+use function Safe\date;
 
 trait GeneratorNameTrait
 {

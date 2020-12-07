@@ -2,10 +2,10 @@
 
 namespace Modelarium;
 
-use Formularium\Formularium;
 use Illuminate\Support\Str;
 use Nette\PhpGenerator\PhpNamespace;
 use HaydenPierce\ClassFinder\ClassFinder;
+use function Safe\date;
 
 final class Util
 {

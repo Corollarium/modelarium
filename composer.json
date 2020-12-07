@@ -46,7 +46,7 @@
     },
     "scripts": {
         "format": "vendor/bin/ecs check Modelarium/ --level clean-code --fix && vendor/bin/ecs check Modelarium/ --level psr12 --fix",
-        "stan": "vendor/bin/phpstan analyse Modelarium",
+        "stan": "php -d memory_limit=-1 vendor/bin/phpstan analyse Modelarium",
         "coverage": "./vendor/bin/phpunit --configuration phpunit.xml --coverage-html docs/coverage-report tests/",
         "test": "./vendor/bin/phpunit --configuration phpunit.xml tests/",
         "buildGraphql": "php util/BuildGraphql.php",

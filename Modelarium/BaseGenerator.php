@@ -5,6 +5,7 @@ namespace Modelarium;
 use GraphQL\Type\Definition\Type;
 use Modelarium\Exception\Exception;
 use Modelarium\Parser;
+use function Safe\date;
 
 abstract class BaseGenerator implements GeneratorInterface
 {
