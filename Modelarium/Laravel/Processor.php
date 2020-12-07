@@ -193,9 +193,11 @@ class Processor extends ModelariumProcessor
             return $collection;
         }
 
+        // @typeSkip
         $directives = $object->astNode->directives;
         foreach ($directives as $directive) {
-            if ($name === 'typeSkip') {
+            $dName = $directive->name->value;
+            if ($dName === 'typeSkip') {
                 return $collection;
             }
         }
