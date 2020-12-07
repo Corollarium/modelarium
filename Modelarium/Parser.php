@@ -3,6 +3,7 @@
 namespace Modelarium;
 
 use Formularium\Formularium;
+use GraphQL\Error\SyntaxError;
 use GraphQL\Language\AST\ArgumentNode;
 use GraphQL\Language\AST\DirectiveNode;
 use GraphQL\Language\AST\DocumentNode;
@@ -112,7 +113,17 @@ class Parser
             $s = \Safe\preg_replace('/^type Query/m', 'extend type Query', $s);
         }
         $extensionSource = implode("\n\n", $sources);
-        $this->ast = \GraphQL\Language\Parser::parse($extensionSource);
+        try {
+            $this->ast = \GraphQL\Language\Parser::parse($extensionSource);
+        } catch (SyntaxError $e) {
+            $source = $e->getSource();
+            $start = $e->getPositions()[0] - 50;
+            $end = $e->getPositions()[0] + 50;
+            $start = $start <= 0 ? 0 : $start;
+            $end = $end >= $source->length ? $source->length : $end;
+            echo $e->message, "\nat: ...", substr($source->body, $start, $end - $start), '...';
+            throw $e;
+        }
 
         // TODO: extendDatatypes
         $this->schema = SchemaExtender::extend(

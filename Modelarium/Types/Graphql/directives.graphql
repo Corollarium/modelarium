@@ -133,6 +133,11 @@ Generate renderable
 """
 directive @renderable on FIELD_DEFINITION | OBJECT
 
+"""
+Do not process this type in Modelarium. Will not create models, migrations, etc
+"""
+directive @typeSkip on OBJECT
+
 type Can {
   ability: String!
   value: Boolean!

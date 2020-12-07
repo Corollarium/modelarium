@@ -193,6 +193,13 @@ class Processor extends ModelariumProcessor
             return $collection;
         }
 
+        $directives = $object->astNode->directives;
+        foreach ($directives as $directive) {
+            if ($name === 'typeSkip') {
+                return $collection;
+            }
+        }
+
         if ($this->runMigration) {
             $collection = $collection->merge((new MigrationGenerator($this->parser, $name, $object))->generate());
         }
