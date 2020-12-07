@@ -78,6 +78,9 @@ class FrontendGenerator implements GeneratorInterface
     public function generate(): GeneratedCollection
     {
         $this->collection = new GeneratedCollection();
+        if ($this->model->getName() !== 'Region') {
+            return $this->collection;
+        }
 
         /**
          * @var FrameworkVue $vue
@@ -86,6 +89,7 @@ class FrontendGenerator implements GeneratorInterface
         // $blade = FrameworkComposer::getByName('Blade');
 
         if ($vue !== null) {
+            $vueCode = $vue->getVueCode();
             $cardFieldNames = array_map(function (Field $f) {
                 return $f->getName();
             }, $this->cardFields);
@@ -94,36 +98,59 @@ class FrontendGenerator implements GeneratorInterface
             }, $this->tableFields);
 
             $vue->setFieldModelVariable('model.');
-            $vue->getVueCode()->setExtraProps([
+            $extraprops = [
                 [
                     'name' => 'id',
                     'type' => 'String',
                     'required' => true
                 ]
-            ]);
+            ];
+            $vueCode->setExtraProps($extraprops);
             $this->vuePublish();
             $this->makeVuePaginationComponent();
             $this->makeJSModel();
 
             $this->vueCodeItem($vue);
+
+            // card
+            foreach ($this->cardFields as $f) {
+                $vueCode->appendExtraProp([
+                    'name' => $f->getName(),
+                    'type' => $vueCode->mapTypeToJs($f->getDatatype()),
+                    'required' => true
+                ]);
+            }
             $this->makeVue($vue, 'Card', 'viewable', $cardFieldNames);
-            $this->vueCodeItem($vue);
+            // reset props
+            $vueCode->setExtraProps($extraprops);
+
+            // table
+            foreach ($this->tableFields as $f) {
+                $vueCode->appendExtraProp([
+                    'name' => $f->getName(),
+                    'type' => $vueCode->mapTypeToJs($f->getDatatype()),
+                    'required' => true
+                ]);
+            }
             $this->makeVue($vue, 'TableItem', 'viewable', $tableFieldNames);
+
+            // reset props
+            $vueCode->setExtraProps($extraprops);
             $this->makeVue($vue, 'List', 'viewable');
-            $this->makeVue($vue, 'Table', 'viewable');
-            $this->makeVue($vue, 'Show', 'viewable');
-            $this->makeVue($vue, 'Edit', 'editable');
-            $this->makeVue(
-                $vue,
-                'Form',
-                'editable',
-                function (Field $f) {
-                    if (!$f->getExtradata('modelFillable')) {
-                        return false;
-                    }
-                    return true;
-                }
-            );
+            // $this->makeVue($vue, 'Table', 'viewable');
+            // $this->makeVue($vue, 'Show', 'viewable');
+            // $this->makeVue($vue, 'Edit', 'editable');
+            // $this->makeVue(
+            //     $vue,
+            //     'Form',
+            //     'editable',
+            //     function (Field $f) {
+            //         if (!$f->getExtradata('modelFillable')) {
+            //             return false;
+            //         }
+            //         return true;
+            //     }
+            // );
             $this->makeVueRoutes();
             $this->makeVueIndex();
         }
@@ -133,6 +160,11 @@ class FrontendGenerator implements GeneratorInterface
         return $this->collection;
     }
 
+    /**
+     * Publishes the Vue component dependencies
+     *
+     * @return void
+     */
     protected function vuePublish(): void
     {
         $this->collection->push(
@@ -191,15 +223,14 @@ class FrontendGenerator implements GeneratorInterface
                 return $field->getRenderable('table', false);
             }
         );
-        if (!$this->tableFields) {
-            $this->tableFields = $this->cardFields;
-        }
 
         $buttonCreate = $this->composer->nodeElement(
             'Button',
             [
                 Button::TYPE => 'a',
-                Button::ATTRIBUTES => ['href' => "/{$this->lowerName}/edit" ],
+                Button::ATTRIBUTES => [
+                    'href' => "/{$this->lowerName}/edit"
+                ] + ($hasVue ? [ "v-if" => 'can.create' ]: []),
             ]
         )->setContent(
             '<i class="fa fa-plus"></i> Add new',
@@ -293,9 +324,18 @@ class FrontendGenerator implements GeneratorInterface
         ];
     }
 
+    /**
+     * Appends computed item
+     *
+     * @param FrameworkVue $vue
+     * @return void
+     */
     protected function vueCodeItem(FrameworkVue $vue): void
     {
-        $vue->getVueCode()->appendComputed('link', 'return "/' . $this->lowerName . '/" + this.id');
+        $vue->getVueCode()->appendComputed(
+            'link',
+            'return "/' . $this->model->getRenderable('routeBase', $this->lowerName) . '/" + this.id'
+        );
     }
 
     public function templateCallback(string $stub, FrameworkVue $vue, array $data, Model $m): string
