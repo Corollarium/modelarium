@@ -538,7 +538,8 @@ EOF;
                 GeneratedItem::TYPE_FRONTEND,
                 $this->templateFile(
                     $this->stubDir . "/routes.mustache.js",
-                    [ 'routeName' => $this->lowerName ]
+                    // TODO: document routeBase renderable parameter
+                    [ 'routeName' => $this->model->getRenderable('routeBase', $this->lowerName) ]
                 ),
                 $path
             )

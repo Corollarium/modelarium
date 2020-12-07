@@ -7,22 +7,22 @@ import * as components from './index';
 
 export default [
     {
-        path: '/{|lowerName|}',
+        path: '/{|routeName|}',
         name: '{|StudlyName|}List',
         component: components.{| StudlyName |}List
     },
     {
-        path: '/{|lowerName|}/:id?/edit',
+        path: '/{|routeName|}/:id?/edit',
         name: '{|StudlyName|}Edit',
         component: components.{| StudlyName |}Edit
     },
     {
-        path: '/{|lowerName|}/table',
+        path: '/{|routeName|}/table',
         name: '{|StudlyName|}Table',
         component: components.{| StudlyName |}Table
     },
     {
-        path: '/{|lowerName|}/:id',
+        path: '/{|routeName|}/:id',
         name: '{|StudlyName|}Show',
         component: components.{| StudlyName |}Show
     }
