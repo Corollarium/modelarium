@@ -1,8 +1,8 @@
 <template>
   <main class="modelarium-list">
-    <h1 class="modelarium-list__title">{|StudlyName|}</h1>
+    <h1 class="modelarium-list__title" v-if="showTitle">{|StudlyName|}</h1>
 
-    <div class="modelarium-list__header">
+    <div class="modelarium-list__header" v-if="showHeader">
       {|{buttonCreate}|}
     </div>
 
@@ -18,6 +18,7 @@
       <{|StudlyName|}Card v-for="l in list" :key="l.id" v-bind="l"></{|StudlyName|}Card>
 
       <Pagination
+        v-if="showPagination"
         v-bind="pagination"
         @page="pagination.currentPage = $event"
       ></Pagination>
@@ -34,6 +35,21 @@ import axios from 'axios';
 import listQuery from 'raw-loader!./queryList.graphql';
 
 export default {
+  props: {
+    showHeader: {
+      type: Boolean,
+      default: true,
+    },
+    showPagination: {
+      type: Boolean,
+      default: true,
+    },
+    showTitle: {
+      type: Boolean,
+      default: true,
+    }
+  },
+
   data() {
     return {
       type: "{|lowerName|}",
