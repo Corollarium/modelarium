@@ -2,12 +2,12 @@
 
 namespace Modelarium\Laravel\Console\Commands;
 
-use Formularium\Field;
 use Formularium\FrameworkComposer;
-use Formularium\Model;
 use HaydenPierce\ClassFinder\ClassFinder;
 use Illuminate\Console\Command;
+use Modelarium\Parser;
 use Modelarium\Frontend\FrontendGenerator;
+use Modelarium\Laravel\Processor as LaravelProcessor;
 
 class ModelariumFrontendCommand extends Command
 {
@@ -21,6 +21,7 @@ class ModelariumFrontendCommand extends Command
     protected $signature = 'modelarium:frontend
         {name : The model name. Use "*" or "all" for all models}
         {--framework=* : The frameworks to use}
+        {--lighthouse : use lighthouse directives}
         {--overwrite : overwrite files if they exist}
         {--prettier : run prettier on files}
     ';
@@ -36,6 +37,11 @@ class ModelariumFrontendCommand extends Command
      * @var string[] List of Frameworks to be passed to the FrameworkComposer
      */
     protected $frameworks;
+
+    /**
+     * @var Parser
+     */
+    protected $parser = null;
 
     /**
      * Create a new command instance.
@@ -68,6 +74,7 @@ class ModelariumFrontendCommand extends Command
             $this->frameworks = [$this->frameworks];
         }
       
+        $this->loadParser();
         if ($name === '*' || $name === 'all') {
             /** @var array<class-string> $classesInNamespace */
             $classesInNamespace = ClassFinder::getClassesInNamespace('App\\Models');
@@ -88,12 +95,38 @@ class ModelariumFrontendCommand extends Command
         $this->info('Finished frontend.');
     }
 
+    protected function loadParser()
+    {
+        $files = [
+            __DIR__ . '/../../../Types/Graphql/scalars.graphql'
+        ];
+        if ($this->option('lighthouse')) {
+            $files[] = __DIR__ . '/../../Graphql/definitionsLighthouse.graphql';
+        }
+
+        $path = base_path('graphql');
+        $dir = \Safe\scandir($path);
+
+        // parse directives from lighthouse
+        $modelNames = array_diff($dir, array('.', '..'));
+        
+        foreach ($modelNames as $n) {
+            if (mb_strpos($n, '.graphql') === false) {
+                continue;
+            }
+            $files[] = base_path('graphql/' . $n);
+        }
+        $this->parser = new Parser();
+        $this->parser->setImport('directives.graphql', LaravelProcessor::getDirectivesGraphqlString());
+        $this->parser->fromFiles($files);
+    }
+
     protected function generateFromModel(string $name): void
     {
         $composer = FrameworkComposer::create($this->frameworks);
         $model = $name::getFormularium();
 
-        $generator = new FrontendGenerator($composer, $model);
+        $generator = new FrontendGenerator($composer, $model, $this->parser);
         $collection = $generator->generate();
     
         if (!$collection->count()) {

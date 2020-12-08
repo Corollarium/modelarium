@@ -13,10 +13,17 @@ use Formularium\Frontend\Vue\Element\Pagination as PaginationVue;
 use Formularium\Frontend\Vue\Framework as FrameworkVue;
 use Formularium\HTMLNode;
 use Formularium\Renderable;
+use GraphQL\Type\Definition\CustomScalarType;
+use GraphQL\Type\Definition\FieldArgument;
+use GraphQL\Type\Definition\NonNull;
+use GraphQL\Type\Definition\ScalarType as DefinitionScalarType;
+use Modelarium\Exception\Exception;
+use Modelarium\Parser;
 use Modelarium\GeneratedCollection;
 use Modelarium\GeneratedItem;
 use Modelarium\GeneratorInterface;
 use Modelarium\GeneratorNameTrait;
+use Modelarium\Types\ScalarType;
 
 use function Safe\file_get_contents;
 use function Safe\json_encode;
@@ -34,6 +41,11 @@ class FrontendGenerator implements GeneratorInterface
      * @var Model
      */
     protected $model = null;
+
+    /**
+     * @var Parser
+     */
+    protected $parser = null;
 
     /**
      * @var GeneratedCollection
@@ -67,10 +79,11 @@ class FrontendGenerator implements GeneratorInterface
      */
     protected $tableFields = [];
 
-    public function __construct(FrameworkComposer $composer, Model $model)
+    public function __construct(FrameworkComposer $composer, Model $model, Parser $parser)
     {
         $this->composer = $composer;
         $this->model = $model;
+        $this->parser = $parser;
         $this->setBaseName($model->getName());
         $this->buildTemplateParameters();
     }
@@ -86,6 +99,7 @@ class FrontendGenerator implements GeneratorInterface
         // $blade = FrameworkComposer::getByName('Blade');
 
         if ($vue !== null) {
+            // build the fields for cards and tables
             $vueCode = $vue->getVueCode();
             $cardFieldNames = array_map(function (Field $f) {
                 return $f->getName();
@@ -94,6 +108,7 @@ class FrontendGenerator implements GeneratorInterface
                 return $f->getName();
             }, $this->tableFields);
 
+            // set basic data for vue
             $vue->setFieldModelVariable('model.');
             $extraprops = [
                 [
@@ -103,10 +118,11 @@ class FrontendGenerator implements GeneratorInterface
                 ]
             ];
             $vueCode->setExtraProps($extraprops);
+
+            // build basic vue components
             $this->vuePublish();
             $this->makeVuePaginationComponent();
             $this->makeJSModel();
-
             $this->vueCodeItem($vue);
 
             // card
@@ -130,9 +146,8 @@ class FrontendGenerator implements GeneratorInterface
                 ]);
             }
             $this->makeVue($vue, 'TableItem', 'viewable', $tableFieldNames);
-
-            // reset props
             $vueCode->setExtraProps($extraprops);
+
             $this->makeVue($vue, 'List', 'viewable');
             $this->makeVue($vue, 'Table', 'viewable');
             $this->makeVue($vue, 'Show', 'viewable');
@@ -412,9 +427,67 @@ class FrontendGenerator implements GeneratorInterface
         );
         $cardFieldParameters = implode("\n", $cardFieldNames);
 
+        // TODO: @eq
+        $query = $this->parser->getSchema()->getQueryType($this->lowerNamePlural);
+        $filters = [];
+        foreach ($query->getFields() as $field) {
+            if ($field->name === $this->lowerNamePlural) {
+                /**
+                 * @var FieldArgument $arg
+                 */
+                foreach ($field->args as $arg) {
+                    // if you need to parse directives: $directives = $arg->astNode->directives;
+
+                    $type = $arg->getType();
+
+                    $required = false;
+                    if ($type instanceof NonNull) {
+                        $type = $type->getWrappedType();
+                        $required = true;
+                    }
+                    if ($type instanceof DefinitionScalarType) {
+                        $typename = $type->name;
+                    } elseif ($type instanceof CustomScalarType) {
+                        $typename = $arg->getType()->astNode->name->value;
+                    } else {
+                        throw new Exception('Unsupported type in query filter generation for ' . $arg->name);
+                    }
+
+                    $filters[] = [
+                        'name' => $arg->name,
+                        'type' => $typename . ($required ? '!' : '')
+                    ];
+                }
+            }
+        }
+
+        // generate filters for query
+        if ($filters) {
+            $filtersQuery = ', ' . join(
+                ', ',
+                array_map(
+                    function ($item) {
+                        return '$' . $item['name']  . ':' . $item['type'];
+                    },
+                    $filters
+                )
+            );
+            $filtersParams = ', ' . join(
+                ', ',
+                array_map(
+                    function ($item) {
+                        return $item['name'] . ': $' . $item['name'];
+                    },
+                    $filters
+                )
+            );
+        } else {
+            $filtersQuery = $filtersParams = '';
+        }
+
         $listQuery = <<<EOF
-query (\$page: Int!) {
-    {$this->lowerNamePlural}(page: \$page) {
+query (\$page: Int!$filtersQuery) {
+    {$this->lowerNamePlural}(page: \$page$filtersParams) {
         data {
             id
             $cardFieldParameters
@@ -449,8 +522,8 @@ EOF;
         $tableFieldParameters = implode("\n", $tableFieldNames);
 
         $tableQuery = <<<EOF
-query (\$page: Int!) {
-    {$this->lowerNamePlural}(page: \$page) {
+query (\$page: Int!$filtersQuery) {
+    {$this->lowerNamePlural}(page: \$page$filtersParams) {
         data {
             id
             $tableFieldParameters
