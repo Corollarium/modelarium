@@ -78,9 +78,6 @@ class FrontendGenerator implements GeneratorInterface
     public function generate(): GeneratedCollection
     {
         $this->collection = new GeneratedCollection();
-        if ($this->model->getName() !== 'Region') {
-            return $this->collection;
-        }
 
         /**
          * @var FrameworkVue $vue
@@ -137,20 +134,20 @@ class FrontendGenerator implements GeneratorInterface
             // reset props
             $vueCode->setExtraProps($extraprops);
             $this->makeVue($vue, 'List', 'viewable');
-            // $this->makeVue($vue, 'Table', 'viewable');
-            // $this->makeVue($vue, 'Show', 'viewable');
-            // $this->makeVue($vue, 'Edit', 'editable');
-            // $this->makeVue(
-            //     $vue,
-            //     'Form',
-            //     'editable',
-            //     function (Field $f) {
-            //         if (!$f->getExtradata('modelFillable')) {
-            //             return false;
-            //         }
-            //         return true;
-            //     }
-            // );
+            $this->makeVue($vue, 'Table', 'viewable');
+            $this->makeVue($vue, 'Show', 'viewable');
+            $this->makeVue($vue, 'Edit', 'editable');
+            $this->makeVue(
+                $vue,
+                'Form',
+                'editable',
+                function (Field $f) {
+                    if (!$f->getExtradata('modelFillable')) {
+                        return false;
+                    }
+                    return true;
+                }
+            );
             $this->makeVueRoutes();
             $this->makeVueIndex();
         }
