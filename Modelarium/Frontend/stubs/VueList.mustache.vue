@@ -36,6 +36,12 @@ import listQuery from 'raw-loader!./queryList.graphql';
 
 export default {
   props: {
+    {|#filters|}
+    filter{|name|}: {
+      type: String,
+      required: {|requiredJSBoolean|}
+    },
+    {|/filters|}
     showHeader: {
       type: Boolean,
       default: true,
@@ -80,6 +86,16 @@ export default {
     this.index(this.pagination.currentPage);
   },
 
+  computed: {
+    filters() {
+      return {
+        {|#filters|}
+          {|name|}: this.filter{|name|},
+        {|/filters|}
+      };
+    }
+  },
+
   watch: {
     "pagination.currentPage": {
       handler (newVal, oldVal) {
@@ -100,7 +116,7 @@ export default {
         '/graphql',
         {
             query: listQuery,
-            variables: { page },
+            variables: { page, ...this.filters },
         }
       ).then((result) => {
         if (result.data.errors) {

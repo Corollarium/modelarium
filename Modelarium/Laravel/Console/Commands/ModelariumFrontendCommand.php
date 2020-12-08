@@ -95,7 +95,7 @@ class ModelariumFrontendCommand extends Command
         $this->info('Finished frontend.');
     }
 
-    protected function loadParser()
+    protected function loadParser(): void
     {
         $files = [
             __DIR__ . '/../../../Types/Graphql/scalars.graphql'

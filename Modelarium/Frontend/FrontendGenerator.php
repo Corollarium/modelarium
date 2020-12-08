@@ -326,6 +326,7 @@ class FrontendGenerator implements GeneratorInterface
             'buttonCreate' => $buttonCreate,
             'buttonEdit' => $buttonEdit,
             'buttonDelete' => $buttonDelete,
+            'filters' => $this->getFilters(),
             // TODO 'hasCan' => $this->model
             'spinner' => $spinner,
             'tablelist' => $table->getRenderHTML(),
@@ -408,9 +409,55 @@ class FrontendGenerator implements GeneratorInterface
         $vue->resetVueCode();
     }
 
+    /**
+     * Filters for query, which might be used by component for rendering and props
+     *
+     * @return array
+     */
     protected function getFilters(): array
     {
+        $query = $this->parser->getSchema()->getQueryType();
         $filters = [];
+        // find the query that matches our pagination model
+        foreach ($query->getFields() as $field) {
+            if ($field->name === $this->lowerNamePlural) {
+                // found. parse its parameters.
+
+                /**
+                 * @var FieldArgument $arg
+                 */
+                foreach ($field->args as $arg) {
+                    // if you need to parse directives: $directives = $arg->astNode->directives;
+
+                    $type = $arg->getType();
+
+                    $required = false;
+                    if ($type instanceof NonNull) {
+                        $type = $type->getWrappedType();
+                        $required = true;
+                    }
+
+                    if ($type instanceof CustomScalarType) {
+                        $typename = $type->astNode->name->value;
+                    } elseif ($type instanceof DefinitionScalarType) {
+                        $typename = $type->name;
+                    }
+                    // } elseif ($type instanceof Input with @spread) {
+                    else {
+                        // TODO throw new Exception("Unsupported type {$arg->name} in query filter generation for {$this->baseName} " . get_class($type));
+                        continue;
+                    }
+
+                    $filters[] = [
+                        'name' => $arg->name,
+                        'type' => $typename,
+                        'required' => $required,
+                        'requiredJSBoolean' => $required ? 'true' : 'false'
+                    ];
+                }
+                break;
+            }
+        }
         return $filters;
     }
 
@@ -427,47 +474,14 @@ class FrontendGenerator implements GeneratorInterface
         );
         $cardFieldParameters = implode("\n", $cardFieldNames);
 
-        // TODO: @eq
-        $query = $this->parser->getSchema()->getQueryType($this->lowerNamePlural);
-        $filters = [];
-        foreach ($query->getFields() as $field) {
-            if ($field->name === $this->lowerNamePlural) {
-                /**
-                 * @var FieldArgument $arg
-                 */
-                foreach ($field->args as $arg) {
-                    // if you need to parse directives: $directives = $arg->astNode->directives;
-
-                    $type = $arg->getType();
-
-                    $required = false;
-                    if ($type instanceof NonNull) {
-                        $type = $type->getWrappedType();
-                        $required = true;
-                    }
-                    if ($type instanceof DefinitionScalarType) {
-                        $typename = $type->name;
-                    } elseif ($type instanceof CustomScalarType) {
-                        $typename = $arg->getType()->astNode->name->value;
-                    } else {
-                        throw new Exception('Unsupported type in query filter generation for ' . $arg->name);
-                    }
-
-                    $filters[] = [
-                        'name' => $arg->name,
-                        'type' => $typename . ($required ? '!' : '')
-                    ];
-                }
-            }
-        }
-
         // generate filters for query
+        $filters = $this->templateParameters['filters'] ?? [];
         if ($filters) {
             $filtersQuery = ', ' . join(
                 ', ',
                 array_map(
                     function ($item) {
-                        return '$' . $item['name']  . ':' . $item['type'];
+                        return '$' . $item['name']  . ': ' . $item['type'] . ($item['required'] ? '!' : '');
                     },
                     $filters
                 )
