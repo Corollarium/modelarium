@@ -59,6 +59,22 @@ class FrontendGenerator implements GeneratorInterface
     protected $stubDir = __DIR__ . '/stubs';
 
     /**
+     * Attributed used to fetch the item. It must be a unique key, and
+     * defaults to 'id'.
+     *
+     * @var string
+     */
+    protected $keyAttribute = 'id';
+
+    /**
+     * Attributed used to fetch the item. It must be a unique key, and
+     * defaults to lowerName.
+     *
+     * @var string
+     */
+    protected $routeBase = '';
+
+    /**
      * String substitution
      *
      * @var array
@@ -83,6 +99,9 @@ class FrontendGenerator implements GeneratorInterface
     {
         $this->composer = $composer;
         $this->model = $model;
+        // TODO: document keyAttribute renderable parameter
+        $this->keyAttribute = $model->getRenderable('keyAttribute', 'id');
+        $this->routeBase = $this->model->getRenderable('routeBase', $this->lowerName);
         $this->parser = $parser;
         $this->setBaseName($model->getName());
         $this->buildTemplateParameters();
@@ -241,7 +260,7 @@ class FrontendGenerator implements GeneratorInterface
             [
                 Button::TYPE => 'a',
                 Button::ATTRIBUTES => [
-                    'href' => "/{$this->lowerName}/edit"
+                    'href' => "/{$this->routeBase}/edit"
                 ] + ($hasVue ? [ "v-if" => 'can.create' ]: []),
             ]
         )->setContent(
@@ -255,7 +274,7 @@ class FrontendGenerator implements GeneratorInterface
             [
                 Button::TYPE => ($hasVue ? 'router-link' : 'a'),
                 Button::ATTRIBUTES => [
-                    ':to' => "'/{$this->lowerName}/' + model.id + '/edit'"
+                    ':to' => "'/{$this->lowerName}/' + model.{$this->keyAttribute} + '/edit'"
                 ] + ($hasVue ? [ "v-if" => 'can.edit' ]: []),
             ]
         )->setContent(
@@ -328,6 +347,7 @@ class FrontendGenerator implements GeneratorInterface
             'buttonDelete' => $buttonDelete,
             'filters' => $this->getFilters(),
             // TODO 'hasCan' => $this->model
+            'keyAttribute' => $this->keyAttribute,
             'spinner' => $spinner,
             'tablelist' => $table->getRenderHTML(),
             'tableItemFields' => array_keys(array_map(function (Field $f) {
@@ -347,7 +367,7 @@ class FrontendGenerator implements GeneratorInterface
     {
         $vue->getVueCode()->appendComputed(
             'link',
-            'return "/' . $this->model->getRenderable('routeBase', $this->lowerName) . '/" + this.id'
+            'return "/' . $this->routeBase . '/" + this.' . $this->keyAttribute
         );
     }
 
@@ -570,12 +590,20 @@ EOF;
         );
         $graphqlQuery = join("\n", array_filter($graphqlQuery));
 
+        $hasCan = method_exists($this->model, 'getCanAttribute');
+        $canAttribute = $hasCan ? 'can' : '';
+        if ($this->keyAttribute === 'id') {
+            $keyAttributeType = 'ID';
+        } else {
+            $keyAttributeType = $this->model->getField($this->keyAttribute)->getDatatype()->getGraphqlType();
+        }
+
         $itemQuery = <<<EOF
-query (\$id: ID!) {
-    {$this->lowerName}(id: \$id) {
+query (\${$this->keyAttribute}: {$keyAttributeType}!) {
+    {$this->lowerName}({$this->keyAttribute}: \${$this->keyAttribute}) {
         id
         $graphqlQuery
-        can
+        $canAttribute
     }
 }
 EOF;
@@ -666,8 +694,10 @@ EOF;
                 GeneratedItem::TYPE_FRONTEND,
                 $this->templateFile(
                     $this->stubDir . "/routes.mustache.js",
-                    // TODO: document routeBase renderable parameter
-                    [ 'routeName' => $this->model->getRenderable('routeBase', $this->lowerName) ]
+                    [
+                        'routeName' => $this->routeBase,
+                        'keyAttribute' => $this->keyAttribute
+                    ]
                 ),
                 $path
             )

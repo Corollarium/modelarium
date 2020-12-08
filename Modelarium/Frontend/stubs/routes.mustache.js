@@ -12,7 +12,7 @@ export default [
         component: components.{| StudlyName |}List
     },
     {
-        path: '/{|routeName|}/:id?/edit',
+        path: '/{|routeName|}/:{|keyAttribute|}?/edit',
         name: '{|StudlyName|}Edit',
         component: components.{| StudlyName |}Edit
     },
@@ -22,7 +22,7 @@ export default [
         component: components.{| StudlyName |}Table
     },
     {
-        path: '/{|routeName|}/:id',
+        path: '/{|routeName|}/:{|keyAttribute|}',
         name: '{|StudlyName|}Show',
         component: components.{| StudlyName |}Show
     }

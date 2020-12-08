@@ -27,15 +27,19 @@ export default {
   },
 
   created() {
-    this.get(this.$route.params.id);
+    this.load();
   },
 
   methods: {
+    load() {
+      this.get(this.$route.params.{|keyAttribute|});
+    },
+
     get(id) {
       axios
         .post("/graphql", {
           query: itemQuery,
-          variables: { id },
+          variables: { {|keyAttribute|}: id },
         })
         .then((result) => {
           if (result.data.errors) {

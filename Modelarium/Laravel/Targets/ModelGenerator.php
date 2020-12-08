@@ -87,11 +87,18 @@ class ModelGenerator extends BaseGenerator
     protected $traits = [];
 
     /**
-     * cast attributes
+     * Random generation
      *
      * @var Method
      */
     protected $methodRandom = null;
+
+    /**
+     * Do we have a 'can' attribute?
+     *
+     * @var boolean
+     */
+    protected $hasCan = true;
 
     /**
      * If true, we have timestamps on the migration.
@@ -228,6 +235,7 @@ class ModelGenerator extends BaseGenerator
 
         // special types that should be skipped.
         if ($typeName === 'Can') {
+            $this->hasCan = true;
             return;
         }
 
@@ -541,17 +549,19 @@ return $f->getDatatype()->getRandom();')
             ->addParameter('f')->setType('Formularium\Field');
 
         // TODO perhaps we can use PolicyGenerator->policyClasses to auto generate
-        $this->class->addMethod('getCanAttribute')
-            ->setPublic()
-            ->setReturnType('array')
-            ->addComment("Returns the policy permissions for actions such as editing or deleting.\n@return \Formularium\Model")
-            ->addBody(
-                '$policy = new \\App\\Policies\\' . $this->studlyName . 'Policy();' . "\n" .
-                '$user = Auth::user();' . "\n" .
-                'return [' . "\n" .
-                '    //[ "ability" => "create", "value" => $policy->create($user) ]' . "\n" .
-                '];'
-            );
+        if ($this->hasCan) {
+            $this->class->addMethod('getCanAttribute')
+                ->setPublic()
+                ->setReturnType('array')
+                ->addComment("Returns the policy permissions for actions such as editing or deleting.\n@return \Formularium\Model")
+                ->addBody(
+                    '$policy = new \\App\\Policies\\' . $this->studlyName . 'Policy();' . "\n" .
+                    '$user = Auth::user();' . "\n" .
+                    'return [' . "\n" .
+                    '    //[ "ability" => "create", "value" => $policy->create($user) ]' . "\n" .
+                    '];'
+                );
+        }
         
         $printer = new \Nette\PhpGenerator\PsrPrinter;
         return $this->phpHeader() . $printer->printNamespace($namespace);
