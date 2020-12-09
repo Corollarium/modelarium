@@ -128,7 +128,6 @@ class FrontendGenerator implements GeneratorInterface
             }, $this->tableFields);
 
             // set basic data for vue
-            var_dump("xxxx");
             $extraprops = [
                 [
                     'name' => 'id',
