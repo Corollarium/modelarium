@@ -58,8 +58,8 @@ class Renderable_relationship extends Renderable
                 $datatype->getTarget() . 'Card',
                 [
                     'v-for' => 'item in ' . $vue->getVueCode()->getFieldModelVariable() . $datatype->getTargetPlural(),
-                    'v-bind' => 'item', // TODO: check
-                    ':key' => 'item.id' // TODO: check
+                    'v-bind' => 'item',
+                    ':key' => 'item.id'
                 ]
             );
             $previous->appendContent($p);
@@ -67,7 +67,8 @@ class Renderable_relationship extends Renderable
             $previous = new HtmlNode(
                 $datatype->getTarget() . 'Card',
                 [
-                    'v-bind' => $vue->getVueCode()->getFieldModelVariable() . $datatype->getTarget()
+                    'v-bind' => $vue->getVueCode()->getFieldModelVariable() . $datatype->getTarget(),
+                    'v-if' => $vue->getVueCode()->getFieldModelVariable() . $datatype->getTarget()
                 ]
             );
         }
