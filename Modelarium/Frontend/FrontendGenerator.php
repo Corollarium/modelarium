@@ -116,6 +116,9 @@ class FrontendGenerator implements GeneratorInterface
          */
         $vue = $this->composer->getByName('Vue');
         // $blade = FrameworkComposer::getByName('Blade');
+        if ($this->lowerName !== 'appellation') {
+            return $this->collection;
+        }
 
         if ($vue !== null) {
             // build the fields for cards and tables
@@ -128,7 +131,7 @@ class FrontendGenerator implements GeneratorInterface
             }, $this->tableFields);
 
             // set basic data for vue
-            $vue->setFieldModelVariable('model.');
+            var_dump("xxxx");
             $extraprops = [
                 [
                     'name' => 'id',
@@ -427,6 +430,7 @@ class FrontendGenerator implements GeneratorInterface
             );
         }
         $vue->resetVueCode();
+        $vue->getVueCode()->setFieldModelVariable('model.');
     }
 
     /**
@@ -678,7 +682,7 @@ EOF;
             new GeneratedItem(
                 GeneratedItem::TYPE_FRONTEND,
                 implode("\n", $import) . "\n" .
-                "export {\n" .
+                "export default {\n" .
                 implode("\n", $export) . "\n};\n",
                 $path
             )
