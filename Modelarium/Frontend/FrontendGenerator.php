@@ -116,9 +116,6 @@ class FrontendGenerator implements GeneratorInterface
          */
         $vue = $this->composer->getByName('Vue');
         // $blade = FrameworkComposer::getByName('Blade');
-        if ($this->lowerName !== 'appellation') {
-            return $this->collection;
-        }
 
         if ($vue !== null) {
             // build the fields for cards and tables
