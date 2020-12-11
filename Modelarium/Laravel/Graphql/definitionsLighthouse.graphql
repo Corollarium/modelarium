@@ -18,6 +18,12 @@ directive @casts(
   type: String!
 ) on FIELD_DEFINITION
 
+# Directive class: Modelarium\Laravel\Lighthouse\Directives\LaravelMediaLibrary
+"""
+Implement the Laravel Media Library on this model
+"""
+directive @laravelMediaLibrary on OBJECT
+
 # Directive class: Modelarium\Laravel\Lighthouse\Directives\MigrationDefaultValueDirective
 """
 Default value for database column

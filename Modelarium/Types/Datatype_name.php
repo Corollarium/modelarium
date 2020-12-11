@@ -5,6 +5,6 @@
 
 namespace Modelarium\Types;
 
-class Datatype_integer extends FormulariumScalarType
+class Datatype_name extends FormulariumScalarType
 {
 }

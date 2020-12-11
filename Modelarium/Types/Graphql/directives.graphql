@@ -9,6 +9,26 @@ directive @casts(
 ) on FIELD_DEFINITION
 
 """
+Implement the Laravel Media Library attributes on a model
+"""
+directive @laravelMediaLibraryData (
+    """
+    The collection name to use
+    """
+    collection: String
+
+    """
+    The list of fields to compose in the index
+    """
+    fields: [String!]
+) on FIELD_DEFINITION
+
+"""
+Implement the Laravel Media Library on this model, adding interface/traits.
+"""
+directive @laravelMediaLibrary on OBJECT
+
+"""
 Default value for database column
 """
 directive @migrationDefaultValue(
