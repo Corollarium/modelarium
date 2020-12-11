@@ -5,12 +5,13 @@ namespace Modelarium\Laravel\Directives;
 use Modelarium\Laravel\Targets\ModelGenerator;
 use Modelarium\Laravel\Targets\Interfaces\ModelDirectiveInterface;
 
-class LaravelMediaLibraryDataDirective implements ModelDirectiveInterface
+class ModelMustVerifyEmailDirective implements ModelDirectiveInterface
 {
     public static function processModelTypeDirective(
         ModelGenerator $generator,
         \GraphQL\Language\AST\DirectiveNode $directive
     ): void {
+        $generator->traits[] = '\Illuminate\Notifications\MustVerifyEmail';
     }
 
     public static function processModelFieldDirective(

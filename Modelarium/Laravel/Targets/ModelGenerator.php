@@ -104,7 +104,7 @@ class ModelGenerator extends BaseGenerator
      *
      * @var boolean
      */
-    protected $migrationTimestamps = false;
+    public $migrationTimestamps = false;
 
     public function generate(): GeneratedCollection
     {
@@ -175,8 +175,6 @@ class ModelGenerator extends BaseGenerator
         \GraphQL\Type\Definition\FieldDefinition $field,
         \GraphQL\Language\AST\NodeList $directives
     ): void {
-        $fieldName = $field->name;
-
         list($type, $isRequired) = Parser::getUnwrappedType($field->type);
 
         foreach ($directives as $directive) {
@@ -190,28 +188,6 @@ class ModelGenerator extends BaseGenerator
                     $field,
                     $directive
                 );
-            }
-        }
-
-        // TODO: convert to separate classes
-        foreach ($directives as $directive) {
-            $name = $directive->name->value;
-            switch ($name) {
-            
-            case 'casts':
-                foreach ($directive->arguments as $arg) {
-                    /**
-                     * @var \GraphQL\Language\AST\ArgumentNode $arg
-                     */
-
-                    $value = $arg->value->value;
-
-                    switch ($arg->name->value) {
-                    case 'type':
-                        $this->casts[$fieldName] = $value;
-                    }
-                }
-                break;
             }
         }
 
@@ -487,52 +463,18 @@ PHP
     protected function processDirectives(
         \GraphQL\Language\AST\NodeList $directives
     ): void {
-        // TODO: convert to separate classes
         foreach ($directives as $directive) {
             $name = $directive->name->value;
             $this->fModel->appendExtradata(FormulariumUtils::directiveToExtradata($directive));
 
-            switch ($name) {
-            case 'migrationSoftDeletes':
-                $this->traits[] = '\Illuminate\Database\Eloquent\SoftDeletes';
-                break;
-            case 'modelNotifiable':
-                $this->traits[] = '\Illuminate\Notifications\Notifiable';
-                break;
-            case 'modelMustVerifyEmail':
-                $this->traits[] = '\Illuminate\Notifications\MustVerifyEmail';
-                break;
-            case 'migrationRememberToken':
-                $this->hidden[] = 'remember_token';
-                break;
-            case 'migrationTimestamps':
-                $this->migrationTimestamps = true;
-                break;
-            case 'modelExtends':
-                foreach ($directive->arguments as $arg) {
-                    /**
-                     * @var \GraphQL\Language\AST\ArgumentNode $arg
-                     */
-
-                    $value = $arg->value->value;
-
-                    switch ($arg->name->value) {
-                    case 'class':
-                        $this->parentClassName = $value;
-                    }
-                }
-                break;
-            case 'renderable':
-                foreach ($directive->arguments as $arg) {
-                    /**
-                     * @var \GraphQL\Language\AST\ArgumentNode $arg
-                     */
-
-                    $argName = $arg->name->value;
-                    $argValue = $arg->value->value; /** @phpstan-ignore-line */
-                    $this->fModel->appendRenderable($argName, $argValue);
-                }
-                break;
+            $className = $this->getDirectiveClass($name);
+            if ($className) {
+                $methodName = "$className::processModelTypeDirective";
+                /** @phpstan-ignore-next-line */
+                $methodName(
+                    $this,
+                    $directive
+                );
             }
         }
     }

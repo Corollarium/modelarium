@@ -225,6 +225,8 @@ class MigrationGenerator extends BaseGenerator
             $base .= '->nullable()';
         }
 
+        // TODO: call directive class
+
         foreach ($directives as $directive) {
             /**
              * @var DirectiveNode $directive

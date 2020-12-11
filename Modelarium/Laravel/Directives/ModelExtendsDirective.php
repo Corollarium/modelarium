@@ -5,7 +5,7 @@ namespace Modelarium\Laravel\Directives;
 use Modelarium\Laravel\Targets\ModelGenerator;
 use Modelarium\Laravel\Targets\Interfaces\ModelDirectiveInterface;
 
-class LaravelMediaLibraryDataDirective implements ModelDirectiveInterface
+class ModelExtendsDirective implements ModelDirectiveInterface
 {
     public static function processModelTypeDirective(
         ModelGenerator $generator,
@@ -18,6 +18,19 @@ class LaravelMediaLibraryDataDirective implements ModelDirectiveInterface
         \GraphQL\Type\Definition\FieldDefinition $field,
         \GraphQL\Language\AST\DirectiveNode $directive
     ): void {
+        foreach ($directive->arguments as $arg) {
+            /**
+             * @var \GraphQL\Language\AST\ArgumentNode $arg
+             */
+
+            $value = $arg->value->value;
+
+            switch ($arg->name->value) {
+                case 'class':
+                    $generator->parentClassName = $value;
+                break;
+            }
+        }
     }
 
     public function processModelRelationshipDirective(

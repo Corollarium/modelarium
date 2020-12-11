@@ -29,7 +29,7 @@ class MigrationRememberTokenDirective implements MigrationDirectiveInterface, Mo
         ModelGenerator $generator,
         \GraphQL\Language\AST\DirectiveNode $directive
     ): void {
-        throw new Exception("Primary index is not implemented yet");
+        $generator->hidden[] = 'remember_token';
     }
 
     public static function processModelFieldDirective(

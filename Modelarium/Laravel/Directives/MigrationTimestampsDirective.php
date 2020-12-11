@@ -29,7 +29,7 @@ class MigrationTimestampsDirective implements MigrationDirectiveInterface, Model
         ModelGenerator $generator,
         \GraphQL\Language\AST\DirectiveNode $directive
     ): void {
-        throw new Exception("Primary index is not implemented yet");
+        $generator->migrationTimestamps = true;
     }
 
     public static function processModelFieldDirective(
