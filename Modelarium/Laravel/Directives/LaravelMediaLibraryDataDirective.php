@@ -36,6 +36,11 @@ class LaravelMediaLibraryDataDirective implements ModelDirectiveInterface
             $generator->class->addTrait('\\Spatie\\MediaLibrary\\InteractsWithMedia');
         }
 
+        $conversion = '';
+        $width = 200;
+        $height = 200;
+        $responsive = false;
+
         // args
         foreach ($directive->arguments as $arg) {
             /**
@@ -53,7 +58,19 @@ class LaravelMediaLibraryDataDirective implements ModelDirectiveInterface
                         $customFields[] = $item->value;
                     }
                 break;
-                }
+                case 'conversion':
+                    $conversion = $arg->value->value;
+                break;
+                case 'width':
+                    $width = $arg->value->value;
+                break;
+                case 'height':
+                    $height = $arg->value->value;
+                break;
+                case 'responsive':
+                    $responsive = $arg->value->value;
+                break;
+            }
         }
         $studlyCollection = Str::studly($collection);
 
@@ -66,14 +83,34 @@ class LaravelMediaLibraryDataDirective implements ModelDirectiveInterface
         } else {
             $registerMediaCollections = $generator->class->getMethod("registerMediaCollections");
         }
-        $registerMediaCollections->addBody("\$generator->addMediaCollection(?);\n", [$collection]);
+        $registerMediaCollections->addBody("\$this->addMediaCollection(?);\n", [$collection]);
+
+        // conversion
+        if ($conversion) {
+            if (!$generator->class->hasMethod("registerMediaConversions")) {
+                $registerMediaConversions = $generator->class->addMethod("registerMediaConversions")
+                        ->setPublic()
+                        ->setReturnType('void')
+                        ->addComment("Configures Laravel media-library conversions");
+            } else {
+                $registerMediaConversions = $generator->class->getMethod("registerMediaConversions");
+            }
+            $registerMediaConversions->addBody(
+                "\$this->addMediaConversions(?)" .
+                    ($width ? '->width(?)' : '') .
+                    ($height ? '->height(?)' : '') .
+                    ($responsive ? '->withResponsiveImages()' : '') .
+                ";\n",
+                array_merge([$conversion], ($width ? [$width] : []), ($height ? [$height] : []))
+            );
+        }
 
         // all image models for this collection
         $generator->class->addMethod("getMedia{$studlyCollection}Collection")
                 ->setPublic()
                 ->setReturnType('\\Spatie\\MediaLibrary\\MediaCollections\\Models\\Collections\\MediaCollection')
                 ->addComment("Returns a collection media from Laravel-MediaLibrary")
-                ->setBody("return \$generator->getMedia(?);", [$collection]);
+                ->setBody("return \$this->getMedia(?);", [$collection]);
 
         // custom fields
         $generator->class->addMethod("getMedia{$studlyCollection}CustomFields")
@@ -88,7 +125,7 @@ class LaravelMediaLibraryDataDirective implements ModelDirectiveInterface
                 ->addComment("Returns the media attribute (url) for the $collection")
                 ->setBody( /** @lang PHP */
                     <<< PHP
-    \$image = \$generator->getMedia{$studlyCollection}Collection()->first();
+    \$image = \$this->getMedia{$studlyCollection}Collection()->first();
     if (\$image) {
         return \$image->getUrl();
     }
@@ -103,10 +140,10 @@ class LaravelMediaLibraryDataDirective implements ModelDirectiveInterface
                 ->addComment("Returns media attribute for the $collection media with custom fields")
                 ->setBody( /** @lang PHP */
                     <<< PHP
-    \$image = \$generator->getMedia{$studlyCollection}Collection()->first();
+    \$image = \$this->getMedia{$studlyCollection}Collection()->first();
 if (\$image) {
 \$customFields = [];
-foreach (\$generator->getMedia{$studlyCollection}CustomFields() as \$c) {
+foreach (\$this->getMedia{$studlyCollection}CustomFields() as \$c) {
     \$customFields[\$c] = \$image->getCustomProperty(\$c);
 }
 return [
