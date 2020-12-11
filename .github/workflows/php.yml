@@ -1,0 +1,98 @@
+name: build
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php-versions: ["7.2", "7.3", "7.4"]
+
+    name: PHP ${{ matrix.php-versions }} Test
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Validate composer.json and composer.lock
+        run: composer validate
+
+      - name: Cache Composer packages
+        id: composer-cache
+        uses: actions/cache@v2
+        with:
+          path: vendor
+          key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-php-
+
+      - name: Install dependencies
+        if: steps.composer-cache.outputs.cache-hit != 'true'
+        run: composer install --prefer-dist --no-progress --no-suggest
+
+      # Add a test script to composer.json, for instance: "test": "vendor/bin/phpunit"
+      # Docs: https://getcomposer.org/doc/articles/scripts.md
+
+      - name: Run test suite
+        run: composer run-script test
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Cache Composer packages
+        id: composer-cache
+        uses: actions/cache@v2
+        with:
+          path: vendor
+          key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-php-
+
+      - name: Install dependencies
+        if: steps.composer-cache.outputs.cache-hit != 'true'
+        run: composer install --prefer-dist --no-progress --no-suggest
+
+      - name: Generate coverage clover
+        env:
+          CODE_COVERAGE: yes
+        run: vendor/bin/phpunit --bootstrap vendor/autoload.php --whitelist Modelarium --coverage-clover ./clover.xml tests/
+
+      # For code coverage report we are uploading our code coverage report to scrutinizer
+      - name: Downloading scrutinizer ocular.phar
+        run: wget https://scrutinizer-ci.com/ocular.phar
+
+      # Uploading reports for analysis
+      - name: Uploading code coverage to scrutinize
+        run: php ocular.phar code-coverage:upload --format=php-clover ./clover.xml
+
+      - name: Quality assurance
+        env:
+          STATIC_ANALYSIS: yes
+        run: composer stan
+
+      - name: Coverage html
+        env:
+          STATIC_ANALYSIS: yes
+        run: composer coverage
+
+      - name: Create api doc
+        env:
+          DOCUMENTATION: yes
+        run: composer apidoc
+
+      - name: Nojekyll
+        run: touch docs/coverage-report/.nojekyll
+
+#       - name: Deploy 🚀
+#         uses: JamesIves/github-pages-deploy-action@3.7.1
+#         with:
+#           GITHUB_TOKEN: ${{ secrets.PUBLISH_GITHUB_TOKEN }}
+#           BRANCH: gh-pages # The branch the action should deploy to.
+#           FOLDER: docs/ # The folder the action should deploy.
+#           CLEAN: true # Automatically remove deleted files from the deploy branch
+
