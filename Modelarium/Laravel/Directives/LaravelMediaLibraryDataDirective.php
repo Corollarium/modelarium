@@ -59,15 +59,19 @@ class LaravelMediaLibraryDataDirective implements ModelDirectiveInterface
                     }
                 break;
                 case 'conversion':
+                    /** @phpstan-ignore-next-line */
                     $conversion = $arg->value->value;
                 break;
                 case 'width':
+                    /** @phpstan-ignore-next-line */
                     $width = $arg->value->value;
                 break;
                 case 'height':
+                    /** @phpstan-ignore-next-line */
                     $height = $arg->value->value;
                 break;
                 case 'responsive':
+                    /** @phpstan-ignore-next-line */
                     $responsive = $arg->value->value;
                 break;
             }

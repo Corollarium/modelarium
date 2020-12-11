@@ -218,7 +218,6 @@ class ModelGenerator extends BaseGenerator
         $generateRandom = false;
         $sourceTypeName = $this->lowerName;
         $targetTypeName = $lowerName;
-        $relationship = null;
         $isInverse = false;
 
         foreach ($directives as $directive) {
@@ -251,16 +250,11 @@ class ModelGenerator extends BaseGenerator
         }
 
         if (!$relationshipDatatype) {
-            if (!$relationship) {
-                // TODO: generate a warning, perhaps?
-                // throw new Exception("Could not find a relationship in {$typeName} for {$field->name} in {$sourceTypeName}");
-                return;
-            }
-    
-            $relationshipDatatype = "relationship:" . ($isInverse ? "inverse:" : "") .
-               "$relationship:$sourceTypeName:$targetTypeName";
+            // TODO: generate a warning, perhaps?
+            // throw new Exception("Could not find a relationship in {$typeName} for {$field->name} in {$sourceTypeName}");
+            return;
         }
-
+    
         $this->processField($relationshipDatatype, $field, $directives, $isRequired);
 
         // TODO
