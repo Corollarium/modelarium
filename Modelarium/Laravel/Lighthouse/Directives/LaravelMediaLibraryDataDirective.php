@@ -42,7 +42,7 @@ directive @laravelMediaLibraryData (
     """
     If true, runs withResponsiveImages().
     """
-    responsive: Bool
+    responsive: Boolean
 
 ) on FIELD_DEFINITION
 

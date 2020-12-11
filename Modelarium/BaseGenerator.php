@@ -21,7 +21,7 @@ abstract class BaseGenerator implements GeneratorInterface
     /**
      * @var Parser
      */
-    protected $parser = null;
+    public $parser = null;
 
     /**
      * @var Type

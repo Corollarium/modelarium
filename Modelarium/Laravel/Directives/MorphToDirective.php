@@ -12,7 +12,7 @@ use Modelarium\Laravel\Targets\SeedGenerator;
 use Modelarium\Laravel\Targets\Interfaces\ModelDirectiveInterface;
 use Modelarium\Laravel\Targets\Interfaces\SeedDirectiveInterface;
 
-class MorphedByManyDirective implements ModelDirectiveInterface, SeedDirectiveInterface
+class MorphToDirective implements ModelDirectiveInterface, SeedDirectiveInterface
 {
     public static function processModelTypeDirective(
         ModelGenerator $generator,
@@ -45,41 +45,14 @@ class MorphedByManyDirective implements ModelDirectiveInterface, SeedDirectiveIn
         $targetTypeName = $lowerName;
         $relationship = null;
         $isInverse = false;
-        $targetClass = '\\App\\Models\\' . Str::studly($generator->getInflector()->singularize($field->name));
         $generateRandom = true; // TODO
 
-        $relationship = RelationshipFactory::MORPH_MANY_TO_MANY; // TODO
+        $relationship = RelationshipFactory::MORPH_ONE_TO_MANY; // TODO
         $isInverse = true;
-        $typeMap = $generator->parser->getSchema()->getTypeMap();
-
-        foreach ($typeMap as $name => $object) {
-            if (!($object instanceof ObjectType) || $name === 'Query' || $name === 'Mutation' || $name === 'Subscription') {
-                continue;
-            }
-
-            /**
-             * @var ObjectType $object
-             */
-
-            if (str_starts_with((string)$name, '__')) {
-                // internal type
-                continue;
-            }
-
-            foreach ($object->getFields() as $subField) {
-                $subDirectives = Parser::getDirectives($subField->astNode->directives);
-
-                if (!array_key_exists('morphToMany', $subDirectives)) {
-                    continue;
-                }
-
-                $methodName = $generator->getInflector()->pluralize(mb_strtolower((string)$name));
-                $generator->class->addMethod($methodName)
-                        ->setReturnType('\\Illuminate\\Database\\Eloquent\\Relations\\MorphToMany')
-                        ->setPublic()
-                        ->setBody("return \$this->morphedByMany($name::class, '$lowerName');");
-            }
-        }
+        $generator->class->addMethod($field->name)
+            ->setReturnType('\\Illuminate\\Database\\Eloquent\\Relations\\MorphTo')
+            ->setPublic()
+            ->setBody("return \$this->morphTo();");
 
         return $generator->getRelationshipDatatypeName(
             $relationship,

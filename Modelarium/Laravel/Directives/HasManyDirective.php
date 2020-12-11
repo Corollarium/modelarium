@@ -2,17 +2,14 @@
 
 namespace Modelarium\Laravel\Directives;
 
-use GraphQL\Type\Definition\ObjectType;
 use Illuminate\Support\Str;
-use Modelarium\Exception\Exception;
-use Modelarium\Parser;
 use Modelarium\Datatypes\RelationshipFactory;
 use Modelarium\Laravel\Targets\ModelGenerator;
 use Modelarium\Laravel\Targets\SeedGenerator;
 use Modelarium\Laravel\Targets\Interfaces\ModelDirectiveInterface;
 use Modelarium\Laravel\Targets\Interfaces\SeedDirectiveInterface;
 
-class MorphedByManyDirective implements ModelDirectiveInterface, SeedDirectiveInterface
+class HasManyDirective implements ModelDirectiveInterface, SeedDirectiveInterface
 {
     public static function processModelTypeDirective(
         ModelGenerator $generator,
@@ -34,10 +31,6 @@ class MorphedByManyDirective implements ModelDirectiveInterface, SeedDirectiveIn
         \GraphQL\Type\Definition\FieldDefinition $field,
         \GraphQL\Language\AST\DirectiveNode $directive
     ): string {
-        $name = $directive->name->value;
-        list($type, $isRequired) = Parser::getUnwrappedType($field->type);
-        $typeName = $type->name;
-
         $lowerName = mb_strtolower($generator->getInflector()->singularize($field->name));
         $lowerNamePlural = $generator->getInflector()->pluralize($lowerName);
 
@@ -48,39 +41,13 @@ class MorphedByManyDirective implements ModelDirectiveInterface, SeedDirectiveIn
         $targetClass = '\\App\\Models\\' . Str::studly($generator->getInflector()->singularize($field->name));
         $generateRandom = true; // TODO
 
-        $relationship = RelationshipFactory::MORPH_MANY_TO_MANY; // TODO
-        $isInverse = true;
-        $typeMap = $generator->parser->getSchema()->getTypeMap();
-
-        foreach ($typeMap as $name => $object) {
-            if (!($object instanceof ObjectType) || $name === 'Query' || $name === 'Mutation' || $name === 'Subscription') {
-                continue;
-            }
-
-            /**
-             * @var ObjectType $object
-             */
-
-            if (str_starts_with((string)$name, '__')) {
-                // internal type
-                continue;
-            }
-
-            foreach ($object->getFields() as $subField) {
-                $subDirectives = Parser::getDirectives($subField->astNode->directives);
-
-                if (!array_key_exists('morphToMany', $subDirectives)) {
-                    continue;
-                }
-
-                $methodName = $generator->getInflector()->pluralize(mb_strtolower((string)$name));
-                $generator->class->addMethod($methodName)
-                        ->setReturnType('\\Illuminate\\Database\\Eloquent\\Relations\\MorphToMany')
-                        ->setPublic()
-                        ->setBody("return \$this->morphedByMany($name::class, '$lowerName');");
-            }
-        }
-
+        $relationship = RelationshipFactory::RELATIONSHIP_ONE_TO_MANY;
+        $isInverse = false;
+        $target = $generator->getInflector()->singularize($targetClass);
+        $generator->class->addMethod($lowerNamePlural)
+            ->setPublic()
+            ->setReturnType('\\Illuminate\\Database\\Eloquent\\Relations\\HasMany')
+            ->setBody("return \$this->hasMany($target::class);");
         return $generator->getRelationshipDatatypeName(
             $relationship,
             $isInverse,

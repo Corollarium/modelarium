@@ -248,117 +248,15 @@ class ModelGenerator extends BaseGenerator
                 }
                 continue;
             }
-
-            // TODO: convert to separate classes
-            switch ($name) {
-            case 'hasOne':
-                $relationship = RelationshipFactory::RELATIONSHIP_ONE_TO_ONE;
-                $isInverse = false;
-                $this->class->addMethod($lowerName)
-                    ->setPublic()
-                    ->setReturnType('\\Illuminate\\Database\\Eloquent\\Relations\\HasOne')
-                    ->setBody("return \$this->hasOne($targetClass::class);");
-                break;
-
-            case 'hasMany':
-                $relationship = RelationshipFactory::RELATIONSHIP_ONE_TO_MANY;
-                $isInverse = false;
-                $target = $this->getInflector()->singularize($targetClass);
-                $this->class->addMethod($lowerNamePlural)
-                    ->setPublic()
-                    ->setReturnType('\\Illuminate\\Database\\Eloquent\\Relations\\HasMany')
-                    ->setBody("return \$this->hasMany($target::class);");
-                break;
-
-            case 'morphOne':
-            case 'morphMany':
-            case 'morphToMany':
-                if ($name === 'morphOne') {
-                    $relationship = RelationshipFactory::MORPH_ONE_TO_ONE;
-                } else {
-                    $relationship = RelationshipFactory::MORPH_ONE_TO_MANY;
-                }
-                $isInverse = false;
-
-                $targetType = $this->parser->getType($typeName);
-                if (!$targetType) {
-                    throw new Exception("Cannot get type {$typeName} as a relationship to {$this->baseName}");
-                } elseif (!($targetType instanceof ObjectType)) {
-                    throw new Exception("{$typeName} is not a type for a relationship to {$this->baseName}");
-                }
-                $targetField = null;
-                foreach ($targetType->getFields() as $subField) {
-                    $subDir = Parser::getDirectives($subField->astNode->directives);
-                    if (array_key_exists('morphTo', $subDir) || array_key_exists('morphedByMany', $subDir)) {
-                        $targetField = $subField->name;
-                        break;
-                    }
-                }
-                if (!$targetField) {
-                    throw new Exception("{$targetType} does not have a '@morphTo' or '@morphToMany' field");
-                }
-
-                $this->class->addMethod($field->name)
-                    // TODO: return type
-                    ->setPublic()
-                    ->setBody("return \$this->{$name}($typeName::class, '$targetField');");
-                break;
-    
-            case 'morphTo':
-                $relationship = RelationshipFactory::MORPH_ONE_TO_MANY; // TODO
-                $isInverse = true;
-                $this->class->addMethod($field->name)
-                    ->setReturnType('\\Illuminate\\Database\\Eloquent\\Relations\\MorphTo')
-                    ->setPublic()
-                    ->setBody("return \$this->morphTo();");
-                break;
-
-            case 'morphedByMany':
-                $relationship = RelationshipFactory::MORPH_MANY_TO_MANY; // TODO
-                $isInverse = true;
-                $typeMap = $this->parser->getSchema()->getTypeMap();
-       
-                foreach ($typeMap as $name => $object) {
-                    if (!($object instanceof ObjectType) || $name === 'Query' || $name === 'Mutation' || $name === 'Subscription') {
-                        continue;
-                    }
-
-                    /**
-                     * @var ObjectType $object
-                     */
-
-                    if (str_starts_with((string)$name, '__')) {
-                        // internal type
-                        continue;
-                    }
-
-                    foreach ($object->getFields() as $subField) {
-                        $subDirectives = Parser::getDirectives($subField->astNode->directives);
-
-                        if (!array_key_exists('morphToMany', $subDirectives)) {
-                            continue;
-                        }
-
-                        $methodName = $this->getInflector()->pluralize(mb_strtolower((string)$name));
-                        $this->class->addMethod($methodName)
-                                ->setReturnType('\\Illuminate\\Database\\Eloquent\\Relations\\MorphToMany')
-                                ->setPublic()
-                                ->setBody("return \$this->morphedByMany($name::class, '$lowerName');");
-                    }
-                }
-                break;
-            
-            default:
-                break;
-            }
-        }
-        if (!$relationship) {
-            // TODO: generate a warning, perhaps?
-            // throw new Exception("Could not find a relationship in {$typeName} for {$field->name} in {$sourceTypeName}");
-            return;
         }
 
         if (!$relationshipDatatype) {
+            if (!$relationship) {
+                // TODO: generate a warning, perhaps?
+                // throw new Exception("Could not find a relationship in {$typeName} for {$field->name} in {$sourceTypeName}");
+                return;
+            }
+    
             $relationshipDatatype = "relationship:" . ($isInverse ? "inverse:" : "") .
                "$relationship:$sourceTypeName:$targetTypeName";
         }
