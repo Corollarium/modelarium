@@ -5,6 +5,8 @@ namespace Modelarium;
 use GraphQL\Type\Definition\Type;
 use Modelarium\Exception\Exception;
 use Modelarium\Parser;
+
+use function Safe\class_implements;
 use function Safe\date;
 
 abstract class BaseGenerator implements GeneratorInterface
@@ -55,5 +57,27 @@ abstract class BaseGenerator implements GeneratorInterface
  */
 
 EOF;
+    }
+
+    /**
+     * Gets the classname for a directive implementation interface class.
+     *
+     * @param string $directive The directive name.
+     * @param string $type
+     * @return string|null
+     */
+    protected function getDirectiveClass(
+        string $directive,
+        string $type = ''
+    ): ?string {
+        $ns = 'Modelarium\\Laravel\\Directives';
+        $className = $ns . '\\' . ucfirst($directive);
+        if (!$type) {
+            $type = str_replace('Generator', '', get_called_class());
+        }
+        if (class_exists($className) && in_array($type . 'DirectiveInterface', class_implements($className))) {
+            return $className;
+        }
+        return null;
     }
 }

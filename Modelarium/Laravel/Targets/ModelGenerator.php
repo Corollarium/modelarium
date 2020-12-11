@@ -172,7 +172,7 @@ class ModelGenerator extends BaseGenerator
         $this->fModel->appendField($field);
     }
 
-    protected function processBasetype(
+    protected function processBasetypeDirectives(
         \GraphQL\Type\Definition\FieldDefinition $field,
         \GraphQL\Language\AST\NodeList $directives
     ): void {
@@ -189,6 +189,7 @@ class ModelGenerator extends BaseGenerator
             case 'modelHidden':
                 $this->hidden[] = $fieldName;
                 break;
+            
 
             case 'migrationUniqueIndex':
                 $this->class->addMethod('from' . Str::studly($fieldName))
@@ -364,6 +365,90 @@ class ModelGenerator extends BaseGenerator
                     }
                 }
                 break;
+
+            case 'laravelMediaLibraryData':
+                $collection = 'images'; // TODO
+                $customFields = []; // TODO
+                $studlyFieldName = Str::studly($field->name);
+
+                foreach ($directive->arguments as $arg) {
+                    /**
+                     * @var \GraphQL\Language\AST\ArgumentNode $arg
+                     */
+
+                    switch ($arg->name->value) {
+                    case 'collection':
+                        $collection = $arg->value->value;
+                    break;
+                    case 'fields':
+                        foreach ($arg->value->values as $item) {
+                            $customFields[] = $item->value;
+                        }
+                    break;
+                    }
+                }
+
+                // registration
+                if (!$this->class->hasMethod("registerMediaCollections")) {
+                    $registerMediaCollections = $this->class->addMethod("registerMediaCollections")
+                        ->setPublic()
+                        ->setReturnType('void')
+                        ->addComment("Configures Laravel media-library");
+                } else {
+                    $registerMediaCollections = $this->class->getMethod("registerMediaCollections");
+                }
+                $registerMediaCollections->addBody("\$this->addMediaCollection(?);\n", [$collection]);
+
+                // all image models for this collection
+                $this->class->addMethod("getMedia{$collection}Models")
+                    ->setPublic()
+                    ->setReturnType('\\Spatie\\MediaLibrary\\MediaCollections\\Models\\Collections\\MediaCollection')
+                    ->addComment("Returns a collection media from Laravel-MediaLibrary")
+                    ->setBody("return \$this->getMedia(?);", [$collection]);
+
+                // custom fields
+                $this->class->addMethod("getMedia{$collection}CustomFields")
+                    ->setPublic()
+                    ->setReturnType('array')
+                    ->addComment("Returns custom fields for the media")
+                    ->setBody("return ?;", [$customFields]);
+
+                $this->class->addMethod("get{$studlyFieldName}Attribute")
+                    ->setPublic()
+                    ->setReturnType('array')
+                    ->addComment("Returns the media attribute (url) for the $collection")
+                    ->setBody( /** @lang PHP */
+                        <<< PHP
+        \$image = \$this->get{$collection}Models()->first();
+        if (\$image) {
+            return \$image->getUrl();
+        }
+        return '';
+        PHP
+                    );
+
+                // all image models for this collection
+                $this->class->addMethod("get{$studlyFieldName}dataAttribute")
+                    ->setPublic()
+                    ->setReturnType('array')
+                    ->addComment("Returns media attribute for the $collection media with custom fields")
+                    ->setBody( /** @lang PHP */
+                        <<< PHP
+        \$image = \$this->getMedia{$collection}Models()->first();
+if (\$image) {
+    \$customFields = [];
+    foreach (\$this->getMedia{$collection}CustomFields() as \$c) {
+        \$customFields[\$c] = \$image->getCustomProperty(\$c);
+    }
+    return [
+        'url' => \$image->getUrl(),
+        'fields' => json_encode(\$customFields)
+    ];
+}
+return null;
+PHP
+                    );
+                return;
             
             default:
                 break;
@@ -413,6 +498,10 @@ class ModelGenerator extends BaseGenerator
                 break;
             case 'migrationTimestamps':
                 $this->migrationTimestamps = true;
+                break;
+            case 'laravelMediaLibrary':
+                $this->class->addImplement('Spatie\\MediaLibrary\\HasMedia');
+                $this->class->addTrait('Spatie\\MediaLibrary\\InteractsWithMedia');
                 break;
             case 'modelExtends':
                 foreach ($directive->arguments as $arg) {
@@ -584,7 +673,7 @@ return $f->getDatatype()->getRandom();')
                 // relationship
                 $this->processRelationship($field, $directives);
             } else {
-                $this->processBasetype($field, $directives);
+                $this->processBasetypeDirectives($field, $directives);
             }
         }
 

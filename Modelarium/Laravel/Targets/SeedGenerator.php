@@ -21,7 +21,7 @@ class SeedGenerator extends BaseGenerator
      *
      * @var string[]
      */
-    protected $extraCode = [];
+    public $extraCode = [];
 
     public function generate(): GeneratedCollection
     {
@@ -50,43 +50,16 @@ class SeedGenerator extends BaseGenerator
         \GraphQL\Type\Definition\FieldDefinition $field,
         \GraphQL\Language\AST\NodeList $directives
     ): void {
-        $lowerName = mb_strtolower($this->getInflector()->singularize($field->name));
         foreach ($directives as $directive) {
             $name = $directive->name->value;
-            switch ($name) {
-                case 'belongsToMany':
-                    $type1 = $this->lowerName;
-                    $type2 = $lowerName;
-                    if (strcasecmp($type1, $type2) < 0) { // TODO: check this, might not work
-                        $relationship = mb_strtolower($this->getInflector()->pluralize($field->name));
-                        $this->extraCode[] = $this->makeManyToManySeed($type1, $type2, $relationship);
-                    }
-                break;
-                case 'morphedByMany':
-                    // TODO $relation = Parser::getDirectiveArgumentByName($directive, 'relation', $lowerName);
-                break;
-            default:
-            break;
+            $className = $this->getDirectiveClass($name);
+            if ($className) {
+                call_user_func(
+                    [$className, 'processSeedFieldDirective'],
+                    [$this, $field, $directive]
+                );
             }
         }
-    }
-
-    protected static function makeManyToManySeed(string $sourceModel, string $targetModel, string $relationship): string
-    {
-        return <<<EOF
-
-        try {
-            \${$targetModel}Items = App\\Models\\$targetModel::all();
-            \$model->{$relationship}()->attach(
-                \${$targetModel}Items->random(rand(1, 3))->pluck('id')->toArray()
-            );
-        }
-        catch (\InvalidArgumentException \$e) {
-            \$model->{$relationship}()->attach(
-                \${$targetModel}Items->random(1)->pluck('id')->toArray()
-            );
-        }
-EOF;
     }
 
     public function generateString(): string
