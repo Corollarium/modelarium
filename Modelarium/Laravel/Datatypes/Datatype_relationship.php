@@ -50,17 +50,42 @@ class Datatype_relationship extends \Modelarium\Datatypes\Datatype_relationship
         }
         
         $model = $this->getTargetClass();
-        /**
-         * @var \Formularium\Model $formulariumModel
-         */
-        $formulariumModel = call_user_func("$model::getFormularium"); /** @phpstan-ignore-line */
-        $graphqlQuery = $formulariumModel->mapFields(
-            function (Field $f) {
-                return \Modelarium\Frontend\Util::fieldShow($f) ? $f->toGraphqlQuery([self::RECURSE => false]) : null;
+        if ($this->isMorph()) {
+            $graphqlQuery = ['__typename'];
+            $this->morphableTargets = ['Wine', 'Beer']; // TODO
+            foreach ($this->morphableTargets as $m) {
+                $graphqlQuery[] = "... on $m {";
+                $graphqlQuery[] = "id";
+
+                /**
+                 * @var \Formularium\Model $formulariumModel
+                 */
+                $formulariumModel = call_user_func("\\App\\Models\\$m::getFormularium"); /** @phpstan-ignore-line */
+                $graphqlQuery = array_merge(
+                    $graphqlQuery,
+                    $formulariumModel->mapFields(
+                        function (Field $f) {
+                            return $f->toGraphqlQuery([self::RECURSE => false]);
+                        }
+                    )
+                );
+                $graphqlQuery[] = "}";
             }
-        );
+        } else {
+            /**
+             * @var \Formularium\Model $formulariumModel
+             */
+            $formulariumModel = call_user_func("$model::getFormularium"); /** @phpstan-ignore-line */
+            $graphqlQuery = $formulariumModel->mapFields(
+                function (Field $f) {
+                    return \Modelarium\Frontend\Util::fieldShow($f) ? $f->toGraphqlQuery([self::RECURSE => false]) : null;
+                }
+            );
+            array_unshift($graphqlQuery, 'id');
+        }
+
         $graphqlQuery = join("\n", array_filter($graphqlQuery));
 
-        return $name . "{\nid\n" . $graphqlQuery . '}';
+        return $name . "{\n" . $graphqlQuery . '}';
     }
 }

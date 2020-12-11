@@ -135,4 +135,12 @@ abstract class Datatype_relationship extends Datatype
     {
         return $this->relationship;
     }
+
+    public function isMorph()
+    {
+        return
+            $this->relationship === RelationshipFactory::MORPH_ONE_TO_MANY ||
+            $this->relationship === RelationshipFactory::MORPH_ONE_TO_ONE ||
+            $this->relationship === RelationshipFactory::MORPH_MANY_TO_MANY;
+    }
 }

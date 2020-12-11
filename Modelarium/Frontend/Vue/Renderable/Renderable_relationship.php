@@ -100,6 +100,12 @@ class Renderable_relationship extends Renderable
          * @var Datatype_relationship $datatype
          */
         $datatype = $field->getDatatype();
+        
+        if ($datatype->isMorph()) {
+            // TODO
+            return $previous;
+        }
+
         // @phpstan-ignore-next-line
         $targetModel = call_user_func($datatype->getTargetClass() . '::getFormularium');
         if ($targetModel === false) {
