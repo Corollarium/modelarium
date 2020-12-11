@@ -9,6 +9,6 @@ interface SeedDirectiveInterface
     public static function processSeedFieldDirective(
         SeedGenerator $generator,
         \GraphQL\Type\Definition\FieldDefinition $field,
-        \GraphQL\Language\AST\Node $directive
+        \GraphQL\Language\AST\DirectiveNode $directive
     ): void;
 }

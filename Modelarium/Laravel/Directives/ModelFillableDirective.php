@@ -9,14 +9,14 @@ class ModelFillableDirective implements ModelDirectiveInterface
 {
     public static function processModelTypeDirective(
         ModelGenerator $generator,
-        \GraphQL\Language\AST\Node $directive
+        \GraphQL\Language\AST\DirectiveNode $directive
     ): void {
     }
 
     public static function processModelFieldDirective(
         ModelGenerator $generator,
         \GraphQL\Type\Definition\FieldDefinition $field,
-        \GraphQL\Language\AST\Node $directive
+        \GraphQL\Language\AST\DirectiveNode $directive
     ): void {
         $fieldName = $field->name;
         $generator->fillable[] = $fieldName;
@@ -25,7 +25,7 @@ class ModelFillableDirective implements ModelDirectiveInterface
     public function processModelRelationshipDirective(
         ModelGenerator $generator,
         \GraphQL\Type\Definition\FieldDefinition $field,
-        \GraphQL\Language\AST\Node $directive
+        \GraphQL\Language\AST\DirectiveNode $directive
     ): void {
     }
 }

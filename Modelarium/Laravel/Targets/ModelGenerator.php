@@ -22,7 +22,6 @@ use Modelarium\GeneratedItem;
 use Modelarium\Parser;
 use Modelarium\Types\FormulariumScalarType;
 use Nette\PhpGenerator\Method;
-use GraphQL\Language\AST\DirectiveNode;
 
 class ModelGenerator extends BaseGenerator
 {
@@ -185,6 +184,7 @@ class ModelGenerator extends BaseGenerator
             $className = $this->getDirectiveClass($name);
             if ($className) {
                 $methodName = "$className::processModelFieldDirective";
+                /** @phpstan-ignore-next-line */
                 $methodName(
                     $this,
                     $field,
@@ -383,9 +383,11 @@ class ModelGenerator extends BaseGenerator
 
                     switch ($arg->name->value) {
                     case 'collection':
+                        /** @phpstan-ignore-next-line */
                         $collection = $arg->value->value;
                     break;
                     case 'fields':
+                        /** @phpstan-ignore-next-line */
                         foreach ($arg->value->values as $item) {
                             $customFields[] = $item->value;
                         }

@@ -3,15 +3,33 @@
 namespace Modelarium\Laravel\Directives;
 
 use Illuminate\Support\Str;
+use Modelarium\Laravel\Targets\MigrationGenerator;
 use Modelarium\Laravel\Targets\ModelGenerator;
+use Modelarium\Laravel\Targets\Interfaces\MigrationDirectiveInterface;
 use Modelarium\Laravel\Targets\Interfaces\ModelDirectiveInterface;
 
-class MigrationUniqueIndexDirective implements ModelDirectiveInterface
+class MigrationSoftDeletesDirective implements MigrationDirectiveInterface, ModelDirectiveInterface
 {
+    public static function processMigrationTypeDirective(
+        MigrationGenerator $generator,
+        \GraphQL\Language\AST\DirectiveNode $directive
+    ): void {
+        $generator->createCode[] ='$table->softDeletes();';
+    }
+
+    public static function processMigrationFieldDirective(
+        MigrationGenerator $generator,
+        \GraphQL\Type\Definition\FieldDefinition $field,
+        \GraphQL\Language\AST\DirectiveNode $directive
+    ): void {
+        // nothing
+    }
+
     public static function processModelTypeDirective(
         ModelGenerator $generator,
         \GraphQL\Language\AST\DirectiveNode $directive
     ): void {
+        $generator->traits[] = '\Illuminate\Database\Eloquent\SoftDeletes';
     }
 
     public static function processModelFieldDirective(
@@ -19,15 +37,7 @@ class MigrationUniqueIndexDirective implements ModelDirectiveInterface
         \GraphQL\Type\Definition\FieldDefinition $field,
         \GraphQL\Language\AST\DirectiveNode $directive
     ): void {
-        $fieldName = $field->name;
-        $studlyName = $generator->getStudlyName();
-        $generator->class->addMethod('from' . Str::studly($fieldName))
-            ->setPublic()
-            ->setStatic()
-            ->setReturnType('\\App\\Models\\' . $studlyName)
-            ->addComment("Factory from the $fieldName unique index")
-            ->setBody("return {$studlyName}::firstWhere('$fieldName', \$value);")
-            ->addParameter('value');
+        // nothing
     }
 
     public function processModelRelationshipDirective(
@@ -35,5 +45,6 @@ class MigrationUniqueIndexDirective implements ModelDirectiveInterface
         \GraphQL\Type\Definition\FieldDefinition $field,
         \GraphQL\Language\AST\DirectiveNode $directive
     ): void {
+        // nothing
     }
 }

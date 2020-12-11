@@ -9,6 +9,6 @@ interface PolicyDirectiveInterface
     public static function processPolicyFieldDirective(
         PolicyGenerator $generator,
         \GraphQL\Type\Definition\FieldDefinition $field,
-        \GraphQL\Language\AST\Node $directive
+        \GraphQL\Language\AST\DirectiveNode $directive
     ): void;
 }

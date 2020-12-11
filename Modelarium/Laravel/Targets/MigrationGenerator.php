@@ -80,14 +80,14 @@ class MigrationGenerator extends BaseGenerator
      *
      * @var string[]
      */
-    protected $createCode = [];
+    public $createCode = [];
 
     /**
      * Code used post the create() call
      *
      * @var string[]
      */
-    protected $postCreateCode = [];
+    public $postCreateCode = [];
 
     /**
      * 'create' or 'patch'
@@ -372,53 +372,14 @@ class MigrationGenerator extends BaseGenerator
     ): void {
         foreach ($directives as $directive) {
             $name = $directive->name->value;
-            switch ($name) {
-            case 'migrationSoftDeletes':
-                $this->createCode[] ='$table->softDeletes();';
-                break;
-            case 'migrationPrimaryIndex':
-                // TODO
-                throw new Exception("Primary index is not implemented yet");
-            case 'migrationIndex':
-                $values = $directive->arguments[0]->value->values;
-
-                $indexFields = [];
-                foreach ($values as $value) {
-                    $indexFields[] = $value->value;
-                }
-                if (!count($indexFields)) {
-                    throw new Exception("You must provide at least one field to an index");
-                }
-                $this->createCode[] ='$table->index("' . implode('", "', $indexFields) .'");';
-                break;
-            case 'migrationSpatialIndex':
-                $this->createCode[] ='$table->spatialIndex("' . $directive->arguments[0]->value->value .'");';
-                break;
-
-            case 'migrationFulltextIndex':
-                $values = $directive->arguments[0]->value->values;
-
-                $indexFields = [];
-                foreach ($values as $value) {
-                    $indexFields[] = $value->value;
-                }
-
-                if (!count($indexFields)) {
-                    throw new Exception("You must provide at least one field to a full text index");
-                }
-                $this->postCreateCode[] = "DB::statement('ALTER TABLE " .
-                    $this->lowerNamePlural .
-                    " ADD FULLTEXT fulltext_index (\"" .
-                    implode('", "', $indexFields) .
-                    "\")');";
-                break;
-            case 'migrationRememberToken':
-                $this->createCode[] ='$table->rememberToken();';
-                break;
-            case 'migrationTimestamps':
-                $this->createCode[] ='$table->timestamps();';
-                break;
-            default:
+            $className = $this->getDirectiveClass($name);
+            if ($className) {
+                $methodName = "$className::processMigrationTypeDirective";
+                /** @phpstan-ignore-next-line */
+                $methodName(
+                    $this,
+                    $directive
+                );
             }
         }
     }

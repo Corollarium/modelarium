@@ -156,8 +156,18 @@ trait GeneratorNameTrait
      *
      * @return  string
      */
-    public function getLowerName()
+    public function getLowerName(): string
     {
         return $this->lowerName;
+    }
+
+    /**
+     * Get the value of lowerNamePlural
+     *
+     * @return  string
+     */
+    public function getLowerNamePlural(): string
+    {
+        return $this->lowerNamePlural;
     }
 }

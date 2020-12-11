@@ -25,7 +25,11 @@ class CanDirective implements PolicyDirectiveInterface
             $type = $field->type;
         }
 
-        $model = $type->name; /** @phpstan-ignore-line */;
+        /**
+         * @var DirectiveNode $directive
+         */
+
+        $model = $type->name; /** @phpstan-ignore-line */
         
         foreach ($directive->arguments as $arg) {
             switch ($arg->name->value) {

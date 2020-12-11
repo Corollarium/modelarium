@@ -55,6 +55,7 @@ class SeedGenerator extends BaseGenerator
             $className = $this->getDirectiveClass($name);
             if ($className) {
                 $methodName = "$className::processSeedFieldDirective";
+                /** @phpstan-ignore-next-line */
                 $methodName(
                     $this,
                     $field,

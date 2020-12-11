@@ -10,7 +10,7 @@ class BelongsToManyDirective implements SeedDirectiveInterface
     public static function processSeedFieldDirective(
         SeedGenerator $generator,
         \GraphQL\Type\Definition\FieldDefinition $field,
-        \GraphQL\Language\AST\Node $directive
+        \GraphQL\Language\AST\DirectiveNode $directive
     ): void {
         $type1 = $generator->getLowerName();
         $type2 = mb_strtolower($generator->getInflector()->singularize($field->name));

@@ -54,7 +54,6 @@ class PolicyGenerator extends BaseGenerator
             $this->processDirectives($field, $directives);
         }
 
-
         $printer = new \Nette\PhpGenerator\PsrPrinter;
 
         foreach ($this->policyClasses as $name => $c) {
@@ -83,6 +82,7 @@ class PolicyGenerator extends BaseGenerator
             $className = $this->getDirectiveClass($name);
             if ($className) {
                 $methodName = "$className::processPolicyFieldDirective";
+                /** @phpstan-ignore-next-line */
                 $methodName(
                     $this,
                     $field,
