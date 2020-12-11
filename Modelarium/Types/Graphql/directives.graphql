@@ -21,6 +21,27 @@ directive @laravelMediaLibraryData (
     The list of fields to compose in the index
     """
     fields: [String!]
+
+    """
+    The media conversion name to make, if there's one
+    """
+    conversion: String
+
+    """
+    If there's a conversion, apply this width.
+    """
+    width: Int!
+
+    """
+    If there's a conversion, apply this height.
+    """
+    height: Int!
+    
+    """
+    If true, runs withResponsiveImages().
+    """
+    responsive: Bool
+
 ) on FIELD_DEFINITION
 
 """
