@@ -50,11 +50,11 @@ class MigrationIndexDirective implements MigrationDirectiveInterface, ModelDirec
         // nothing
     }
 
-    public function processModelRelationshipDirective(
+    public static function processModelRelationshipDirective(
         ModelGenerator $generator,
         \GraphQL\Type\Definition\FieldDefinition $field,
         \GraphQL\Language\AST\DirectiveNode $directive
-    ): void {
+    ): string {
         // nothing
     }
 }

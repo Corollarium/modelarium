@@ -40,11 +40,11 @@ class MigrationSoftDeletesDirective implements MigrationDirectiveInterface, Mode
         // nothing
     }
 
-    public function processModelRelationshipDirective(
+    public static function processModelRelationshipDirective(
         ModelGenerator $generator,
         \GraphQL\Type\Definition\FieldDefinition $field,
         \GraphQL\Language\AST\DirectiveNode $directive
-    ): void {
+    ): string {
         // nothing
     }
 }

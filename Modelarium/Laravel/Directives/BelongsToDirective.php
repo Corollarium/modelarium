@@ -9,7 +9,7 @@ use Modelarium\Laravel\Targets\SeedGenerator;
 use Modelarium\Laravel\Targets\Interfaces\ModelDirectiveInterface;
 use Modelarium\Laravel\Targets\Interfaces\SeedDirectiveInterface;
 
-class BelongsToManyDirective implements ModelDirectiveInterface, SeedDirectiveInterface
+class BelongsToDirective implements ModelDirectiveInterface, SeedDirectiveInterface
 {
     public static function processModelTypeDirective(
         ModelGenerator $generator,
@@ -41,13 +41,13 @@ class BelongsToManyDirective implements ModelDirectiveInterface, SeedDirectiveIn
 
         $targetClass = '\\App\\Models\\' . Str::studly($generator->getInflector()->singularize($field->name));
         $generateRandom = true; // TODO
-        $relationship = RelationshipFactory::RELATIONSHIP_MANY_TO_MANY;
+        $relationship = RelationshipFactory::RELATIONSHIP_ONE_TO_MANY;
         $isInverse = true;
-        $generator->class->addMethod($lowerNamePlural)
+        $generator->class->addMethod($lowerName)
             ->setPublic()
-            ->setReturnType('\\Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany')
-            ->setBody("return \$this->belongsToMany($targetClass::class);");
-        
+            ->setReturnType('\\Illuminate\\Database\\Eloquent\\Relations\\BelongsTo')
+            ->setBody("return \$this->belongsTo($targetClass::class);");
+
         $relationshipDatatype = "relationship:" . ($isInverse ? "inverse:" : "") .
             "$relationship:$sourceTypeName:$targetTypeName";
         

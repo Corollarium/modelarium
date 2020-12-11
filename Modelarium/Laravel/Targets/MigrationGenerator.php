@@ -277,9 +277,23 @@ class MigrationGenerator extends BaseGenerator
         $isManyToMany = false;
         foreach ($directives as $directive) {
             $name = $directive->name->value;
-            switch ($name) {
-            case 'migrationSkip':
+            if ($name === 'migrationSkip') {
                 return;
+            }
+
+            // TODO: separate classes
+            // $className = $this->getDirectiveClass($name);
+            // if ($className) {
+            //     $methodName = "$className::processMigrationRelationshipDirective";
+            //     /** @phpstan-ignore-next-line */
+            //     $methodName(
+            //         $this,
+            //         $field,
+            //         $directive
+            //     );
+            // }
+
+            switch ($name) {
             case 'migrationUniqueIndex':
                 $extra[] = '$table->unique("' . $fieldName . '");';
                 break;

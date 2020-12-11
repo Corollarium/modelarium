@@ -213,6 +213,8 @@ class ModelGenerator extends BaseGenerator
             return;
         }
 
+        $relationshipDatatype = null;
+
         $generateRandom = false;
         $sourceTypeName = $this->lowerName;
         $targetTypeName = $lowerName;
@@ -230,31 +232,25 @@ class ModelGenerator extends BaseGenerator
                     $field,
                     $directive
                 );
+
+                $methodName = "$className::processModelRelationshipDirective";
+                /** @phpstan-ignore-next-line */
+                $r = $methodName(
+                    $this,
+                    $field,
+                    $directive
+                );
+                if ($r) {
+                    if ($relationshipDatatype) {
+                        throw new Exception("Overwrting relationship in {$typeName} for {$field->name} in {$this->lowerName}");
+                    }
+                    $relationshipDatatype = $r;
+                }
                 continue;
             }
 
             // TODO: convert to separate classes
             switch ($name) {
-            case 'belongsTo':
-                $generateRandom = true;
-                $relationship = RelationshipFactory::RELATIONSHIP_ONE_TO_MANY;
-                $isInverse = true;
-                $this->class->addMethod($lowerName)
-                    ->setPublic()
-                    ->setReturnType('\\Illuminate\\Database\\Eloquent\\Relations\\BelongsTo')
-                    ->setBody("return \$this->belongsTo($targetClass::class);");
-                break;
-
-            case 'belongsToMany':
-                $generateRandom = true;
-                $relationship = RelationshipFactory::RELATIONSHIP_MANY_TO_MANY;
-                $isInverse = true;
-                $this->class->addMethod($lowerNamePlural)
-                    ->setPublic()
-                    ->setReturnType('\\Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany')
-                    ->setBody("return \$this->belongsToMany($targetClass::class);");
-                break;
-
             case 'hasOne':
                 $relationship = RelationshipFactory::RELATIONSHIP_ONE_TO_ONE;
                 $isInverse = false;
@@ -362,22 +358,25 @@ class ModelGenerator extends BaseGenerator
             return;
         }
 
-        $relationshipDatatype = "relationship:" . ($isInverse ? "inverse:" : "") .
-            "$relationship:$sourceTypeName:$targetTypeName";
+        if (!$relationshipDatatype) {
+            $relationshipDatatype = "relationship:" . ($isInverse ? "inverse:" : "") .
+               "$relationship:$sourceTypeName:$targetTypeName";
+        }
 
         $this->processField($relationshipDatatype, $field, $directives, $isRequired);
 
-        if ($generateRandom) {
-            if ($relationship == RelationshipFactory::RELATIONSHIP_MANY_TO_MANY || $relationship == RelationshipFactory::MORPH_MANY_TO_MANY) {
-                // TODO: do we generate it? seed should do it?
-            } else {
-                $this->methodRandom->addBody(
-                    '$data["' . $lowerName . '_id"] = function () {' . "\n" .
-                '    return factory(' . $targetClass . '::class)->create()->id;'  . "\n" .
-                '};'
-                );
-            }
-        }
+        // TODO
+        // if ($generateRandom) {
+        //     if ($relationship == RelationshipFactory::RELATIONSHIP_MANY_TO_MANY || $relationship == RelationshipFactory::MORPH_MANY_TO_MANY) {
+        //         // TODO: do we generate it? seed should do it?
+        //     } else {
+        //         $this->methodRandom->addBody(
+        //             '$data["' . $lowerName . '_id"] = function () {' . "\n" .
+        //         '    return factory(' . $targetClass . '::class)->create()->id;'  . "\n" .
+        //         '};'
+        //         );
+        //     }
+        // }
     }
 
     protected function processDirectives(

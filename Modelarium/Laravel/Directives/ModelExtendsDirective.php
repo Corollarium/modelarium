@@ -23,6 +23,7 @@ class ModelExtendsDirective implements ModelDirectiveInterface
              * @var \GraphQL\Language\AST\ArgumentNode $arg
              */
 
+            /** @phpstan-ignore-next-line */
             $value = $arg->value->value;
 
             switch ($arg->name->value) {
@@ -33,10 +34,11 @@ class ModelExtendsDirective implements ModelDirectiveInterface
         }
     }
 
-    public function processModelRelationshipDirective(
+    public static function processModelRelationshipDirective(
         ModelGenerator $generator,
         \GraphQL\Type\Definition\FieldDefinition $field,
         \GraphQL\Language\AST\DirectiveNode $directive
-    ): void {
+    ): string {
+        return '';
     }
 }
