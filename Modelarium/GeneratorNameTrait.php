@@ -53,7 +53,7 @@ trait GeneratorNameTrait
      * @param string $fullclass
      * @return array
      */
-    protected static function splitClassName(string $fullclass): array
+    public static function splitClassName(string $fullclass): array
     {
         $classTokens = explode('\\', $fullclass);
         $className = array_pop($classTokens);

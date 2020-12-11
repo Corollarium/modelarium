@@ -2,8 +2,6 @@
 
 namespace Modelarium\Laravel\Targets;
 
-use GraphQL\Language\AST\DirectiveNode;
-use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use Illuminate\Support\Str;
@@ -82,80 +80,19 @@ class PolicyGenerator extends BaseGenerator
     ): void {
         foreach ($directives as $directive) {
             $name = $directive->name->value;
-            switch ($name) {
-            case 'can':
-                $this->processCan($field, $directive);
-            break;
-            default:
-            break;
+            $className = $this->getDirectiveClass($name);
+            if ($className) {
+                $methodName = "$className::processPolicyFieldDirective";
+                $methodName(
+                    $this,
+                    $field,
+                    $directive
+                );
             }
         }
     }
 
-    public function processCan(
-        \GraphQL\Type\Definition\FieldDefinition $field,
-        DirectiveNode $directive
-    ): void {
-        $ability = '';
-        $find = '';
-        $injected = false;
-        $args = false;
-
-        if ($field->type instanceof NonNull) {
-            $type = $field->type->getWrappedType();
-        } else {
-            $type = $field->type;
-        }
-
-        $model = $type->name; /** @phpstan-ignore-line */;
-        
-        foreach ($directive->arguments as $arg) {
-            switch ($arg->name->value) {
-                case 'ability':
-                    // @phpstan-ignore-next-line
-                    $ability = $arg->value->value;
-                break;
-                case 'find':
-                    // @phpstan-ignore-next-line
-                    $find = $arg->value->value;
-                break;
-                case 'model':
-                    // @phpstan-ignore-next-line
-                    $model = $arg->value->value;
-                break;
-                case 'injectArgs':
-                    $injected = true;
-                break;
-                case 'args':
-                    $args = true;
-                break;
-            }
-        }
-
-        list($namespace, $modelClassName, $relativePath) = $this->splitClassName($model);
-
-        $class = $this->getClass($modelClassName);
-
-        $method = $class->addMethod($ability);
-        $method->setPublic()
-            ->setReturnType('bool')
-            ->addBody(
-                'return false;'
-            );
-        $method->addParameter('user')->setType('\\App\\Models\\User')->setNullable(true);
-
-        if ($find) {
-            $method->addParameter('model')->setType('\\App\\Models\\' . $modelClassName);
-        }
-        if ($injected) {
-            $method->addParameter('injectedArgs')->setType('array');
-        }
-        if ($args) {
-            $method->addParameter('staticArgs')->setType('array');
-        }
-    }
-
-    protected function getClass(string $name): ClassType
+    public function getClass(string $name): ClassType
     {
         if (array_key_exists($name, $this->policyClasses)) {
             return $this->policyClasses[$name];

@@ -54,8 +54,8 @@ class SeedGenerator extends BaseGenerator
             $name = $directive->name->value;
             $className = $this->getDirectiveClass($name);
             if ($className) {
-                call_user_func(
-                    [$className, 'processSeedFieldDirective'],
+                $methodName = "$className::processSeedFieldDirective";
+                $methodName(
                     $this,
                     $field,
                     $directive
