@@ -10,7 +10,7 @@ use Nette\PhpGenerator\PhpNamespace;
 
 use function Safe\substr;
 
-class ModelariumDatatypeCommand extends Command
+class ModelariumDirectiveCommand extends Command
 {
     /**
      * The name and signature of the console command.
