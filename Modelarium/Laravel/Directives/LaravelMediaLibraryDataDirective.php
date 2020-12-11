@@ -77,9 +77,9 @@ class LaravelMediaLibraryDataDirective implements ModelDirectiveInterface
         // registration
         if (!$generator->class->hasMethod("registerMediaCollections")) {
             $registerMediaCollections = $generator->class->addMethod("registerMediaCollections")
-                    ->setPublic()
-                    ->setReturnType('void')
-                    ->addComment("Configures Laravel media-library");
+                ->setPublic()
+                ->setReturnType('void')
+                ->addComment("Configures Laravel media-library");
         } else {
             $registerMediaCollections = $generator->class->getMethod("registerMediaCollections");
         }
@@ -89,9 +89,13 @@ class LaravelMediaLibraryDataDirective implements ModelDirectiveInterface
         if ($conversion) {
             if (!$generator->class->hasMethod("registerMediaConversions")) {
                 $registerMediaConversions = $generator->class->addMethod("registerMediaConversions")
-                        ->setPublic()
-                        ->setReturnType('void')
-                        ->addComment("Configures Laravel media-library conversions");
+                    ->setPublic()
+                    ->setReturnType('void')
+                    ->addComment("Configures Laravel media-library conversions");
+                $registerMediaConversions->addParameter('media')
+                    ->setDefaultValue(null)
+                    ->setType('\\Spatie\\MediaLibrary\\MediaCollections\\Models\\Media')
+                    ->setNullable(true);
             } else {
                 $registerMediaConversions = $generator->class->getMethod("registerMediaConversions");
             }
@@ -154,6 +158,8 @@ return [
 return [];
 PHP
                 );
+
+        // TODO: get converted images, thumb https://spatie.be/docs/laravel-medialibrary/v8/converting-images/retrieving-converted-images
         return '';
     }
 }

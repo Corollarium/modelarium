@@ -32,12 +32,12 @@ directive @laravelMediaLibraryData (
     """
     If there's a conversion, apply this width.
     """
-    width: Int!
+    width: Int
 
     """
     If there's a conversion, apply this height.
     """
-    height: Int!
+    height: Int
     
     """
     If true, runs withResponsiveImages().
