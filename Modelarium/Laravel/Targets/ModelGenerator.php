@@ -44,47 +44,47 @@ class ModelGenerator extends BaseGenerator
     /**
      * @var \Nette\PhpGenerator\ClassType
      */
-    protected $class = null;
+    public $class = null;
 
     /**
      * fillable attributes
      *
      * @var array
      */
-    protected $fillable = [];
+    public $fillable = [];
 
     /**
      * fillable attributes
      *
      * @var array
      */
-    protected $hidden = [];
+    public $hidden = [];
 
     /**
      * cast attributes
      *
      * @var array
      */
-    protected $casts = [];
+    public $casts = [];
 
     /**
      *
      * @var string
      */
-    protected $parentClassName = '\Illuminate\Database\Eloquent\Model';
+    public $parentClassName = '\Illuminate\Database\Eloquent\Model';
 
     /**
      * fields
      *
      * @var Model
      */
-    protected $fModel = null;
+    public $fModel = null;
 
     /**
      *
      * @var array
      */
-    protected $traits = [];
+    public $traits = [];
 
     /**
      * Random generation
@@ -172,7 +172,7 @@ class ModelGenerator extends BaseGenerator
         $this->fModel->appendField($field);
     }
 
-    protected function processBasetypeDirectives(
+    protected function processFieldDirectives(
         \GraphQL\Type\Definition\FieldDefinition $field,
         \GraphQL\Language\AST\NodeList $directives
     ): void {
@@ -182,24 +182,21 @@ class ModelGenerator extends BaseGenerator
 
         foreach ($directives as $directive) {
             $name = $directive->name->value;
-            switch ($name) {
-            case 'modelFillable':
-                $this->fillable[] = $fieldName;
-                break;
-            case 'modelHidden':
-                $this->hidden[] = $fieldName;
-                break;
-            
+            $className = $this->getDirectiveClass($name);
+            if ($className) {
+                $methodName = "$className::processModelFieldDirective";
+                $methodName(
+                    $this,
+                    $field,
+                    $directive
+                );
+            }
+        }
 
-            case 'migrationUniqueIndex':
-                $this->class->addMethod('from' . Str::studly($fieldName))
-                    ->setPublic()
-                    ->setStatic()
-                    ->setReturnType('\\App\\Models\\' . $this->studlyName)
-                    ->addComment("Factory from the $fieldName unique index")
-                    ->setBody("return {$this->studlyName}::firstWhere('$fieldName', \$value);")
-                    ->addParameter('value');
-                break;
+        // TODO: convert to separate classes
+        foreach ($directives as $directive) {
+            $name = $directive->name->value;
+            switch ($name) {
             
             case 'casts':
                 foreach ($directive->arguments as $arg) {
@@ -246,6 +243,7 @@ class ModelGenerator extends BaseGenerator
         $relationship = null;
         $isInverse = false;
 
+        // TODO: convert to separate classes
         foreach ($directives as $directive) {
             $name = $directive->name->value;
             switch ($name) {
@@ -367,8 +365,8 @@ class ModelGenerator extends BaseGenerator
                 break;
 
             case 'laravelMediaLibraryData':
-                $collection = 'images'; // TODO
-                $customFields = []; // TODO
+                $collection = 'images';
+                $customFields = [];
                 $studlyFieldName = Str::studly($field->name);
 
                 foreach ($directive->arguments as $arg) {
@@ -387,6 +385,7 @@ class ModelGenerator extends BaseGenerator
                     break;
                     }
                 }
+                $studlyCollection = Str::studly($collection);
 
                 // registration
                 if (!$this->class->hasMethod("registerMediaCollections")) {
@@ -400,26 +399,26 @@ class ModelGenerator extends BaseGenerator
                 $registerMediaCollections->addBody("\$this->addMediaCollection(?);\n", [$collection]);
 
                 // all image models for this collection
-                $this->class->addMethod("getMedia{$collection}Models")
+                $this->class->addMethod("getMedia{$studlyCollection}Collection")
                     ->setPublic()
                     ->setReturnType('\\Spatie\\MediaLibrary\\MediaCollections\\Models\\Collections\\MediaCollection')
                     ->addComment("Returns a collection media from Laravel-MediaLibrary")
                     ->setBody("return \$this->getMedia(?);", [$collection]);
 
                 // custom fields
-                $this->class->addMethod("getMedia{$collection}CustomFields")
+                $this->class->addMethod("getMedia{$studlyCollection}CustomFields")
                     ->setPublic()
                     ->setReturnType('array')
                     ->addComment("Returns custom fields for the media")
                     ->setBody("return ?;", [$customFields]);
 
-                $this->class->addMethod("get{$studlyFieldName}Attribute")
+                $this->class->addMethod("get{$studlyFieldName}urlAttribute")
                     ->setPublic()
-                    ->setReturnType('array')
+                    ->setReturnType('string')
                     ->addComment("Returns the media attribute (url) for the $collection")
                     ->setBody( /** @lang PHP */
                         <<< PHP
-        \$image = \$this->get{$collection}Models()->first();
+        \$image = \$this->getMedia{$studlyCollection}Collection()->first();
         if (\$image) {
             return \$image->getUrl();
         }
@@ -428,16 +427,16 @@ class ModelGenerator extends BaseGenerator
                     );
 
                 // all image models for this collection
-                $this->class->addMethod("get{$studlyFieldName}dataAttribute")
+                $this->class->addMethod("get{$studlyFieldName}Attribute")
                     ->setPublic()
                     ->setReturnType('array')
                     ->addComment("Returns media attribute for the $collection media with custom fields")
                     ->setBody( /** @lang PHP */
                         <<< PHP
-        \$image = \$this->getMedia{$collection}Models()->first();
+        \$image = \$this->getMedia{$studlyCollection}Collection()->first();
 if (\$image) {
     \$customFields = [];
-    foreach (\$this->getMedia{$collection}CustomFields() as \$c) {
+    foreach (\$this->getMedia{$studlyCollection}CustomFields() as \$c) {
         \$customFields[\$c] = \$image->getCustomProperty(\$c);
     }
     return [
@@ -445,7 +444,7 @@ if (\$image) {
         'fields' => json_encode(\$customFields)
     ];
 }
-return null;
+return [];
 PHP
                     );
                 return;
@@ -479,6 +478,7 @@ PHP
     protected function processDirectives(
         \GraphQL\Language\AST\NodeList $directives
     ): void {
+        // TODO: convert to separate classes
         foreach ($directives as $directive) {
             $name = $directive->name->value;
             $this->fModel->appendExtradata(FormulariumUtils::directiveToExtradata($directive));
@@ -498,10 +498,6 @@ PHP
                 break;
             case 'migrationTimestamps':
                 $this->migrationTimestamps = true;
-                break;
-            case 'laravelMediaLibrary':
-                $this->class->addImplement('Spatie\\MediaLibrary\\HasMedia');
-                $this->class->addTrait('Spatie\\MediaLibrary\\InteractsWithMedia');
                 break;
             case 'modelExtends':
                 foreach ($directive->arguments as $arg) {
@@ -673,7 +669,7 @@ return $f->getDatatype()->getRandom();')
                 // relationship
                 $this->processRelationship($field, $directives);
             } else {
-                $this->processBasetypeDirectives($field, $directives);
+                $this->processFieldDirectives($field, $directives);
             }
         }
 

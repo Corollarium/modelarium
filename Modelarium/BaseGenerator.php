@@ -63,19 +63,23 @@ EOF;
      * Gets the classname for a directive implementation interface class.
      *
      * @param string $directive The directive name.
-     * @param string $type
+     * @param string $type The type, such as 'Seeder' or 'Model'.
      * @return string|null
      */
-    protected function getDirectiveClass(
+    public function getDirectiveClass(
         string $directive,
         string $type = ''
     ): ?string {
         $ns = 'Modelarium\\Laravel\\Directives';
-        $className = $ns . '\\' . ucfirst($directive);
+        $className = $ns . '\\' . ucfirst($directive) . 'Directive';
         if (!$type) {
-            $type = str_replace('Generator', '', get_called_class());
+            $parts = explode("\\", get_called_class());
+            $type = end($parts);
+            $type = str_replace('Generator', '', $type);
         }
-        if (class_exists($className) && in_array($type . 'DirectiveInterface', class_implements($className))) {
+        if (class_exists($className)
+            && array_key_exists('Modelarium\\Laravel\\Targets\\Interfaces\\' . $type . 'DirectiveInterface', class_implements($className))
+        ) {
             return $className;
         }
         return null;

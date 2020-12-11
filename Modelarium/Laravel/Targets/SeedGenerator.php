@@ -56,7 +56,9 @@ class SeedGenerator extends BaseGenerator
             if ($className) {
                 call_user_func(
                     [$className, 'processSeedFieldDirective'],
-                    [$this, $field, $directive]
+                    $this,
+                    $field,
+                    $directive
                 );
             }
         }

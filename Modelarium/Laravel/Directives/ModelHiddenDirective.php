@@ -1,25 +1,31 @@
 <?php declare(strict_types=1);
 
-namespace Modelarium\Laravel\Targets\Interfaces;
+namespace Modelarium\Laravel\Directives;
 
 use Modelarium\Laravel\Targets\ModelGenerator;
+use Modelarium\Laravel\Targets\Interfaces\ModelDirectiveInterface;
 
-interface ModelDirectiveInterface
+class ModelHiddenDirective implements ModelDirectiveInterface
 {
     public static function processModelTypeDirective(
         ModelGenerator $generator,
         \GraphQL\Language\AST\Node $directive
-    ): void;
+    ): void {
+    }
 
     public static function processModelFieldDirective(
         ModelGenerator $generator,
         \GraphQL\Type\Definition\FieldDefinition $field,
         \GraphQL\Language\AST\Node $directive
-    ): void;
+    ): void {
+        $fieldName = $field->name;
+        $generator->hidden[] = $fieldName;
+    }
 
     public function processModelRelationshipDirective(
         ModelGenerator $generator,
         \GraphQL\Type\Definition\FieldDefinition $field,
         \GraphQL\Language\AST\Node $directive
-    ): void;
+    ): void {
+    }
 }

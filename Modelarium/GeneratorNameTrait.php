@@ -150,4 +150,14 @@ trait GeneratorNameTrait
         $stub = $this->stubDir . "/$stubName.mustache.php";
         return $this->templateFile($stub, $context);
     }
+
+    /**
+     * Get the value of lowerName
+     *
+     * @return  string
+     */
+    public function getLowerName()
+    {
+        return $this->lowerName;
+    }
 }

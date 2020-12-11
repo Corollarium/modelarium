@@ -12,7 +12,7 @@ class BelongsToManyDirective implements SeedDirectiveInterface
         \GraphQL\Type\Definition\FieldDefinition $field,
         \GraphQL\Language\AST\Node $directive
     ): void {
-        $type1 = $generator->lowerName;
+        $type1 = $generator->getLowerName();
         $type2 = mb_strtolower($generator->getInflector()->singularize($field->name));
 
         if (strcasecmp($type1, $type2) < 0) { // TODO: check this, might not work
