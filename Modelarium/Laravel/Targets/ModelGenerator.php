@@ -369,6 +369,13 @@ class ModelGenerator extends BaseGenerator
                 $customFields = [];
                 $studlyFieldName = Str::studly($field->name);
 
+                // deps
+                if (!in_array('\\Spatie\\MediaLibrary\\HasMedia', $this->class->getImplements())) {
+                    $this->class->addImplement('\\Spatie\\MediaLibrary\\HasMedia');
+                    $this->class->addTrait('\\Spatie\\MediaLibrary\\InteractsWithMedia');
+                }
+
+                // args
                 foreach ($directive->arguments as $arg) {
                     /**
                      * @var \GraphQL\Language\AST\ArgumentNode $arg
