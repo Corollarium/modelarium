@@ -24,4 +24,13 @@ final class ModelGeneratorTest extends TestCase
         $this->assertNotNull($data);
         $this->assertStringContainsString('use \Illuminate\Database\Eloquent\SoftDeletes;', $data);
     }
+
+    public function testGetDirective()
+    {
+        $gen = new ModelGenerator($this->getParser('userBaseDirectives'), 'User');
+        $className =$gen->getDirectiveClass(
+            'modelFillable'
+        );
+        $this->assertEquals('Modelarium\\Laravel\\Directives\\ModelFillableDirective', $className);
+    }
 }
