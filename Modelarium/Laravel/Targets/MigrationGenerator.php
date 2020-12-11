@@ -285,7 +285,7 @@ class MigrationGenerator extends BaseGenerator
             // $className = $this->getDirectiveClass($name);
             // if ($className) {
             //     $methodName = "$className::processMigrationRelationshipDirective";
-            //     /** @phpstan-ignore-next-line */
+            //     /** @phpstan-igno re-next-line */
             //     $methodName(
             //         $this,
             //         $field,

@@ -56,5 +56,6 @@ class MigrationIndexDirective implements MigrationDirectiveInterface, ModelDirec
         \GraphQL\Language\AST\DirectiveNode $directive
     ): string {
         // nothing
+        return '';
     }
 }

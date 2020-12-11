@@ -379,6 +379,16 @@ class ModelGenerator extends BaseGenerator
         // }
     }
 
+    public static function getRelationshipDatatypeName(
+        string $relationship,
+        bool $isInverse,
+        string $sourceTypeName,
+        string $targetTypeName
+    ): string {
+        return "relationship:" . ($isInverse ? "inverse:" : "") .
+            "$relationship:$sourceTypeName:$targetTypeName";
+    }
+
     protected function processDirectives(
         \GraphQL\Language\AST\NodeList $directives
     ): void {

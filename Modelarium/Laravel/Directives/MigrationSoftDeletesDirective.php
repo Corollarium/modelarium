@@ -46,5 +46,6 @@ class MigrationSoftDeletesDirective implements MigrationDirectiveInterface, Mode
         \GraphQL\Language\AST\DirectiveNode $directive
     ): string {
         // nothing
+        return '';
     }
 }

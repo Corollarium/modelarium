@@ -46,5 +46,6 @@ class MigrationTimestampsDirective implements MigrationDirectiveInterface, Model
         \GraphQL\Language\AST\DirectiveNode $directive
     ): string {
         // nothing
+        return '';
     }
 }

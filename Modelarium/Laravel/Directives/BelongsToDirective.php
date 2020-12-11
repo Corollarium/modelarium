@@ -48,10 +48,12 @@ class BelongsToDirective implements ModelDirectiveInterface, SeedDirectiveInterf
             ->setReturnType('\\Illuminate\\Database\\Eloquent\\Relations\\BelongsTo')
             ->setBody("return \$this->belongsTo($targetClass::class);");
 
-        $relationshipDatatype = "relationship:" . ($isInverse ? "inverse:" : "") .
-            "$relationship:$sourceTypeName:$targetTypeName";
-        
-        return $relationshipDatatype;
+        return $generator->getRelationshipDatatypeName(
+            $relationship,
+            $isInverse,
+            $sourceTypeName,
+            $targetTypeName
+        );
     }
 
     public static function processSeedFieldDirective(

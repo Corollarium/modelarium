@@ -46,5 +46,6 @@ class MigrationRememberTokenDirective implements MigrationDirectiveInterface, Mo
         \GraphQL\Language\AST\DirectiveNode $directive
     ): string {
         // nothing
+        return '';
     }
 }
