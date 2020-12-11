@@ -2,6 +2,7 @@
 
 namespace Modelarium;
 
+use ErrorException;
 use Formularium\Exception\ClassNotFoundException;
 use Formularium\Extradata;
 use Formularium\ExtradataParameter;

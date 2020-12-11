@@ -233,6 +233,8 @@ class MigrationGenerator extends BaseGenerator
              */
             $name = $directive->name->value;
             switch ($name) {
+            case 'migrationSkip':
+                return;
             case 'migrationUniqueIndex':
                 $extra[] = '$table->unique("' . $fieldName . '");';
                 break;

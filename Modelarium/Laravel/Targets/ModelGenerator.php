@@ -219,9 +219,21 @@ class ModelGenerator extends BaseGenerator
         $relationship = null;
         $isInverse = false;
 
-        // TODO: convert to separate classes
         foreach ($directives as $directive) {
             $name = $directive->name->value;
+            $className = $this->getDirectiveClass($name);
+            if ($className) {
+                $methodName = "$className::processModelFieldDirective";
+                /** @phpstan-ignore-next-line */
+                $methodName(
+                    $this,
+                    $field,
+                    $directive
+                );
+                continue;
+            }
+
+            // TODO: convert to separate classes
             switch ($name) {
             case 'belongsTo':
                 $generateRandom = true;
@@ -339,107 +351,15 @@ class ModelGenerator extends BaseGenerator
                     }
                 }
                 break;
-
-            case 'laravelMediaLibraryData':
-                $collection = 'images';
-                $customFields = [];
-                $studlyFieldName = Str::studly($field->name);
-
-                // deps
-                if (!in_array('\\Spatie\\MediaLibrary\\HasMedia', $this->class->getImplements())) {
-                    $this->class->addImplement('\\Spatie\\MediaLibrary\\HasMedia');
-                    $this->class->addTrait('\\Spatie\\MediaLibrary\\InteractsWithMedia');
-                }
-
-                // args
-                foreach ($directive->arguments as $arg) {
-                    /**
-                     * @var \GraphQL\Language\AST\ArgumentNode $arg
-                     */
-
-                    switch ($arg->name->value) {
-                    case 'collection':
-                        /** @phpstan-ignore-next-line */
-                        $collection = $arg->value->value;
-                    break;
-                    case 'fields':
-                        /** @phpstan-ignore-next-line */
-                        foreach ($arg->value->values as $item) {
-                            $customFields[] = $item->value;
-                        }
-                    break;
-                    }
-                }
-                $studlyCollection = Str::studly($collection);
-
-                // registration
-                if (!$this->class->hasMethod("registerMediaCollections")) {
-                    $registerMediaCollections = $this->class->addMethod("registerMediaCollections")
-                        ->setPublic()
-                        ->setReturnType('void')
-                        ->addComment("Configures Laravel media-library");
-                } else {
-                    $registerMediaCollections = $this->class->getMethod("registerMediaCollections");
-                }
-                $registerMediaCollections->addBody("\$this->addMediaCollection(?);\n", [$collection]);
-
-                // all image models for this collection
-                $this->class->addMethod("getMedia{$studlyCollection}Collection")
-                    ->setPublic()
-                    ->setReturnType('\\Spatie\\MediaLibrary\\MediaCollections\\Models\\Collections\\MediaCollection')
-                    ->addComment("Returns a collection media from Laravel-MediaLibrary")
-                    ->setBody("return \$this->getMedia(?);", [$collection]);
-
-                // custom fields
-                $this->class->addMethod("getMedia{$studlyCollection}CustomFields")
-                    ->setPublic()
-                    ->setReturnType('array')
-                    ->addComment("Returns custom fields for the media")
-                    ->setBody("return ?;", [$customFields]);
-
-                $this->class->addMethod("get{$studlyFieldName}urlAttribute")
-                    ->setPublic()
-                    ->setReturnType('string')
-                    ->addComment("Returns the media attribute (url) for the $collection")
-                    ->setBody( /** @lang PHP */
-                        <<< PHP
-        \$image = \$this->getMedia{$studlyCollection}Collection()->first();
-        if (\$image) {
-            return \$image->getUrl();
-        }
-        return '';
-        PHP
-                    );
-
-                // all image models for this collection
-                $this->class->addMethod("get{$studlyFieldName}Attribute")
-                    ->setPublic()
-                    ->setReturnType('array')
-                    ->addComment("Returns media attribute for the $collection media with custom fields")
-                    ->setBody( /** @lang PHP */
-                        <<< PHP
-        \$image = \$this->getMedia{$studlyCollection}Collection()->first();
-if (\$image) {
-    \$customFields = [];
-    foreach (\$this->getMedia{$studlyCollection}CustomFields() as \$c) {
-        \$customFields[\$c] = \$image->getCustomProperty(\$c);
-    }
-    return [
-        'url' => \$image->getUrl(),
-        'fields' => json_encode(\$customFields)
-    ];
-}
-return [];
-PHP
-                    );
-                return;
             
             default:
                 break;
             }
         }
         if (!$relationship) {
-            throw new Exception("Could not find a relationship in {$typeName} for {$field->name} in {$sourceTypeName}");
+            // TODO: generate a warning, perhaps?
+            // throw new Exception("Could not find a relationship in {$typeName} for {$field->name} in {$sourceTypeName}");
+            return;
         }
 
         $relationshipDatatype = "relationship:" . ($isInverse ? "inverse:" : "") .
