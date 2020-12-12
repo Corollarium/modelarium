@@ -1,6 +1,6 @@
 <template>
   <main class="modelarium-list">
-    <h1 class="modelarium-list__title" v-if="showTitle">{|StudlyName|}</h1>
+    <h1 class="modelarium-list__title" v-if="showTitle">{|typeTitle|}</h1>
 
     <div class="modelarium-list__header" v-if="showHeader && can.create">
       {|{buttonCreate}|}

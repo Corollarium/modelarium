@@ -35,11 +35,15 @@ export default {
       this.get(this.$route.params.{|keyAttribute|});
     },
 
+    cleanIdentifier(identifier) {
+      return identifier.replace('_', ' ');
+    },
+
     get(id) {
       axios
         .post("/graphql", {
           query: itemQuery,
-          variables: { {|keyAttribute|}: id },
+          variables: { {|keyAttribute|}: this.cleanIdentifier(id) },
         })
         .then((result) => {
           if (result.data.errors) {
@@ -48,8 +52,16 @@ export default {
             return;
           }
           const data = result.data.data;
+          if (data.{|lowerName|} === null) {
+            this.notFound404();
+            return;
+          }
           this.$set(this, "model", data.{|lowerName|});
         });
+    },
+
+    notFound404() {
+       window.location = '/404';
     },
 
     remove() {

@@ -352,6 +352,7 @@ class FrontendGenerator implements GeneratorInterface
             'tableItemFields' => array_keys(array_map(function (Field $f) {
                 return $f->getName();
             }, $this->tableFields)),
+            'typeTitle' => $this->studlyName,
             'titleField' => array_key_first($titleFields) ?: 'id'
         ];
     }

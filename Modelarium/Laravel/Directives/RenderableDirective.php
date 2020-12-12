@@ -27,6 +27,7 @@ class RenderableDirective implements ModelDirectiveInterface
         \GraphQL\Type\Definition\FieldDefinition $field,
         \GraphQL\Language\AST\DirectiveNode $directive
     ): void {
+        // handled by FormulariumUtils::getFieldFromDirectives()
     }
 
     public static function processModelRelationshipDirective(
