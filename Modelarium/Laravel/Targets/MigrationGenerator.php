@@ -136,6 +136,7 @@ class MigrationGenerator extends BaseGenerator
         }
 
         $base = '';
+        // TODO: should all the formularium data types
         if ($type instanceof IDType) {
             $base = '$table->bigIncrements("id")';
         } elseif ($type instanceof StringType) {
@@ -143,7 +144,7 @@ class MigrationGenerator extends BaseGenerator
         } elseif ($type instanceof IntType) {
             $base = '$table->integer("' . $fieldName . '")';
         } elseif ($type instanceof BooleanType) {
-            $base = '$table->bool("' . $fieldName . '")';
+            $base = '$table->boolean("' . $fieldName . '")';
         } elseif ($type instanceof FloatType) {
             $base = '$table->float("' . $fieldName . '")';
         } elseif ($type instanceof EnumType) {

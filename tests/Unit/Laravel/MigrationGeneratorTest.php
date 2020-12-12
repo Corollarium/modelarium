@@ -157,7 +157,7 @@ final class MigrationGeneratorTest extends TestCase
         $this->assertStringContainsString('$table->integer("ainteger");', $data);
         $this->assertStringContainsString('$table->float("afloat");', $data);
         $this->assertStringContainsString('$table->string("astring");', $data);
-        $this->assertStringContainsString('$table->bool("aboolean");', $data);
+        $this->assertStringContainsString('$table->boolean("aboolean");', $data);
     }
 
     public function testExtendedTypes()
