@@ -18,7 +18,6 @@ class RenderableDirective implements ModelDirectiveInterface
 
             $argName = $arg->name->value;
             $argValue = $arg->value->value; /** @phpstan-ignore-line */
-            var_dump($argName, $argValue);
             $generator->fModel->appendRenderable($argName, $argValue);
         }
     }
