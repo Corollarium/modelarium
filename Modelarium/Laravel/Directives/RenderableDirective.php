@@ -11,13 +11,6 @@ class RenderableDirective implements ModelDirectiveInterface
         ModelGenerator $generator,
         \GraphQL\Language\AST\DirectiveNode $directive
     ): void {
-    }
-
-    public static function processModelFieldDirective(
-        ModelGenerator $generator,
-        \GraphQL\Type\Definition\FieldDefinition $field,
-        \GraphQL\Language\AST\DirectiveNode $directive
-    ): void {
         foreach ($directive->arguments as $arg) {
             /**
              * @var \GraphQL\Language\AST\ArgumentNode $arg
@@ -25,8 +18,16 @@ class RenderableDirective implements ModelDirectiveInterface
 
             $argName = $arg->name->value;
             $argValue = $arg->value->value; /** @phpstan-ignore-line */
+            var_dump($argName, $argValue);
             $generator->fModel->appendRenderable($argName, $argValue);
         }
+    }
+
+    public static function processModelFieldDirective(
+        ModelGenerator $generator,
+        \GraphQL\Type\Definition\FieldDefinition $field,
+        \GraphQL\Language\AST\DirectiveNode $directive
+    ): void {
     }
 
     public static function processModelRelationshipDirective(
