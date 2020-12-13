@@ -6,6 +6,7 @@ use Formularium\Datatype;
 use Formularium\Factory\DatatypeFactory;
 use Formularium\Formularium;
 use Modelarium\Laravel\Processor as LaravelProcessor;
+use Modelarium\Modelarium;
 use Modelarium\Util as ModelariumUtil;
 
 use function Safe\file_get_contents;

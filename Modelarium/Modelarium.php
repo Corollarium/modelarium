@@ -4,26 +4,46 @@ namespace Modelarium;
 
 final class Modelarium
 {
-    protected static $generatorDirectiveNamespaces = [
-        'Modelarium\\Laravel\\Directives'
+    protected static $directiveLaravelLibraries = [
+        'Modelarium'
     ];
 
     /**
-     * Register a directive namespace for generator
+     * Register a library that provides Laravel directives.
      *
      * @param string $ns
      * @return void
      */
-    public static function registerGeneratorDirectiveNamespace(string $ns): void
+    public static function registerDirectiveLaravelLibrary(string $ns): void
     {
-        self::$generatorDirectiveNamespaces[] = $ns;
+        self::$directiveLaravelLibraries[] = $ns;
+    }
+
+    public static function getDirectiveLaravelLibraries(): array
+    {
+        return self::$directiveLaravelLibraries;
     }
 
     /**
-     * Get the value of directiveNamespaces
+     * Directive namespaces
      */
     public static function getGeneratorDirectiveNamespaces()
     {
-        return self::$generatorDirectiveNamespaces;
+        return array_map(
+            function ($i) {
+                return $i . '\\Laravel\\Directives';
+            },
+            self::$directiveLaravelLibraries
+        );
+    }
+
+    public static function getGeneratorLighthouseDirectiveNamespaces()
+    {
+        return array_map(
+            function ($i) {
+                return $i . '\\Laravel\\Lighthouse\\Directives';
+            },
+            self::$directiveLaravelLibraries
+        );
     }
 }

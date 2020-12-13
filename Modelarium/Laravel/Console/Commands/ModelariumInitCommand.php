@@ -3,6 +3,7 @@
 namespace Modelarium\Laravel\Console\Commands;
 
 use Illuminate\Console\Command;
+use Modelarium\Modelarium;
 
 use function Safe\unlink;
 
@@ -49,16 +50,18 @@ class ModelariumInitCommand extends Command
             unlink($f);
         }
 
-        $this->call('vendor:publish', [
-            '--provider' => "Modelarium\\Laravel\\ServiceProvider",
-            '--tag' => "schema",
-            '--force' => true
-        ]);
-
-        $this->call('vendor:publish', [
-            '--provider' => "Modelarium\\Laravel\\ServiceProvider",
-            '--tag' => "schemabase",
-        ]);
+        foreach (Modelarium::getDirectiveLaravelLibraries() as $plugin) {
+            $this->call('vendor:publish', [
+                '--provider' => "$plugin\\Laravel\\ServiceProvider",
+                '--tag' => "schema",
+                '--force' => true
+            ]);
+    
+            $this->call('vendor:publish', [
+                '--provider' => "$plugin\\Laravel\\ServiceProvider",
+                '--tag' => "schemabase",
+            ]);
+        }
 
         $this->info("Setup done.");
     }

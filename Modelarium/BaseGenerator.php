@@ -82,7 +82,7 @@ EOF;
             ) {
                 return $className;
             }
-            return null;
         }
+        return null;
     }
 }

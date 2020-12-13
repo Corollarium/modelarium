@@ -9,42 +9,6 @@ directive @casts(
 ) on FIELD_DEFINITION
 
 """
-Implement the Laravel Media Library attributes on a model
-"""
-directive @laravelMediaLibraryData (
-    """
-    The collection name to use
-    """
-    collection: String
-
-    """
-    The list of fields to compose in the index
-    """
-    fields: [String!]
-
-    """
-    The media conversion name to make, if there's one
-    """
-    conversion: String
-
-    """
-    If there's a conversion, apply this width.
-    """
-    width: Int
-
-    """
-    If there's a conversion, apply this height.
-    """
-    height: Int
-    
-    """
-    If true, runs withResponsiveImages().
-    """
-    responsive: Boolean
-
-) on FIELD_DEFINITION
-
-"""
 Default value for database column
 """
 directive @migrationDefaultValue(
