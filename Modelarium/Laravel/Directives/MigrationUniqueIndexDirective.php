@@ -25,6 +25,7 @@ class MigrationUniqueIndexDirective implements ModelDirectiveInterface
             ->setPublic()
             ->setStatic()
             ->setReturnType('\\App\\Models\\' . $studlyName)
+            ->setReturnNullable()
             ->addComment("Factory from the $fieldName unique index")
             ->setBody("return {$studlyName}::firstWhere('$fieldName', \$value);")
             ->addParameter('value');

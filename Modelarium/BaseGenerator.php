@@ -70,18 +70,19 @@ EOF;
         string $directive,
         string $type = ''
     ): ?string {
-        $ns = 'Modelarium\\Laravel\\Directives';
-        $className = $ns . '\\' . ucfirst($directive) . 'Directive';
-        if (!$type) {
-            $parts = explode("\\", get_called_class());
-            $type = end($parts);
-            $type = str_replace('Generator', '', $type);
+        foreach (Modelarium::getGeneratorDirectiveNamespaces() as $ns) {
+            $className = $ns . '\\' . ucfirst($directive) . 'Directive';
+            if (!$type) {
+                $parts = explode("\\", get_called_class());
+                $type = end($parts);
+                $type = str_replace('Generator', '', $type);
+            }
+            if (class_exists($className)
+                && array_key_exists('Modelarium\\Laravel\\Targets\\Interfaces\\' . $type . 'DirectiveInterface', class_implements($className))
+            ) {
+                return $className;
+            }
+            return null;
         }
-        if (class_exists($className)
-            && array_key_exists('Modelarium\\Laravel\\Targets\\Interfaces\\' . $type . 'DirectiveInterface', class_implements($className))
-        ) {
-            return $className;
-        }
-        return null;
     }
 }
