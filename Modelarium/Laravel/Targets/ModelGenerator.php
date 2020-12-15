@@ -304,6 +304,7 @@ class ModelGenerator extends BaseGenerator
     {
         $namespace = new \Nette\PhpGenerator\PhpNamespace('App\\Models');
         $namespace->addUse('\\Illuminate\\Database\\Eloquent\\Relations\\BelongsTo');
+        $namespace->addUse('\\Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany');
         $namespace->addUse('\\Illuminate\\Database\\Eloquent\\Relations\\HasOne');
         $namespace->addUse('\\Illuminate\\Database\\Eloquent\\Relations\\HasMany');
         $namespace->addUse('\\Illuminate\\Database\\Eloquent\\Relations\\MorphTo');

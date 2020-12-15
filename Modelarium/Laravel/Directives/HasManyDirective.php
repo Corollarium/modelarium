@@ -8,6 +8,7 @@ use Modelarium\Laravel\Targets\ModelGenerator;
 use Modelarium\Laravel\Targets\SeedGenerator;
 use Modelarium\Laravel\Targets\Interfaces\ModelDirectiveInterface;
 use Modelarium\Laravel\Targets\Interfaces\SeedDirectiveInterface;
+use Modelarium\Parser;
 
 class HasManyDirective implements ModelDirectiveInterface, SeedDirectiveInterface
 {
@@ -31,23 +32,20 @@ class HasManyDirective implements ModelDirectiveInterface, SeedDirectiveInterfac
         \GraphQL\Type\Definition\FieldDefinition $field,
         \GraphQL\Language\AST\DirectiveNode $directive
     ): string {
-        $lowerName = mb_strtolower($generator->getInflector()->singularize($field->name));
-        $lowerNamePlural = $generator->getInflector()->pluralize($lowerName);
+        list($type, $isRequired) = Parser::getUnwrappedType($field->type);
 
         $sourceTypeName = $generator->getLowerName();
-        $targetTypeName = $lowerName;
+        $targetTypeName = $type->name;
         $relationship = null;
         $isInverse = false;
-        $targetClass = '\\App\\Models\\' . Str::studly($generator->getInflector()->singularize($field->name));
         $generateRandom = true; // TODO
 
         $relationship = RelationshipFactory::RELATIONSHIP_ONE_TO_MANY;
         $isInverse = false;
-        $target = $generator->getInflector()->singularize($targetClass);
-        $generator->class->addMethod($lowerNamePlural)
+        $generator->class->addMethod(ModelGenerator::toTableName($targetTypeName))
             ->setPublic()
             ->setReturnType('\\Illuminate\\Database\\Eloquent\\Relations\\HasMany')
-            ->setBody("return \$this->hasMany($target::class);");
+            ->setBody("return \$this->hasMany($targetTypeName::class);");
         return $generator->getRelationshipDatatypeName(
             $relationship,
             $isInverse,

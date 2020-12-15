@@ -59,7 +59,7 @@ trait GeneratorNameTrait
      * @param string $name
      * @return string
      */
-    protected static function toTableName(string $name): string
+    public static function toTableName(string $name): string
     {
         return Str::snake(Str::pluralStudly($name));
     }
@@ -176,6 +176,16 @@ trait GeneratorNameTrait
     public function getLowerName(): string
     {
         return $this->lowerName;
+    }
+
+    /**
+     * Get the value of lowerName
+     *
+     * @return  string
+     */
+    public function getTableName(): string
+    {
+        return $this->tableName;
     }
 
     /**
