@@ -17,6 +17,7 @@ class ModelNotifiableDirective implements ModelDirectiveInterface
     public static function processModelFieldDirective(
         ModelGenerator $generator,
         \GraphQL\Type\Definition\FieldDefinition $field,
+       \Formularium\Field $fieldFormularium,
         \GraphQL\Language\AST\DirectiveNode $directive
     ): void {
     }

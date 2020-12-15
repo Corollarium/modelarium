@@ -7,6 +7,7 @@ use Formularium\Field;
 use Formularium\Model;
 use Illuminate\Support\Str;
 use Modelarium\BaseGenerator;
+use Modelarium\Datatypes\Datatype_relationship as DatatypesDatatype_relationship;
 
 class Datatype_relationship extends \Modelarium\Datatypes\Datatype_relationship
 {
@@ -44,7 +45,8 @@ class Datatype_relationship extends \Modelarium\Datatypes\Datatype_relationship
      */
     public function getGraphqlField(string $name, array $params = []): string
     {
-        if (!($params[self::RECURSE] ?? true)) {
+        $recurseLevel = $params[self::RECURSE] ?? 1;
+        if (!$recurseLevel) {
             return '';
         }
         if (!($params[self::RECURSE_INVERSE] ?? true) && $this->isInverse) {
@@ -60,8 +62,17 @@ class Datatype_relationship extends \Modelarium\Datatypes\Datatype_relationship
 
         if ($this->isMorph()) {
             $graphqlQuery = ['__typename'];
-            $this->morphableTargets = ['Wine', 'Beer']; // TODO
-            foreach ($this->morphableTargets as $m) {
+
+            /**
+             * @var Model $sourceModel
+             */
+            $sourceModel = call_user_func($this->sourceClass . "::getFormularium"); /** @phpstan-ignore-line */
+            
+            $morphableTargets = explode(
+                ',',
+                $sourceModel->getField($name)->getExtradata('morphTo')->value('targetModels')
+            );
+            foreach ($morphableTargets as $m) {
                 $graphqlQuery[] = "... on $m {";
                 $graphqlQuery[] = "id";
 
@@ -72,8 +83,12 @@ class Datatype_relationship extends \Modelarium\Datatypes\Datatype_relationship
                 $graphqlQuery = array_merge(
                     $graphqlQuery,
                     $formulariumModel->mapFields(
-                        function (Field $f) {
-                            return $f->toGraphqlQuery([self::RECURSE => false]);
+                        function (Field $f) use ($recurseLevel) {
+                            $type = $f->getDatatype();
+                            if ($type instanceof Datatype_relationship && !$type->getIsInverse()) {
+                                return '';
+                            }
+                            return $f->toGraphqlQuery([self::RECURSE => $recurseLevel]); // don't subtract
                         }
                     )
                 );
@@ -85,8 +100,8 @@ class Datatype_relationship extends \Modelarium\Datatypes\Datatype_relationship
              */
             $formulariumModel = call_user_func("$model::getFormularium"); /** @phpstan-ignore-line */
             $graphqlQuery = $formulariumModel->mapFields(
-                function (Field $f) {
-                    return \Modelarium\Frontend\Util::fieldShow($f) ? $f->toGraphqlQuery([self::RECURSE => false]) : null;
+                function (Field $f) use ($recurseLevel) {
+                    return \Modelarium\Frontend\Util::fieldShow($f) ? $f->toGraphqlQuery([self::RECURSE => $recurseLevel-1]) : null;
                 }
             );
             array_unshift($graphqlQuery, 'id');

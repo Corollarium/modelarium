@@ -140,18 +140,18 @@ class ModelGenerator extends BaseGenerator
         $scalarType = $this->parser->getScalarType($typeName);
 
         /**
-         * @var Field $field
+         * @var Field $fieldFormularium
          */
-        $field = null;
+        $fieldFormularium = null;
         if (!$scalarType) {
             // probably another model
-            $field = FormulariumUtils::getFieldFromDirectives(
+            $fieldFormularium = FormulariumUtils::getFieldFromDirectives(
                 $fieldName,
                 $typeName,
                 $directives
             );
         } elseif ($scalarType instanceof FormulariumScalarType) {
-            $field = FormulariumUtils::getFieldFromDirectives(
+            $fieldFormularium = FormulariumUtils::getFieldFromDirectives(
                 $fieldName,
                 $scalarType->getDatatype()->getName(),
                 $directives
@@ -161,21 +161,12 @@ class ModelGenerator extends BaseGenerator
         }
 
         if ($isRequired) {
-            $field->setValidatorOption(
+            $fieldFormularium->setValidatorOption(
                 Datatype::REQUIRED,
                 'value',
                 true
             );
         }
-
-        $this->fModel->appendField($field);
-    }
-
-    protected function processFieldDirectives(
-        \GraphQL\Type\Definition\FieldDefinition $field,
-        \GraphQL\Language\AST\NodeList $directives
-    ): void {
-        list($type, $isRequired) = Parser::getUnwrappedType($field->type);
 
         foreach ($directives as $directive) {
             $name = $directive->name->value;
@@ -186,10 +177,20 @@ class ModelGenerator extends BaseGenerator
                 $methodName(
                     $this,
                     $field,
+                    $fieldFormularium,
                     $directive
                 );
             }
         }
+
+        $this->fModel->appendField($fieldFormularium);
+    }
+
+    protected function processFieldDirectives(
+        \GraphQL\Type\Definition\FieldDefinition $field,
+        \GraphQL\Language\AST\NodeList $directives
+    ): void {
+        list($type, $isRequired) = Parser::getUnwrappedType($field->type);
 
         $typeName = $type->name;
         $this->processField($typeName, $field, $directives, $isRequired);
@@ -215,23 +216,10 @@ class ModelGenerator extends BaseGenerator
 
         $relationshipDatatype = null;
 
-        $generateRandom = false;
-        $sourceTypeName = $this->lowerName;
-        $targetTypeName = $lowerName;
-        $isInverse = false;
-
         foreach ($directives as $directive) {
             $name = $directive->name->value;
             $className = $this->getDirectiveClass($name);
             if ($className) {
-                $methodName = "$className::processModelFieldDirective";
-                /** @phpstan-ignore-next-line */
-                $methodName(
-                    $this,
-                    $field,
-                    $directive
-                );
-
                 $methodName = "$className::processModelRelationshipDirective";
                 /** @phpstan-ignore-next-line */
                 $r = $methodName(
@@ -241,7 +229,7 @@ class ModelGenerator extends BaseGenerator
                 );
                 if ($r) {
                     if ($relationshipDatatype) {
-                        throw new Exception("Overwrting relationship in {$typeName} for {$field->name} in {$this->lowerName}");
+                        throw new Exception("Overwriting relationship in {$typeName} for {$field->name} in {$this->lowerName}");
                     }
                     $relationshipDatatype = $r;
                 }

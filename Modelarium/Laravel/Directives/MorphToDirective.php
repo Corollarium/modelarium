@@ -2,7 +2,11 @@
 
 namespace Modelarium\Laravel\Directives;
 
+use Faker\Provider\File;
+use Formularium\ExtradataParameter;
+use Formularium\Field;
 use GraphQL\Type\Definition\ObjectType;
+use GraphQL\Type\Definition\UnionType;
 use Illuminate\Support\Str;
 use Modelarium\Exception\Exception;
 use Modelarium\Parser;
@@ -24,9 +28,30 @@ class MorphToDirective implements ModelDirectiveInterface, SeedDirectiveInterfac
     public static function processModelFieldDirective(
         ModelGenerator $generator,
         \GraphQL\Type\Definition\FieldDefinition $field,
+        \Formularium\Field $fieldFormularium,
         \GraphQL\Language\AST\DirectiveNode $directive
     ): void {
-        // nothing
+        list($type, $isRequired) = Parser::getUnwrappedType($field->type);
+        $typeName = $type->name;
+
+        if (!($type instanceof UnionType)) {
+            throw new Exception("$typeName is declared as @morphTo target but it is not a union type.");
+        }
+        $unionTypes = $type->getTypes();
+        $morphableTargets = [];
+        foreach ($unionTypes as $t) {
+            if (!($t instanceof ObjectType)) {
+                throw new Exception("$typeName is declared in a @morphTo union but it's not an object type.");
+            }
+
+            /**
+             * @var ObjectType $t
+             */
+            $morphableTargets[] = $t->name;
+        }
+
+        $fieldFormularium->getExtradata('morphTo')
+            ->appendParameter(new ExtradataParameter('targetModels', implode(',', $morphableTargets)));
     }
 
     public static function processModelRelationshipDirective(
@@ -34,12 +59,7 @@ class MorphToDirective implements ModelDirectiveInterface, SeedDirectiveInterfac
         \GraphQL\Type\Definition\FieldDefinition $field,
         \GraphQL\Language\AST\DirectiveNode $directive
     ): string {
-        $name = $directive->name->value;
-        list($type, $isRequired) = Parser::getUnwrappedType($field->type);
-        $typeName = $type->name;
-
         $lowerName = mb_strtolower($generator->getInflector()->singularize($field->name));
-        $lowerNamePlural = $generator->getInflector()->pluralize($lowerName);
 
         $sourceTypeName = $generator->getLowerName();
         $targetTypeName = $lowerName;
