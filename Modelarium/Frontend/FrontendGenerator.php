@@ -110,6 +110,9 @@ class FrontendGenerator implements GeneratorInterface
     public function generate(): GeneratedCollection
     {
         $this->collection = new GeneratedCollection();
+        if ($this->model->getExtradata('frontendSkip')) {
+            return $this->collection;
+        }
 
         /**
          * @var FrameworkVue $vue

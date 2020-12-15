@@ -9,6 +9,11 @@ directive @casts(
 ) on FIELD_DEFINITION
 
 """
+Do not generate frontend for this type
+"""
+directive @frontendSkip on OBJECT
+
+"""
 Default value for database column
 """
 directive @migrationDefaultValue(
