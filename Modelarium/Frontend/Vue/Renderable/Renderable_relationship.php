@@ -57,7 +57,7 @@ class Renderable_relationship extends Renderable
             $p = new HtmlNode(
                 $datatype->getTarget() . 'Card',
                 [
-                    'v-for' => 'item in ' . $vue->getVueCode()->getFieldModelVariable() . $datatype->getTargetPlural(),
+                    'v-for' => 'item in ' . $vue->getVueCode()->getFieldModelVariable() . $datatype->getTargetTable(),
                     'v-bind' => 'item',
                     ':key' => 'item.id'
                 ]

@@ -5,6 +5,7 @@ namespace Modelarium\Datatypes;
 use Formularium\Datatype;
 use Doctrine\Inflector\InflectorFactory;
 use Illuminate\Support\Str;
+use Modelarium\BaseGenerator;
 
 abstract class Datatype_relationship extends Datatype
 {
@@ -126,17 +127,22 @@ abstract class Datatype_relationship extends Datatype
         return $inflector->pluralize(mb_strtolower($this->getTarget()));
     }
 
+    public function getTargetTable(): string
+    {
+        return BaseGenerator::toTableName($this->target);
+    }
+
     /**
      * Get one of RelationshipFactory con
      *
      * @return  string
      */
-    public function getRelationship()
+    public function getRelationship(): string
     {
         return $this->relationship;
     }
 
-    public function isMorph()
+    public function isMorph(): bool
     {
         return
             $this->relationship === RelationshipFactory::MORPH_ONE_TO_MANY ||

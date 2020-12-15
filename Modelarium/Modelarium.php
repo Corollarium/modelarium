@@ -4,6 +4,11 @@ namespace Modelarium;
 
 final class Modelarium
 {
+    /**
+     * Namespaces for base laravel libraries
+     *
+     * @var string[]
+     */
     protected static $directiveLaravelLibraries = [
         'Modelarium'
     ];
@@ -26,8 +31,9 @@ final class Modelarium
 
     /**
      * Directive namespaces
+     * @return string[] The list of directive namespaces
      */
-    public static function getGeneratorDirectiveNamespaces()
+    public static function getGeneratorDirectiveNamespaces(): array
     {
         return array_map(
             function ($i) {
@@ -37,7 +43,12 @@ final class Modelarium
         );
     }
 
-    public static function getGeneratorLighthouseDirectiveNamespaces()
+    /**
+     * Lighthouse directive namespaces
+     *
+     * @return string[]
+     */
+    public static function getGeneratorLighthouseDirectiveNamespaces(): array
     {
         return array_map(
             function ($i) {
