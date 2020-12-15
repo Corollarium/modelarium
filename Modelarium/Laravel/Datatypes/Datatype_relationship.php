@@ -5,6 +5,7 @@ namespace Modelarium\Laravel\Datatypes;
 use Formularium\Exception\ValidatorException;
 use Formularium\Field;
 use Formularium\Model;
+use Modelarium\BaseGenerator;
 
 class Datatype_relationship extends \Modelarium\Datatypes\Datatype_relationship
 {
@@ -86,6 +87,6 @@ class Datatype_relationship extends \Modelarium\Datatypes\Datatype_relationship
 
         $graphqlQuery = join("\n", array_filter($graphqlQuery));
 
-        return $name . "{\n" . $graphqlQuery . '}';
+        return BaseGenerator::toTableName($name) . "{\n" . $graphqlQuery . '}';
     }
 }

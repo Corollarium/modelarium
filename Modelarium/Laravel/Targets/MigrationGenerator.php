@@ -266,6 +266,7 @@ class MigrationGenerator extends BaseGenerator
 
         list($type, $isRequired) = Parser::getUnwrappedType($field->type);
         $typeName = $type->name;
+        $tableName = self::toTableName($typeName);
 
         $base = null;
         $extra = [];
@@ -309,9 +310,9 @@ class MigrationGenerator extends BaseGenerator
                     throw new Exception("{$typeName} is not a type for a relationship to {$this->baseName}");
                 }
                 try {
-                    $targetField = $targetType->getField($this->lowerName); // TODO: might have another name than lowerName
+                    $targetField = $targetType->getField($tableName); // TODO: might have another name than lowerName
                 } catch (\GraphQL\Error\InvariantViolation $e) {
-                    $targetField = $targetType->getField($this->lowerNamePlural);
+                    $targetField = $targetType->getField($this->tableName);
                 }
 
                 $targetDirectives = $targetField->astNode->directives;
