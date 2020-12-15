@@ -5,6 +5,7 @@ namespace Modelarium\Laravel\Datatypes;
 use Formularium\Exception\ValidatorException;
 use Formularium\Field;
 use Formularium\Model;
+use Illuminate\Support\Str;
 use Modelarium\BaseGenerator;
 
 class Datatype_relationship extends \Modelarium\Datatypes\Datatype_relationship
@@ -51,6 +52,12 @@ class Datatype_relationship extends \Modelarium\Datatypes\Datatype_relationship
         }
         
         $model = $this->getTargetClass();
+        if ($this->isInverse) {
+            $fieldName = Str::snake(Str::studly($name));
+        } else {
+            $fieldName = BaseGenerator::toTableName($name);
+        }
+
         if ($this->isMorph()) {
             $graphqlQuery = ['__typename'];
             $this->morphableTargets = ['Wine', 'Beer']; // TODO
@@ -87,6 +94,6 @@ class Datatype_relationship extends \Modelarium\Datatypes\Datatype_relationship
 
         $graphqlQuery = join("\n", array_filter($graphqlQuery));
 
-        return BaseGenerator::toTableName($name) . "{\n" . $graphqlQuery . '}';
+        return $fieldName . "{\n" . $graphqlQuery . '}';
     }
 }
