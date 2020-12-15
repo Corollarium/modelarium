@@ -30,6 +30,11 @@ trait GeneratorNameTrait
      */
     protected $lowerNamePlural = '';
 
+    /**
+     * @var string
+     */
+    protected $tableName = '';
+
     public function getInflector(): \Doctrine\Inflector\Inflector
     {
         static $inflector = null;
@@ -45,6 +50,18 @@ trait GeneratorNameTrait
         $this->studlyName = Str::studly($this->baseName);
         $this->lowerName = mb_strtolower($this->baseName);
         $this->lowerNamePlural = $this->getInflector()->pluralize($this->lowerName);
+        $this->tableName = self::toTableName($this->baseName);
+    }
+
+    /**
+     * Generates the expected laravel table name
+     *
+     * @param string $name
+     * @return string
+     */
+    protected static function toTableName(string $name): string
+    {
+        return Str::snake(Str::pluralStudly($name));
     }
 
     /**

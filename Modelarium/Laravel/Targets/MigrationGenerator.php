@@ -434,7 +434,7 @@ class MigrationGenerator extends BaseGenerator
         }
 
         $context = [
-            'dummytablename' => $this->lowerNamePlural,
+            'dummytablename' => $this->tableName,
             'modelSchemaCode' => "# start graphql\n" .
                 $this->currentModel .
                 "\n# end graphql",
@@ -470,7 +470,7 @@ class MigrationGenerator extends BaseGenerator
 EOF;
         $context = [
             'dummyCode' => $dummyCode,
-            'dummytablename' => $this->getInflector()->pluralize($relation),
+            'dummytablename' => $this->getInflector()->pluralize($relation), // TODO: check, toTableName()?
             'modelSchemaCode' => ''
         ];
         $contents = $this->templateStub('migration', $context);
