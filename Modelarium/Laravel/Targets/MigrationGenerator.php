@@ -246,11 +246,9 @@ class MigrationGenerator extends BaseGenerator
                 $extra[] = '$table->index("' . $fieldName . '");';
                 break;
             case 'migrationDefaultValue':
-                $x = ''; // TODO
-                Parser::getDirectiveArgumentByName($directive, 'value');
+                $x = Parser::getDirectiveArgumentByName($directive, 'value');
                 $base .= '->default(' . $x . ')';
-                throw new Exception('Default value not implemented yet');
-                // break;
+                break;
             }
         }
         $base .= ';';
