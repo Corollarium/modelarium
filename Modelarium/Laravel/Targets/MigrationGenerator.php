@@ -207,6 +207,9 @@ class MigrationGenerator extends BaseGenerator
             if (array_diff_key($currentChoices, $parsedValues) || array_diff_key($parsedValues, $currentChoices)) {
                 // TODO???
             }
+
+            $options = []; // TODO: from directives
+            $base = '$table->'  . $ourType->getLaravelSQLType($fieldName, $options);
         } elseif ($type instanceof UnionType) {
             return;
         } elseif ($type instanceof CustomScalarType) {
