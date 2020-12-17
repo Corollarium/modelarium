@@ -96,7 +96,7 @@ class ModelariumFrontendCommand extends Command
         } elseif (is_array($name)) {
             // TODO
         } else {
-            $this->generateFromModel($name);
+            $this->generateFromModel('\\App\\Models\\' . $name);
         }
         $this->info('Finished frontend.');
     }
