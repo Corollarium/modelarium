@@ -125,9 +125,6 @@ class MigrationGenerator extends BaseGenerator
         \GraphQL\Language\AST\NodeList $directives
     ): void {
         $fieldName = $field->name;
-        $extra = [];
-
-        // TODO: scalars
 
         if ($field->type instanceof NonNull) {
             $type = $field->type->getWrappedType();
@@ -148,68 +145,7 @@ class MigrationGenerator extends BaseGenerator
         } elseif ($type instanceof FloatType) {
             $codeFragment->appendBase('$table->float("' . $fieldName . '")');
         } elseif ($type instanceof EnumType) {
-            $ourType = $this->parser->getScalarType($type->name);
-            $parsedValues = $type->config['values'];
-
-            if (!$ourType) {
-                $parsedKeys = array_keys($parsedValues);
-                $enumValues = array_combine($parsedKeys, $parsedKeys);
-
-                // let's create this for the user
-                $code = DatatypeFactory::generate(
-                    $type->name,
-                    'enum',
-                    'App\\Datatypes',
-                    'Tests\\Unit',
-                    function (ClassType $enumClass) use ($enumValues) {
-                        $enumClass->addConstant('CHOICES', $enumValues);
-                        $enumClass->getMethod('__construct')->addBody('$this->choices = self::CHOICES;');
-                    }
-                );
-        
-                $path = base_path('app/Datatypes');
-                $lowerTypeName = mb_strtolower($type->name);
-
-                $retval = DatatypeFactory::generateFile(
-                    $code,
-                    $path,
-                    base_path('tests/Unit/')
-                );
-
-                $php = \Modelarium\Util::generateLighthouseTypeFile($lowerTypeName, 'App\\Datatypes\\Types');
-                $filename = $path . "/Types/Datatype_{$lowerTypeName}.php";
-                if (!is_dir($path . "/Types")) {
-                    \Safe\mkdir($path . "/Types", 0777, true);
-                }
-                \Safe\file_put_contents($filename, $php);
-        
-                // recreate scalars
-                \Modelarium\Util::generateScalarFile('App\\Datatypes', base_path('graphql/types.graphql'));
-
-                // load php files that were just created
-                require_once($retval['filename']);
-                require_once($filename);
-                $this->parser->appendScalar($type->name, 'App\\Datatypes\\Types\\Datatype_' . $lowerTypeName);
-                $ourType = $this->parser->getScalarType($type->name);
-            }
-            if (!($ourType instanceof FormulariumScalarType)) {
-                throw new Exception("Enum {$type->name} {$fieldName} is not a FormulariumScalarType");
-            }
-
-            /**
-             * @var FormulariumScalarType $ourType
-             */
-            /**
-             * @var Datatype_enum $ourDatatype
-             */
-            $ourDatatype = $ourType->getDatatype();
-            $currentChoices = $ourDatatype->getChoices();
-            if (array_diff_key($currentChoices, $parsedValues) || array_diff_key($parsedValues, $currentChoices)) {
-                // TODO???
-            }
-
-            $options = []; // TODO: from directives
-            $codeFragment->appendBase('$table->'  . $ourType->getLaravelSQLType($fieldName, $options));
+            $this->processEnum($type, $codeFragment);
         } elseif ($type instanceof UnionType) {
             return;
         } elseif ($type instanceof CustomScalarType) {
@@ -250,6 +186,74 @@ class MigrationGenerator extends BaseGenerator
 
         $this->createCode[] = $codeFragment->base . ';';
         $this->createCode = array_merge($this->createCode, $codeFragment->extraLines);
+    }
+
+    protected function processEnum(
+        EnumType $type,
+        MigrationCodeFragment $codeFragment
+    ) {
+        $ourType = $this->parser->getScalarType($type->name);
+        $parsedValues = $type->config['values'];
+
+        if (!$ourType) {
+            $parsedKeys = array_keys($parsedValues);
+            $enumValues = array_combine($parsedKeys, $parsedKeys);
+
+            // let's create this for the user
+            $code = DatatypeFactory::generate(
+                $type->name,
+                'enum',
+                'App\\Datatypes',
+                'Tests\\Unit',
+                function (ClassType $enumClass) use ($enumValues) {
+                    $enumClass->addConstant('CHOICES', $enumValues);
+                    $enumClass->getMethod('__construct')->addBody('$this->choices = self::CHOICES;');
+                }
+            );
+    
+            $path = base_path('app/Datatypes');
+            $lowerTypeName = mb_strtolower($type->name);
+
+            $retval = DatatypeFactory::generateFile(
+                $code,
+                $path,
+                base_path('tests/Unit/')
+            );
+
+            $php = \Modelarium\Util::generateLighthouseTypeFile($lowerTypeName, 'App\\Datatypes\\Types');
+            $filename = $path . "/Types/Datatype_{$lowerTypeName}.php";
+            if (!is_dir($path . "/Types")) {
+                \Safe\mkdir($path . "/Types", 0777, true);
+            }
+            \Safe\file_put_contents($filename, $php);
+    
+            // recreate scalars
+            \Modelarium\Util::generateScalarFile('App\\Datatypes', base_path('graphql/types.graphql'));
+
+            // load php files that were just created
+            require_once($retval['filename']);
+            require_once($filename);
+            $this->parser->appendScalar($type->name, 'App\\Datatypes\\Types\\Datatype_' . $lowerTypeName);
+            $ourType = $this->parser->getScalarType($type->name);
+        }
+        if (!($ourType instanceof FormulariumScalarType)) {
+            throw new Exception("Enum {$type->name} {$fieldName} is not a FormulariumScalarType");
+        }
+
+        /**
+         * @var FormulariumScalarType $ourType
+         */
+        /**
+         * @var Datatype_enum $ourDatatype
+         */
+        $ourDatatype = $ourType->getDatatype();
+        $currentChoices = $ourDatatype->getChoices();
+        if (array_diff_key($currentChoices, $parsedValues) || array_diff_key($parsedValues, $currentChoices)) {
+            // TODO???
+        }
+
+        $options = []; // TODO: from directives
+        $codeFragment->appendBase('$table->'  . $ourType->getLaravelSQLType($fieldName, $options));
     }
 
     protected function processRelationship(
