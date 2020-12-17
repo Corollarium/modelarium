@@ -94,11 +94,9 @@ class Processor extends ModelariumProcessor
                 if (! is_a($class, \Nuwave\Lighthouse\Schema\Directives\BaseDirective::class, true)) {
                     continue;
                 }
-                if (!$reflection->implementsInterface(\Nuwave\Lighthouse\Support\Contracts\DefinedDirective::class)) {
-                    throw new Exception('Lighthouse directive does not implement definition()');
-                }
-
+                
                 $name = DirectiveFactory::directiveName((string)$class);
+                // @phpstan-ignore-next-line
                 $directives[$name] = trim($class::definition());
             }
         }
