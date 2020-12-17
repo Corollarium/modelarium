@@ -2,6 +2,7 @@
 
 namespace Modelarium\Laravel\Directives;
 
+use Modelarium\Exception\DirectiveException;
 use Modelarium\Laravel\Targets\MigrationGenerator;
 use Modelarium\Laravel\Targets\Interfaces\MigrationDirectiveInterface;
 use Modelarium\Laravel\Targets\MigrationCodeFragment;
@@ -13,7 +14,7 @@ class MigrationDefaultValueDirective implements MigrationDirectiveInterface
         MigrationGenerator $generator,
         \GraphQL\Language\AST\DirectiveNode $directive
     ): void {
-        // nothing
+        throw new DirectiveException("@defaultValue not allowed on types.");
     }
 
     public static function processMigrationFieldDirective(
@@ -24,5 +25,14 @@ class MigrationDefaultValueDirective implements MigrationDirectiveInterface
     ): void {
         $x = Parser::getDirectiveArgumentByName($directive, 'value');
         $code->appendBase('->default(' . $x . ')');
+    }
+
+    public static function processMigrationRelationshipDirective(
+        MigrationGenerator $generator,
+        \GraphQL\Type\Definition\FieldDefinition $field,
+        \GraphQL\Language\AST\DirectiveNode $directive,
+        MigrationCodeFragment $code
+    ): void {
+        throw new DirectiveException("@defaultValue not allowed on relationships.");
     }
 }
