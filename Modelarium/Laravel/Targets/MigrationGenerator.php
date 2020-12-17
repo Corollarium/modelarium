@@ -145,7 +145,7 @@ class MigrationGenerator extends BaseGenerator
         } elseif ($type instanceof FloatType) {
             $codeFragment->appendBase('$table->float("' . $fieldName . '")');
         } elseif ($type instanceof EnumType) {
-            $this->processEnum($type, $codeFragment);
+            $this->processEnum($field, $type, $codeFragment);
         } elseif ($type instanceof UnionType) {
             return;
         } elseif ($type instanceof CustomScalarType) {
@@ -189,9 +189,11 @@ class MigrationGenerator extends BaseGenerator
     }
 
     protected function processEnum(
+        \GraphQL\Type\Definition\FieldDefinition $field,
         EnumType $type,
         MigrationCodeFragment $codeFragment
-    ) {
+    ): void {
+        $fieldName = $field->name;
         $ourType = $this->parser->getScalarType($type->name);
         $parsedValues = $type->config['values'];
 

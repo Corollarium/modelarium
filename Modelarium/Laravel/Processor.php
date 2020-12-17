@@ -5,6 +5,7 @@ namespace Modelarium\Laravel;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use HaydenPierce\ClassFinder\ClassFinder;
+use Modelarium\Exception\Exception;
 use Modelarium\GeneratedCollection;
 use Modelarium\GeneratedItem;
 use Modelarium\Laravel\Targets\EventGenerator;
@@ -17,6 +18,8 @@ use Modelarium\Parser;
 use Modelarium\Processor as ModelariumProcessor;
 use Nette\PhpGenerator\ClassType;
 use Nuwave\Lighthouse\Schema\Factories\DirectiveFactory;
+
+use function Safe\class_implements;
 
 class Processor extends ModelariumProcessor
 {
@@ -90,6 +93,9 @@ class Processor extends ModelariumProcessor
 
                 if (! is_a($class, \Nuwave\Lighthouse\Schema\Directives\BaseDirective::class, true)) {
                     continue;
+                }
+                if (!$reflection->implementsInterface(\Nuwave\Lighthouse\Support\Contracts\DefinedDirective::class)) {
+                    throw new Exception('Lighthouse directive does not implement definition()');
                 }
 
                 $name = DirectiveFactory::directiveName((string)$class);
