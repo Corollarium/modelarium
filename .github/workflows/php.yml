@@ -44,6 +44,12 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: "7.4"
+          extensions: mbstring, intl
+          coverage: xdebug
+
       - name: Cache Composer packages
         id: composer-cache
         uses: actions/cache@v2
