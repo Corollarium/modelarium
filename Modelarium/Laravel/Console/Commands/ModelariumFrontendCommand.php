@@ -27,6 +27,7 @@ class ModelariumFrontendCommand extends Command
         {--framework=* : The frameworks to use}
         {--lighthouse : use lighthouse directives}
         {--overwrite-graphql : overwrite graphql files if they exist}
+        {--overwrite-match= : overwrite files that contain this string}
         {--overwrite : overwrite all files if they exist}
         {--prettier : run prettier on files}
     ';
@@ -153,6 +154,13 @@ class ModelariumFrontendCommand extends Command
                     ) {
                         return true;
                     } elseif (StringUtil::endsWith($i->filename, 'model.js')) {
+                        return true;
+                    }
+                }
+                if ($this->option('overwrite-match')) {
+                    if (
+                        mb_strpos($i->filename, $this->option('overwrite-match')) !== false
+                    ) {
                         return true;
                     }
                 }
