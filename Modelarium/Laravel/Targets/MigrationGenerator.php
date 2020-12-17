@@ -270,13 +270,12 @@ class MigrationGenerator extends BaseGenerator
         $typeName = $type->name;
         $tableName = self::toTableName($typeName);
 
-        $base = null;
-        $extra = [];
-
         // special types that should be skipped.
         if ($typeName === 'Can') {
             return;
         }
+
+        $codeFragment = new MigrationCodeFragment();
 
         $isManyToMany = false;
         foreach ($directives as $directive) {
@@ -286,6 +285,7 @@ class MigrationGenerator extends BaseGenerator
             }
 
             // TODO: separate classes
+
             // $className = $this->getDirectiveClass($name);
             // if ($className) {
             //     $methodName = "$className::processMigrationRelationshipDirective";
@@ -299,10 +299,10 @@ class MigrationGenerator extends BaseGenerator
 
             switch ($name) {
             case 'migrationUniqueIndex':
-                $extra[] = '$table->unique("' . $fieldName . '");';
+                $codeFragment->appendExtraLine('$table->unique("' . $fieldName . '");');
                 break;
             case 'migrationIndex':
-                $extra[] = '$table->index("' . $fieldName . '");';
+                $codeFragment->appendExtraLine('$table->index("' . $fieldName . '");');
                 break;
             case 'belongsTo':
                 $targetType = $this->parser->getType($typeName);
@@ -328,7 +328,7 @@ class MigrationGenerator extends BaseGenerator
                     switch ($targetDirective->name->value) {
                     case 'hasOne':
                     case 'hasMany':
-                        $base = '$table->unsignedBigInteger("' . $fieldName . '")';
+                        $codeFragment->appendBase('->unsignedBigInteger("' . $fieldName . '")');
                     break;
                     }
                 }
@@ -347,9 +347,11 @@ class MigrationGenerator extends BaseGenerator
 
             case 'morphTo':
                 $relation = Parser::getDirectiveArgumentByName($directive, 'relation', $lowerName);
-                $base = '$table->unsignedBigInteger("' . $relation . '_id")';
-                $extra[] = '$table->string("' . $relation . '_type")' .
-                    ($isRequired ? '' : '->nullable()') . ';';
+                $codeFragment->appendBase('->unsignedBigInteger("' . $relation . '_id")');
+                $codeFragment->appendExtraLine(
+                    '$table->string("' . $relation . '_type")' .
+                    ($isRequired ? '' : '->nullable()') . ';'
+                );
                 break;
 
             case 'morphedByMany':
@@ -364,7 +366,6 @@ class MigrationGenerator extends BaseGenerator
             $name = $directive->name->value;
             switch ($name) {
             case 'migrationForeign':
-                
                 if (!$isManyToMany) {
                     $arguments = array_merge(
                         [
@@ -374,25 +375,27 @@ class MigrationGenerator extends BaseGenerator
                         Parser::getDirectiveArguments($directive)
                     );
     
-                    $extra[] = '$table->foreign("' . $fieldName . '")' .
+                    $codeFragment->appendExtraLine(
+                        '$table->foreign("' . $fieldName . '")' .
                         "->references(\"{$arguments['references']}\")" .
                         "->on(\"{$arguments['on']}\")" .
                         (($arguments['onDelete'] ?? '') ? "->onDelete(\"{$arguments['onDelete']}\")" : '') .
                         (($arguments['onUpdate'] ?? '') ? "->onUpdate(\"{$arguments['onUpdate']}\")" : '') .
-                        ';';
+                        ';'
+                    );
                 }
                 break;
             }
         }
 
-        if ($base) {
+        if ($codeFragment->base) {
             if (!($field->type instanceof NonNull)) {
-                $base .= '->nullable()';
+                $codeFragment->appendBase('->nullable()');
             }
-            $base .= ';';
-            $this->createCode[] = $base;
+            $this->createCode[] = '$table' . $codeFragment->base . ';';
         }
-        $this->createCode = array_merge($this->createCode, $extra);
+        
+        $this->createCode = array_merge($this->createCode, $codeFragment->extraLines);
     }
 
     protected function processDirectives(
