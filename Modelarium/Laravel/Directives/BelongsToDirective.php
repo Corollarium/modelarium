@@ -48,9 +48,9 @@ class BelongsToDirective implements MigrationDirectiveInterface, ModelDirectiveI
 
         $targetType = $generator->parser->getType($typeName);
         if (!$targetType) {
-            throw new DirectiveException("Cannot get type {$typeName} as a relationship to {$this->baseName}");
+            throw new DirectiveException("Cannot get type {$typeName} as a relationship to {$generator->getBaseName()}");
         } elseif (!($targetType instanceof ObjectType)) {
-            throw new DirectiveException("{$typeName} is not a type for a relationship to {$this->baseName}");
+            throw new DirectiveException("{$typeName} is not a type for a relationship to {$generator->getBaseName()}");
         }
         // we don't know what is the reverse relationship name at this point. so let's guess all possibilities
         try {
