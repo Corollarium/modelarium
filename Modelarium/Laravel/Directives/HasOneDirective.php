@@ -22,7 +22,7 @@ class HasOneDirective implements ModelDirectiveInterface, SeedDirectiveInterface
     public static function processModelFieldDirective(
         ModelGenerator $generator,
         \GraphQL\Type\Definition\FieldDefinition $field,
-       \Formularium\Field $fieldFormularium,
+        \Formularium\Field $fieldFormularium,
         \GraphQL\Language\AST\DirectiveNode $directive
     ): void {
         // nothing
@@ -43,7 +43,7 @@ class HasOneDirective implements ModelDirectiveInterface, SeedDirectiveInterface
 
         $relationship = RelationshipFactory::RELATIONSHIP_ONE_TO_ONE;
         $isInverse = false;
-        $generator->class->addMethod(ModelGenerator::toTableName($targetTypeName))
+        $generator->class->addMethod(Str::snake(Str::studly($targetTypeName)))
             ->setPublic()
             ->setReturnType('\\Illuminate\\Database\\Eloquent\\Relations\\HasOne')
             ->setBody("return \$this->hasOne($targetTypeName::class);");

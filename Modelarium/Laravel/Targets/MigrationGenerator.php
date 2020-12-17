@@ -135,18 +135,18 @@ class MigrationGenerator extends BaseGenerator
             $type = $field->type;
         }
 
-        $base = '';
-        // TODO: should all the formularium data types
+        $codeFragment = new MigrationCodeFragment();
+
         if ($type instanceof IDType) {
-            $base = '$table->bigIncrements("id")';
+            $codeFragment->appendBase('$table->bigIncrements("id")');
         } elseif ($type instanceof StringType) {
-            $base = '$table->string("' . $fieldName . '")';
+            $codeFragment->appendBase('$table->string("' . $fieldName . '")');
         } elseif ($type instanceof IntType) {
-            $base = '$table->integer("' . $fieldName . '")';
+            $codeFragment->appendBase('$table->integer("' . $fieldName . '")');
         } elseif ($type instanceof BooleanType) {
-            $base = '$table->boolean("' . $fieldName . '")';
+            $codeFragment->appendBase('$table->boolean("' . $fieldName . '")');
         } elseif ($type instanceof FloatType) {
-            $base = '$table->float("' . $fieldName . '")';
+            $codeFragment->appendBase('$table->float("' . $fieldName . '")');
         } elseif ($type instanceof EnumType) {
             $ourType = $this->parser->getScalarType($type->name);
             $parsedValues = $type->config['values'];
@@ -209,7 +209,7 @@ class MigrationGenerator extends BaseGenerator
             }
 
             $options = []; // TODO: from directives
-            $base = '$table->'  . $ourType->getLaravelSQLType($fieldName, $options);
+            $codeFragment->appendBase('$table->'  . $ourType->getLaravelSQLType($fieldName, $options));
         } elseif ($type instanceof UnionType) {
             return;
         } elseif ($type instanceof CustomScalarType) {
@@ -218,7 +218,7 @@ class MigrationGenerator extends BaseGenerator
                 throw new Exception("Invalid extended scalar type: " . get_class($type));
             }
             $options = []; // TODO: from directives
-            $base = '$table->' . $ourType->getLaravelSQLType($fieldName, $options);
+            $codeFragment->appendBase('$table->' . $ourType->getLaravelSQLType($fieldName, $options));
         } elseif ($type instanceof ListOfType) {
             throw new Exception("Invalid field type: " . get_class($type));
         } else {
@@ -226,35 +226,30 @@ class MigrationGenerator extends BaseGenerator
         }
 
         if (!($field->type instanceof NonNull)) {
-            $base .= '->nullable()';
+            $codeFragment->appendBase('->nullable()');
         }
-
-        // TODO: call directive class
 
         foreach ($directives as $directive) {
-            /**
-             * @var DirectiveNode $directive
-             */
             $name = $directive->name->value;
-            switch ($name) {
-            case 'migrationSkip':
+            if ($name === 'migrationSkip') { // special case
                 return;
-            case 'migrationUniqueIndex':
-                $extra[] = '$table->unique("' . $fieldName . '");';
-                break;
-            case 'migrationIndex':
-                $extra[] = '$table->index("' . $fieldName . '");';
-                break;
-            case 'migrationDefaultValue':
-                $x = Parser::getDirectiveArgumentByName($directive, 'value');
-                $base .= '->default(' . $x . ')';
-                break;
+            }
+
+            $className = $this->getDirectiveClass($name);
+            if ($className) {
+                $methodName = "$className::processMigrationFieldDirective";
+                /** @phpstan-ignore-next-line */
+                $methodName(
+                    $this,
+                    $field,
+                    $directive,
+                    $codeFragment
+                );
             }
         }
-        $base .= ';';
 
-        $this->createCode[] = $base;
-        $this->createCode = array_merge($this->createCode, $extra);
+        $this->createCode[] = $codeFragment->base . ';';
+        $this->createCode = array_merge($this->createCode, $codeFragment->extraLines);
     }
 
     protected function processRelationship(
@@ -310,10 +305,16 @@ class MigrationGenerator extends BaseGenerator
                 } elseif (!($targetType instanceof ObjectType)) {
                     throw new Exception("{$typeName} is not a type for a relationship to {$this->baseName}");
                 }
+                // we don't know what is the reverse relationship name at this point. so let's guess all possibilities
                 try {
-                    $targetField = $targetType->getField($tableName); // TODO: might have another name than lowerName
+                    $targetField = $targetType->getField($tableName);
                 } catch (\GraphQL\Error\InvariantViolation $e) {
-                    $targetField = $targetType->getField($this->tableName);
+                    try {
+                        $targetField = $targetType->getField($this->tableName);
+                    } catch (\GraphQL\Error\InvariantViolation $e) {
+                        // one to one
+                        $targetField = $targetType->getField($this->lowerName);
+                    }
                 }
 
                 $targetDirectives = $targetField->astNode->directives;

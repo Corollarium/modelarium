@@ -7,6 +7,7 @@ use Modelarium\Laravel\Targets\MigrationGenerator;
 use Modelarium\Laravel\Targets\ModelGenerator;
 use Modelarium\Laravel\Targets\Interfaces\MigrationDirectiveInterface;
 use Modelarium\Laravel\Targets\Interfaces\ModelDirectiveInterface;
+use Modelarium\Laravel\Targets\MigrationCodeFragment;
 
 class MigrationRememberTokenDirective implements MigrationDirectiveInterface, ModelDirectiveInterface
 {
@@ -20,7 +21,8 @@ class MigrationRememberTokenDirective implements MigrationDirectiveInterface, Mo
     public static function processMigrationFieldDirective(
         MigrationGenerator $generator,
         \GraphQL\Type\Definition\FieldDefinition $field,
-        \GraphQL\Language\AST\DirectiveNode $directive
+        \GraphQL\Language\AST\DirectiveNode $directive,
+        MigrationCodeFragment $code
     ): void {
         // nothing
     }
@@ -35,7 +37,7 @@ class MigrationRememberTokenDirective implements MigrationDirectiveInterface, Mo
     public static function processModelFieldDirective(
         ModelGenerator $generator,
         \GraphQL\Type\Definition\FieldDefinition $field,
-       \Formularium\Field $fieldFormularium,
+        \Formularium\Field $fieldFormularium,
         \GraphQL\Language\AST\DirectiveNode $directive
     ): void {
         // nothing

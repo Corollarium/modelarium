@@ -3,10 +3,13 @@
 namespace Modelarium\Laravel\Directives;
 
 use Illuminate\Support\Str;
+use Modelarium\Laravel\Targets\Interfaces\MigrationDirectiveInterface;
 use Modelarium\Laravel\Targets\ModelGenerator;
 use Modelarium\Laravel\Targets\Interfaces\ModelDirectiveInterface;
+use Modelarium\Laravel\Targets\MigrationCodeFragment;
+use Modelarium\Laravel\Targets\MigrationGenerator;
 
-class MigrationUniqueIndexDirective implements ModelDirectiveInterface
+class MigrationUniqueIndexDirective implements ModelDirectiveInterface, MigrationDirectiveInterface
 {
     public static function processModelTypeDirective(
         ModelGenerator $generator,
@@ -17,7 +20,7 @@ class MigrationUniqueIndexDirective implements ModelDirectiveInterface
     public static function processModelFieldDirective(
         ModelGenerator $generator,
         \GraphQL\Type\Definition\FieldDefinition $field,
-       \Formularium\Field $fieldFormularium,
+        \Formularium\Field $fieldFormularium,
         \GraphQL\Language\AST\DirectiveNode $directive
     ): void {
         $fieldName = $field->name;
@@ -38,5 +41,20 @@ class MigrationUniqueIndexDirective implements ModelDirectiveInterface
         \GraphQL\Language\AST\DirectiveNode $directive
     ): string {
         return '';
+    }
+
+    public static function processMigrationTypeDirective(
+        MigrationGenerator $generator,
+        \GraphQL\Language\AST\DirectiveNode $directive
+    ): void {
+    }
+
+    public static function processMigrationFieldDirective(
+        MigrationGenerator $generator,
+        \GraphQL\Type\Definition\FieldDefinition $field,
+        \GraphQL\Language\AST\DirectiveNode $directive,
+        MigrationCodeFragment $code
+    ): void {
+        $code->appendExtraLine('$table->unique("' . $field->name . '");');
     }
 }

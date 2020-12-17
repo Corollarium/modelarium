@@ -21,7 +21,7 @@ class BelongsToManyDirective implements ModelDirectiveInterface, SeedDirectiveIn
     public static function processModelFieldDirective(
         ModelGenerator $generator,
         \GraphQL\Type\Definition\FieldDefinition $field,
-       \Formularium\Field $fieldFormularium,
+        \Formularium\Field $fieldFormularium,
         \GraphQL\Language\AST\DirectiveNode $directive
     ): void {
         // nothing
@@ -40,7 +40,7 @@ class BelongsToManyDirective implements ModelDirectiveInterface, SeedDirectiveIn
         $relationship = null;
         $isInverse = false;
 
-        $targetClass = '\\App\\Models\\' . Str::studly($generator->getInflector()->singularize($field->name));
+        $targetClass = Str::studly($generator->getInflector()->singularize($field->name));
         $generateRandom = true; // TODO
         $relationship = RelationshipFactory::RELATIONSHIP_MANY_TO_MANY;
         $isInverse = true;

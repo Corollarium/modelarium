@@ -1,22 +1,28 @@
 <?php declare(strict_types=1);
 
-namespace Modelarium\Laravel\Targets\Interfaces;
+namespace Modelarium\Laravel\Directives;
 
-use GraphQL\Type\Definition\Directive;
-use Modelarium\Laravel\Targets\MigrationCodeFragment;
 use Modelarium\Laravel\Targets\MigrationGenerator;
+use Modelarium\Laravel\Targets\Interfaces\MigrationDirectiveInterface;
+use Modelarium\Laravel\Targets\MigrationCodeFragment;
+use Modelarium\Parser;
 
-interface MigrationDirectiveInterface
+class MigrationDefaultValueDirective implements MigrationDirectiveInterface
 {
     public static function processMigrationTypeDirective(
         MigrationGenerator $generator,
         \GraphQL\Language\AST\DirectiveNode $directive
-    ): void;
+    ): void {
+        // nothing
+    }
 
     public static function processMigrationFieldDirective(
         MigrationGenerator $generator,
         \GraphQL\Type\Definition\FieldDefinition $field,
         \GraphQL\Language\AST\DirectiveNode $directive,
         MigrationCodeFragment $code
-    ): void;
+    ): void {
+        $x = Parser::getDirectiveArgumentByName($directive, 'value');
+        $code->appendBase('->default(' . $x . ')');
+    }
 }
