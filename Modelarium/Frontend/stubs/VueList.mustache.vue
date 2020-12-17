@@ -1,15 +1,15 @@
 <template>
-  <main class="modelarium-list">
-    <h1 class="modelarium-list__title" v-if="showTitle">{|typeTitle|}</h1>
+  <main class="modelarium-list {|lowerName|}-list">
+    <h1 class="modelarium-list__title {|lowerName|}-list__title" v-if="showTitle">{|typeTitle|}</h1>
 
-    <div class="modelarium-list__header" v-if="showHeader && can.create">
+    <div class="modelarium-list__header {|lowerName|}-list__header" v-if="showHeader && can.create">
       {|{buttonCreate}|}
     </div>
 
     {|{ spinner }|}
 
-    <div class="modelarium-list__list" v-if="list.length">
-      <div class="modelarium-list__filters">
+    <div class="modelarium-list__list {|lowerName|}-list__list" v-if="list.length">
+      <div class="modelarium-list__filters {|lowerName|}-list__filters">
         {|#filters|}
 
         {|/filters|}
@@ -23,7 +23,7 @@
         @page="pagination.currentPage = $event"
       ></Pagination>
     </div>
-    <div class="modelarium-list__empty" v-else>
+    <div class="modelarium-list__empty {|lowerName|}-list__empty" v-else>
       Nothing found.
     </div>
   </main>

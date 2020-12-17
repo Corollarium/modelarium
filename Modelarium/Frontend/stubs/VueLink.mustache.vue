@@ -1,5 +1,5 @@
 <template>
-  <router-link class="{|lowerName|}-link" :to="link">
+  <router-link class="modelarium-link {|lowerName|}-link" :to="link">
     {{ {| titleField |} }}
   </router-link>
 </template>

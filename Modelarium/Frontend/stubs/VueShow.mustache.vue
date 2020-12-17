@@ -1,8 +1,8 @@
 <template>
-  <div class="modelarium-show">
+  <div class="modelarium-show {|lowerName|}-show">
     <div {|{containerAtts}|}>{|{ form }|}</div>
 
-    <div class="modelarium-show__buttons">
+    <div class="modelarium-show__buttons {|lowerName|}-show__buttons">
       {|{buttonEdit}|} {|{buttonDelete}|}
     </div>
   </div>

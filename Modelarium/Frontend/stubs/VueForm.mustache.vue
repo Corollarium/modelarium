@@ -1,5 +1,9 @@
 <template>
-  <form class="modelarium-form" method="POST" @submit.prevent="save">
+  <form
+    class="modelarium-form {|lowerName|}-form"
+    method="POST"
+    @submit.prevent="save"
+  >
     {|{ form }|} {|{ buttonSubmit }|}
   </form>
 </template>
