@@ -6,6 +6,7 @@ use Formularium\FrameworkComposer;
 use Formularium\StringUtil;
 use HaydenPierce\ClassFinder\ClassFinder;
 use Illuminate\Console\Command;
+use Modelarium\Exception\Exception;
 use Modelarium\Parser;
 use Modelarium\Frontend\FrontendGenerator;
 use Modelarium\GeneratedItem;
@@ -140,11 +141,22 @@ class ModelariumFrontendCommand extends Command
             return;
         }
 
+        /**
+         * @var string $match
+         */
+        $match = $this->option('overwrite-match');
+        if (!empty($match)) {
+            if (!is_string($match)) {
+                $this->error('--overwrite-match must be a string');
+                throw new Exception('');
+            }
+        }
+
         $basepath = base_path('resources/js/components/');
         $writtenFiles = $this->writeFiles(
             $collection,
             $basepath,
-            function (GeneratedItem $i) {
+            function (GeneratedItem $i) use ($match) {
                 if ((bool)$this->option('overwrite') === true) {
                     return true;
                 }
@@ -157,12 +169,8 @@ class ModelariumFrontendCommand extends Command
                         return true;
                     }
                 }
-                if ($this->option('overwrite-match')) {
-                    if (
-                        mb_strpos($i->filename, $this->option('overwrite-match')) !== false
-                    ) {
-                        return true;
-                    }
+                if ($match && mb_strpos($i->filename, $match) !== false) {
+                    return true;
                 }
                 return false;
             }
