@@ -120,72 +120,11 @@ class FrontendGenerator implements GeneratorInterface
         $vue = $this->composer->getByName('Vue');
         // $blade = FrameworkComposer::getByName('Blade');
 
+        $this->makeJSModel();
+
         if ($vue !== null) {
-            // build the fields for cards and tables
-            $vueCode = $vue->getVueCode();
-            $cardFieldNames = array_map(function (Field $f) {
-                return $f->getName();
-            }, $this->cardFields);
-            $tableFieldNames = array_map(function (Field $f) {
-                return $f->getName();
-            }, $this->tableFields);
-
-            // set basic data for vue
-            $extraprops = [
-                [
-                    'name' => 'id',
-                    'type' => 'String',
-                    'required' => true
-                ]
-            ];
-            $vueCode->setExtraProps($extraprops);
-
-            // build basic vue components
-            $this->vuePublish();
-            $this->makeVuePaginationComponent();
-            $this->makeJSModel();
-            $this->vueCodeItem($vue);
-
-            // card
-            foreach ($this->cardFields as $f) {
-                $vueCode->appendExtraProp([
-                    'name' => $f->getName(),
-                    'type' => $vueCode->mapTypeToJs($f->getDatatype()),
-                    'required' => true
-                ]);
-            }
-            $this->makeVue($vue, 'Card', 'viewable', $cardFieldNames);
-            // reset props
-            $vueCode->setExtraProps($extraprops);
-
-            // table
-            foreach ($this->tableFields as $f) {
-                $vueCode->appendExtraProp([
-                    'name' => $f->getName(),
-                    'type' => $vueCode->mapTypeToJs($f->getDatatype()),
-                    'required' => true
-                ]);
-            }
-            $this->makeVue($vue, 'TableItem', 'viewable', $tableFieldNames);
-            $vueCode->setExtraProps($extraprops);
-
-            $this->makeVue($vue, 'List', 'viewable');
-            $this->makeVue($vue, 'Table', 'viewable');
-            $this->makeVue($vue, 'Show', 'viewable');
-            $this->makeVue($vue, 'Edit', 'editable');
-            $this->makeVue(
-                $vue,
-                'Form',
-                'editable',
-                function (Field $f) {
-                    if (!$f->getExtradata('modelFillable')) {
-                        return false;
-                    }
-                    return true;
-                }
-            );
-            $this->makeVueRoutes();
-            $this->makeVueIndex();
+            $vueGenerator = new FrontendVueGenerator($this);
+            $vueGenerator->generate();
         }
 
         $this->makeGraphql();
@@ -193,56 +132,7 @@ class FrontendGenerator implements GeneratorInterface
         return $this->collection;
     }
 
-    /**
-     * Publishes the Vue component dependencies
-     *
-     * @return void
-     */
-    protected function vuePublish(): void
-    {
-        $this->collection->push(
-            new GeneratedItem(
-                GeneratedItem::TYPE_FRONTEND,
-                file_get_contents(__DIR__ . "/Vue/Renderable/RelationshipAutocomplete.vue"),
-                "Modelarium/RelationshipAutocomplete.vue"
-            )
-        );
-        $this->collection->push(
-            new GeneratedItem(
-                GeneratedItem::TYPE_FRONTEND,
-                file_get_contents(__DIR__ . "/Vue/Renderable/RelationshipSelect.vue"),
-                "Modelarium/RelationshipSelect.vue"
-            )
-        );
-        // $this->collection->push(
-        //     new GeneratedItem(
-        //         GeneratedItem::TYPE_FRONTEND,
-        //         file_get_contents(__DIR__ . "/Vue/Renderable/RelationshipSelectMultiple.vue"),
-        //         "Modelarium/RelationshipSelectMultiple.vue"
-        //     )
-        // );
-    }
-
-    protected function makeVuePaginationComponent(): void
-    {
-        $pagination = $this->composer->nodeElement(
-            'Pagination',
-            [
-            ]
-        );
-        $html = $pagination->getRenderHTML();
-        $script = PaginationVue::script();
-
-        $this->collection->push(
-            new GeneratedItem(
-                GeneratedItem::TYPE_FRONTEND,
-                "<template>\n$html\n</template>\n<script>\n$script\n</script>\n",
-                "Modelarium/Pagination.vue"
-            )
-        );
-    }
-
-    protected function buildTemplateParameters(): void
+    public function buildTemplateParameters(): void
     {
         $hasVue = $this->composer->getByName('Vue');
 
@@ -360,20 +250,6 @@ class FrontendGenerator implements GeneratorInterface
         ];
     }
 
-    /**
-     * Appends computed item
-     *
-     * @param FrameworkVue $vue
-     * @return void
-     */
-    protected function vueCodeItem(FrameworkVue $vue): void
-    {
-        $vue->getVueCode()->appendComputed(
-            'link',
-            'return "/' . $this->routeBase . '/" + this.' . $this->keyAttribute
-        );
-    }
-
     public function templateCallback(string $stub, FrameworkVue $vue, array $data, Model $m): string
     {
         $x = $this->templateFile(
@@ -384,53 +260,6 @@ class FrontendGenerator implements GeneratorInterface
             )
         );
         return $x;
-    }
-
-    /**
-     * @param FrameworkVue $vue
-     * @param string $component
-     * @param string $mode
-     * @param string[]|callable $restrictFields
-     * @return void
-     */
-    protected function makeVue(FrameworkVue $vue, string $component, string $mode, $restrictFields = null): void
-    {
-        $path = $this->model->getName() . '/' .
-            $this->model->getName() . $component . '.vue';
-
-        $stub = $this->stubDir . "/Vue{$component}.mustache.vue";
-
-        if ($mode == 'editable') {
-            $vue->setEditableTemplate(
-                function (FrameworkVue $vue, array $data, Model $m) use ($stub) {
-                    return $this->templateCallback($stub, $vue, $data, $m);
-                }
-            );
-
-            $this->collection->push(
-                new GeneratedItem(
-                    GeneratedItem::TYPE_FRONTEND,
-                    $this->model->editable($this->composer, [], $restrictFields),
-                    $path
-                )
-            );
-        } else {
-            $vue->setViewableTemplate(
-                function (FrameworkVue $vue, array $data, Model $m) use ($stub) {
-                    return $this->templateCallback($stub, $vue, $data, $m);
-                }
-            );
-
-            $this->collection->push(
-                new GeneratedItem(
-                    GeneratedItem::TYPE_FRONTEND,
-                    $this->model->viewable($this->composer, [], $restrictFields),
-                    $path
-                )
-            );
-        }
-        $vue->resetVueCode();
-        $vue->getVueCode()->setFieldModelVariable('model.');
     }
 
     /**
@@ -650,64 +479,7 @@ EOF;
             )
         );
     }
-
-    protected function makeVueIndex(): void
-    {
-        $path = $this->model->getName() . '/index.js';
-        $name = $this->studlyName;
-
-        $items = [
-            'Card',
-            'Edit',
-            'List',
-            'Show',
-            'Table',
-        ];
-
-        $import = array_map(
-            function ($i) use ($name) {
-                return "import {$name}$i from './{$name}$i.vue';";
-            },
-            $items
-        );
-
-        $export = array_map(
-            function ($i) use ($name) {
-                return "    {$name}$i,\n";
-            },
-            $items
-        );
-
-        $this->collection->push(
-            new GeneratedItem(
-                GeneratedItem::TYPE_FRONTEND,
-                implode("\n", $import) . "\n" .
-                "export default {\n" .
-                implode("\n", $export) . "\n};\n",
-                $path
-            )
-        );
-    }
-
-    protected function makeVueRoutes(): void
-    {
-        $path = $this->model->getName() . '/routes.js';
-
-        $this->collection->push(
-            new GeneratedItem(
-                GeneratedItem::TYPE_FRONTEND,
-                $this->templateFile(
-                    $this->stubDir . "/routes.mustache.js",
-                    [
-                        'routeName' => $this->routeBase,
-                        'keyAttribute' => $this->keyAttribute
-                    ]
-                ),
-                $path
-            )
-        );
-    }
-
+    
     protected function makeJSModel(): void
     {
         $path = $this->model->getName() . '/model.js';
@@ -723,5 +495,85 @@ EOF;
                 $path
             )
         );
+    }
+
+    /**
+     * Get the value of composer
+     *
+     * @return  FrameworkComposer
+     */
+    public function getComposer(): FrameworkComposer
+    {
+        return $this->composer;
+    }
+
+    /**
+     * Get the value of collection
+     *
+     * @return  GeneratedCollection
+     */
+    public function getCollection(): GeneratedCollection
+    {
+        return $this->collection;
+    }
+
+    /**
+     * Get card fields
+     *
+     * @return  Field[]
+     */
+    public function getCardFields(): array
+    {
+        return $this->cardFields;
+    }
+
+    /**
+     * Get table fields
+     *
+     * @return  Field[]
+     */
+    public function getTableFields(): array
+    {
+        return $this->tableFields;
+    }
+
+    /**
+     * Get defaults to 'id'.
+     *
+     * @return  string
+     */
+    public function getKeyAttribute(): string
+    {
+        return $this->keyAttribute;
+    }
+
+    /**
+     * Get defaults to lowerName.
+     *
+     * @return  string
+     */
+    public function getRouteBase(): string
+    {
+        return $this->routeBase;
+    }
+
+    /**
+     * Get the value of model
+     *
+     * @return  Model
+     */ 
+    public function getModel()
+    {
+        return $this->model;
+    }
+
+    /**
+     * Get the value of stubDir
+     *
+     * @return  string
+     */ 
+    public function getStubDir()
+    {
+        return $this->stubDir;
     }
 }

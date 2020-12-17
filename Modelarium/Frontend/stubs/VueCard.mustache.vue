@@ -1,9 +1,7 @@
 <template>
   <div class="{|lowerName|}-card">
     <div {|{containerAtts}|}>
-      <router-link :to="link">
-        {{ {| titleField |} }}
-      </router-link>
+      <{|StudlyName|}Link v-bind="$props"></{|StudlyName|}Link>
     </div>
   </div>
 </template>
