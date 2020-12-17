@@ -2,6 +2,7 @@
 
 namespace Modelarium\Laravel\Console\Commands;
 
+use Modelarium\Exception\Exception;
 use Modelarium\GeneratedCollection;
 use Modelarium\GeneratedItem;
 
@@ -12,20 +13,31 @@ trait WriterTrait
      *
      * @param GeneratedCollection $collection
      * @param string $basepath
-     * @param boolean $overwrite
+     * @param boolean|callable $overwrite. If a callable expects (GeneratedItem $item): bool
      * @return array The written files with their full path.
      */
-    public function writeFiles(GeneratedCollection $collection, string $basepath, bool $overwrite = true): array
+    public function writeFiles(GeneratedCollection $collection, string $basepath, $overwrite = true): array
     {
         $writtenFiles = [];
         foreach ($collection as $element) {
             /**
              * @var GeneratedItem $element
              */
+            
             $path = $basepath . '/' . $element->filename;
+            $o = false;
+            if ($element->onlyIfNewFile) {
+                $o = false;
+            } elseif (is_bool($overwrite)) {
+                $o = $overwrite;
+            } elseif (is_callable($overwrite)) {
+                $o = $overwrite($element);
+            } else {
+                throw new Exception("Invalid overwrite value on writeFiles");
+            }
             $this->writeFile(
                 $path,
-                ($element->onlyIfNewFile ? false : $overwrite),
+                $o,
                 $element->contents
             );
             $writtenFiles[] = $path;

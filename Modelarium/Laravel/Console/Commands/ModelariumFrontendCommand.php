@@ -3,11 +3,15 @@
 namespace Modelarium\Laravel\Console\Commands;
 
 use Formularium\FrameworkComposer;
+use Formularium\StringUtil;
 use HaydenPierce\ClassFinder\ClassFinder;
 use Illuminate\Console\Command;
 use Modelarium\Parser;
 use Modelarium\Frontend\FrontendGenerator;
+use Modelarium\GeneratedItem;
 use Modelarium\Laravel\Processor as LaravelProcessor;
+
+use function Modelarium\Laravel\Targets\endsWith;
 
 class ModelariumFrontendCommand extends Command
 {
@@ -22,7 +26,8 @@ class ModelariumFrontendCommand extends Command
         {name : The model name. Use "*" or "all" for all models}
         {--framework=* : The frameworks to use}
         {--lighthouse : use lighthouse directives}
-        {--overwrite : overwrite files if they exist}
+        {--overwrite-graphql : overwrite graphql files if they exist}
+        {--overwrite : overwrite all files if they exist}
         {--prettier : run prettier on files}
     ';
 
@@ -138,7 +143,17 @@ class ModelariumFrontendCommand extends Command
         $writtenFiles = $this->writeFiles(
             $collection,
             $basepath,
-            (bool)$this->option('overwrite')
+            function (GeneratedItem $i) {
+                if ((bool)$this->option('overwrite') === true) {
+                    return true;
+                }
+                if ((bool)$this->option('overwrite-graphql') === true &&
+                    StringUtil::endsWith($i->filename, '.graphql')
+                ) {
+                    return true;
+                }
+                return false;
+            }
         );
         $this->info('Files generated.');
 
