@@ -2,6 +2,7 @@
 
 namespace Modelarium\Laravel\Directives;
 
+use Modelarium\Exception\DirectiveException;
 use Modelarium\Exception\Exception;
 use Modelarium\Laravel\Targets\MigrationGenerator;
 use Modelarium\Laravel\Targets\ModelGenerator;
@@ -25,14 +26,23 @@ class MigrationSpatialIndexDirective implements MigrationDirectiveInterface, Mod
         \GraphQL\Language\AST\DirectiveNode $directive,
         MigrationCodeFragment $code
     ): void {
-        // nothing
+        throw new DirectiveException("Directive not supported here");
+    }
+
+    public static function processMigrationRelationshipDirective(
+        MigrationGenerator $generator,
+        \GraphQL\Type\Definition\FieldDefinition $field,
+        \GraphQL\Language\AST\DirectiveNode $directive,
+        MigrationCodeFragment $code
+    ): void {
+        throw new DirectiveException("Directive not supported here");
     }
 
     public static function processModelTypeDirective(
         ModelGenerator $generator,
         \GraphQL\Language\AST\DirectiveNode $directive
     ): void {
-        throw new Exception("Primary index is not implemented yet");
+        throw new Exception("Spatial index is not implemented yet");
     }
 
     public static function processModelFieldDirective(

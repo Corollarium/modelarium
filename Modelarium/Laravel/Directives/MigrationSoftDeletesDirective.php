@@ -3,6 +3,7 @@
 namespace Modelarium\Laravel\Directives;
 
 use Illuminate\Support\Str;
+use Modelarium\Exception\DirectiveException;
 use Modelarium\Laravel\Targets\MigrationGenerator;
 use Modelarium\Laravel\Targets\ModelGenerator;
 use Modelarium\Laravel\Targets\Interfaces\MigrationDirectiveInterface;
@@ -24,7 +25,16 @@ class MigrationSoftDeletesDirective implements MigrationDirectiveInterface, Mode
         \GraphQL\Language\AST\DirectiveNode $directive,
         MigrationCodeFragment $code
     ): void {
-        // nothing
+        throw new DirectiveException("Directive not supported here");
+    }
+
+    public static function processMigrationRelationshipDirective(
+        MigrationGenerator $generator,
+        \GraphQL\Type\Definition\FieldDefinition $field,
+        \GraphQL\Language\AST\DirectiveNode $directive,
+        MigrationCodeFragment $code
+    ): void {
+        throw new DirectiveException("Directive not supported here");
     }
 
     public static function processModelTypeDirective(

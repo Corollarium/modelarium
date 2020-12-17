@@ -7,13 +7,44 @@ use Illuminate\Support\Str;
 use Modelarium\Exception\Exception;
 use Modelarium\Parser;
 use Modelarium\Datatypes\RelationshipFactory;
+use Modelarium\Exception\DirectiveException;
+use Modelarium\Laravel\Targets\Interfaces\MigrationDirectiveInterface;
 use Modelarium\Laravel\Targets\ModelGenerator;
 use Modelarium\Laravel\Targets\SeedGenerator;
 use Modelarium\Laravel\Targets\Interfaces\ModelDirectiveInterface;
 use Modelarium\Laravel\Targets\Interfaces\SeedDirectiveInterface;
+use Modelarium\Laravel\Targets\MigrationCodeFragment;
+use Modelarium\Laravel\Targets\MigrationGenerator;
 
-class MorphedByManyDirective implements ModelDirectiveInterface, SeedDirectiveInterface
+class MorphedByManyDirective implements MigrationDirectiveInterface, ModelDirectiveInterface, SeedDirectiveInterface
 {
+    public static function processMigrationTypeDirective(
+        MigrationGenerator $generator,
+        \GraphQL\Language\AST\DirectiveNode $directive
+    ): void {
+        throw new DirectiveException("Directive not supported here");
+    }
+
+    public static function processMigrationFieldDirective(
+        MigrationGenerator $generator,
+        \GraphQL\Type\Definition\FieldDefinition $field,
+        \GraphQL\Language\AST\DirectiveNode $directive,
+        MigrationCodeFragment $code
+    ): void {
+        throw new DirectiveException("Directive not supported here");
+    }
+
+    public static function processMigrationRelationshipDirective(
+        MigrationGenerator $generator,
+        \GraphQL\Type\Definition\FieldDefinition $field,
+        \GraphQL\Language\AST\DirectiveNode $directive,
+        MigrationCodeFragment $codeFragment
+    ): void {
+        $lowerName = mb_strtolower($generator->getInflector()->singularize($field->name));
+        $relation = Parser::getDirectiveArgumentByName($directive, 'relation', $lowerName);
+        $generator->generateManyToManyMorphTable($generator->getLowerName(), $relation);
+    }
+
     public static function processModelTypeDirective(
         ModelGenerator $generator,
         \GraphQL\Language\AST\DirectiveNode $directive
@@ -24,7 +55,7 @@ class MorphedByManyDirective implements ModelDirectiveInterface, SeedDirectiveIn
     public static function processModelFieldDirective(
         ModelGenerator $generator,
         \GraphQL\Type\Definition\FieldDefinition $field,
-       \Formularium\Field $fieldFormularium,
+        \Formularium\Field $fieldFormularium,
         \GraphQL\Language\AST\DirectiveNode $directive
     ): void {
         // nothing

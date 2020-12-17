@@ -4,13 +4,50 @@ namespace Modelarium\Laravel\Directives;
 
 use Illuminate\Support\Str;
 use Modelarium\Datatypes\RelationshipFactory;
+use Modelarium\Exception\DirectiveException;
+use Modelarium\Laravel\Targets\Interfaces\MigrationDirectiveInterface;
 use Modelarium\Laravel\Targets\ModelGenerator;
 use Modelarium\Laravel\Targets\SeedGenerator;
 use Modelarium\Laravel\Targets\Interfaces\ModelDirectiveInterface;
 use Modelarium\Laravel\Targets\Interfaces\SeedDirectiveInterface;
+use Modelarium\Laravel\Targets\MigrationCodeFragment;
+use Modelarium\Laravel\Targets\MigrationGenerator;
 
-class BelongsToManyDirective implements ModelDirectiveInterface, SeedDirectiveInterface
+class BelongsToManyDirective implements MigrationDirectiveInterface, ModelDirectiveInterface, SeedDirectiveInterface
 {
+    public static function processMigrationTypeDirective(
+        MigrationGenerator $generator,
+        \GraphQL\Language\AST\DirectiveNode $directive
+    ): void {
+        throw new DirectiveException("Directive not supported here");
+    }
+
+    public static function processMigrationFieldDirective(
+        MigrationGenerator $generator,
+        \GraphQL\Type\Definition\FieldDefinition $field,
+        \GraphQL\Language\AST\DirectiveNode $directive,
+        MigrationCodeFragment $code
+    ): void {
+        throw new DirectiveException("Directive not supported here");
+    }
+
+    public static function processMigrationRelationshipDirective(
+        MigrationGenerator $generator,
+        \GraphQL\Type\Definition\FieldDefinition $field,
+        \GraphQL\Language\AST\DirectiveNode $directive,
+        MigrationCodeFragment $code
+    ): void {
+        $lowerName = mb_strtolower($generator->getInflector()->singularize($field->name));
+
+        $type1 = $generator->getLowerName();
+        $type2 = $lowerName;
+
+        // we only generate once, so use a comparison for that
+        if (strcasecmp($type1, $type2) < 0) {
+            $generator->generateManyToManyTable($type1, $type2);
+        }
+    }
+
     public static function processModelTypeDirective(
         ModelGenerator $generator,
         \GraphQL\Language\AST\DirectiveNode $directive

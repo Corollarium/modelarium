@@ -3,6 +3,7 @@
 namespace Modelarium\Laravel\Directives;
 
 use Illuminate\Support\Str;
+use Modelarium\Exception\DirectiveException;
 use Modelarium\Laravel\Targets\Interfaces\MigrationDirectiveInterface;
 use Modelarium\Laravel\Targets\ModelGenerator;
 use Modelarium\Laravel\Targets\Interfaces\ModelDirectiveInterface;
@@ -47,9 +48,19 @@ class MigrationUniqueIndexDirective implements ModelDirectiveInterface, Migratio
         MigrationGenerator $generator,
         \GraphQL\Language\AST\DirectiveNode $directive
     ): void {
+        throw new DirectiveException("Invalid directive on type");
     }
 
     public static function processMigrationFieldDirective(
+        MigrationGenerator $generator,
+        \GraphQL\Type\Definition\FieldDefinition $field,
+        \GraphQL\Language\AST\DirectiveNode $directive,
+        MigrationCodeFragment $code
+    ): void {
+        $code->appendExtraLine('$table->unique("' . $field->name . '");');
+    }
+
+    public static function processMigrationRelationshipDirective(
         MigrationGenerator $generator,
         \GraphQL\Type\Definition\FieldDefinition $field,
         \GraphQL\Language\AST\DirectiveNode $directive,

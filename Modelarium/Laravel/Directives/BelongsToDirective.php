@@ -2,15 +2,79 @@
 
 namespace Modelarium\Laravel\Directives;
 
+use GraphQL\Type\Definition\ObjectType;
 use Illuminate\Support\Str;
 use Modelarium\Datatypes\RelationshipFactory;
+use Modelarium\Exception\DirectiveException;
+use Modelarium\Laravel\Targets\Interfaces\MigrationDirectiveInterface;
 use Modelarium\Laravel\Targets\ModelGenerator;
 use Modelarium\Laravel\Targets\SeedGenerator;
 use Modelarium\Laravel\Targets\Interfaces\ModelDirectiveInterface;
 use Modelarium\Laravel\Targets\Interfaces\SeedDirectiveInterface;
+use Modelarium\Laravel\Targets\MigrationCodeFragment;
+use Modelarium\Laravel\Targets\MigrationGenerator;
+use Modelarium\Parser;
 
-class BelongsToDirective implements ModelDirectiveInterface, SeedDirectiveInterface
+class BelongsToDirective implements MigrationDirectiveInterface, ModelDirectiveInterface, SeedDirectiveInterface
 {
+    public static function processMigrationTypeDirective(
+        MigrationGenerator $generator,
+        \GraphQL\Language\AST\DirectiveNode $directive
+    ): void {
+        throw new DirectiveException("Directive not supported here");
+    }
+
+    public static function processMigrationFieldDirective(
+        MigrationGenerator $generator,
+        \GraphQL\Type\Definition\FieldDefinition $field,
+        \GraphQL\Language\AST\DirectiveNode $directive,
+        MigrationCodeFragment $code
+    ): void {
+        throw new DirectiveException("Directive not supported here");
+    }
+
+    public static function processMigrationRelationshipDirective(
+        MigrationGenerator $generator,
+        \GraphQL\Type\Definition\FieldDefinition $field,
+        \GraphQL\Language\AST\DirectiveNode $directive,
+        MigrationCodeFragment $codeFragment
+    ): void {
+        $lowerName = mb_strtolower($generator->getInflector()->singularize($field->name));
+        $fieldName = $lowerName . '_id';
+
+        list($type, $isRequired) = Parser::getUnwrappedType($field->type);
+        $typeName = $type->name;
+        $tableName = MigrationGenerator::toTableName($typeName);
+
+        $targetType = $generator->parser->getType($typeName);
+        if (!$targetType) {
+            throw new DirectiveException("Cannot get type {$typeName} as a relationship to {$this->baseName}");
+        } elseif (!($targetType instanceof ObjectType)) {
+            throw new DirectiveException("{$typeName} is not a type for a relationship to {$this->baseName}");
+        }
+        // we don't know what is the reverse relationship name at this point. so let's guess all possibilities
+        try {
+            $targetField = $targetType->getField($tableName);
+        } catch (\GraphQL\Error\InvariantViolation $e) {
+            try {
+                $targetField = $targetType->getField($generator->getTableName());
+            } catch (\GraphQL\Error\InvariantViolation $e) {
+                // one to one
+                $targetField = $targetType->getField($generator->getLowerName());
+            }
+        }
+
+        $targetDirectives = $targetField->astNode->directives;
+        foreach ($targetDirectives as $targetDirective) {
+            switch ($targetDirective->name->value) {
+                case 'hasOne':
+                case 'hasMany':
+                    $codeFragment->appendBase('->unsignedBigInteger("' . $fieldName . '")');
+                break;
+            }
+        }
+    }
+
     public static function processModelTypeDirective(
         ModelGenerator $generator,
         \GraphQL\Language\AST\DirectiveNode $directive

@@ -19,4 +19,11 @@ interface MigrationDirectiveInterface
         \GraphQL\Language\AST\DirectiveNode $directive,
         MigrationCodeFragment $code
     ): void;
+
+    public static function processMigrationRelationshipDirective(
+        MigrationGenerator $generator,
+        \GraphQL\Type\Definition\FieldDefinition $field,
+        \GraphQL\Language\AST\DirectiveNode $directive,
+        MigrationCodeFragment $code
+    ): void;
 }

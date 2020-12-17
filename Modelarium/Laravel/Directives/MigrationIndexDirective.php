@@ -4,12 +4,10 @@ namespace Modelarium\Laravel\Directives;
 
 use Modelarium\Exception\Exception;
 use Modelarium\Laravel\Targets\MigrationGenerator;
-use Modelarium\Laravel\Targets\ModelGenerator;
 use Modelarium\Laravel\Targets\Interfaces\MigrationDirectiveInterface;
-use Modelarium\Laravel\Targets\Interfaces\ModelDirectiveInterface;
 use Modelarium\Laravel\Targets\MigrationCodeFragment;
 
-class MigrationIndexDirective implements MigrationDirectiveInterface, ModelDirectiveInterface
+class MigrationIndexDirective implements MigrationDirectiveInterface
 {
     public static function processMigrationTypeDirective(
         MigrationGenerator $generator,
@@ -37,28 +35,12 @@ class MigrationIndexDirective implements MigrationDirectiveInterface, ModelDirec
         $code->appendExtraLine('$table->index("' . $field->name . '");');
     }
 
-    public static function processModelTypeDirective(
-        ModelGenerator $generator,
-        \GraphQL\Language\AST\DirectiveNode $directive
-    ): void {
-        throw new Exception("Primary index is not implemented yet");
-    }
-
-    public static function processModelFieldDirective(
-        ModelGenerator $generator,
+    public static function processMigrationRelationshipDirective(
+        MigrationGenerator $generator,
         \GraphQL\Type\Definition\FieldDefinition $field,
-        \Formularium\Field $fieldFormularium,
-        \GraphQL\Language\AST\DirectiveNode $directive
+        \GraphQL\Language\AST\DirectiveNode $directive,
+        MigrationCodeFragment $code
     ): void {
-        // nothing
-    }
-
-    public static function processModelRelationshipDirective(
-        ModelGenerator $generator,
-        \GraphQL\Type\Definition\FieldDefinition $field,
-        \GraphQL\Language\AST\DirectiveNode $directive
-    ): string {
-        // nothing
-        return '';
+        $code->appendExtraLine('$table->index("' . $field->name . '");');
     }
 }

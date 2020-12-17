@@ -284,84 +284,28 @@ class MigrationGenerator extends BaseGenerator
                 return;
             }
 
-            // TODO: separate classes
-
-            // $className = $this->getDirectiveClass($name);
-            // if ($className) {
-            //     $methodName = "$className::processMigrationRelationshipDirective";
-            //     /** @phpstan-igno re-next-line */
-            //     $methodName(
-            //         $this,
-            //         $field,
-            //         $directive
-            //     );
-            // }
-
-            switch ($name) {
-            case 'migrationUniqueIndex':
-                $codeFragment->appendExtraLine('$table->unique("' . $fieldName . '");');
-                break;
-            case 'migrationIndex':
-                $codeFragment->appendExtraLine('$table->index("' . $fieldName . '");');
-                break;
-            case 'belongsTo':
-                $targetType = $this->parser->getType($typeName);
-                if (!$targetType) {
-                    throw new Exception("Cannot get type {$typeName} as a relationship to {$this->baseName}");
-                } elseif (!($targetType instanceof ObjectType)) {
-                    throw new Exception("{$typeName} is not a type for a relationship to {$this->baseName}");
-                }
-                // we don't know what is the reverse relationship name at this point. so let's guess all possibilities
-                try {
-                    $targetField = $targetType->getField($tableName);
-                } catch (\GraphQL\Error\InvariantViolation $e) {
-                    try {
-                        $targetField = $targetType->getField($this->tableName);
-                    } catch (\GraphQL\Error\InvariantViolation $e) {
-                        // one to one
-                        $targetField = $targetType->getField($this->lowerName);
-                    }
-                }
-
-                $targetDirectives = $targetField->astNode->directives;
-                foreach ($targetDirectives as $targetDirective) {
-                    switch ($targetDirective->name->value) {
-                    case 'hasOne':
-                    case 'hasMany':
-                        $codeFragment->appendBase('->unsignedBigInteger("' . $fieldName . '")');
-                    break;
-                    }
-                }
-                break;
-
-            case 'belongsToMany':
-                $type1 = $this->lowerName;
-                $type2 = $lowerName;
-
-                // we only generate once, so use a comparison for that
-                $isManyToMany = true;
-                if (strcasecmp($type1, $type2) < 0) {
-                    $this->generateManyToManyTable($type1, $type2);
-                }
-                break;
-
-            case 'morphTo':
-                $relation = Parser::getDirectiveArgumentByName($directive, 'relation', $lowerName);
-                $codeFragment->appendBase('->unsignedBigInteger("' . $relation . '_id")');
-                $codeFragment->appendExtraLine(
-                    '$table->string("' . $relation . '_type")' .
-                    ($isRequired ? '' : '->nullable()') . ';'
+            $className = $this->getDirectiveClass($name);
+            if ($className) {
+                $methodName = "$className::processMigrationRelationshipDirective";
+                /** @phpstan-igno re-next-line */
+                $methodName(
+                    $this,
+                    $field,
+                    $directive,
+                    $codeFragment
                 );
-                break;
+            }
 
+            // TODO: handle isManyToMany for migrationForeign
+            switch ($name) {
+            case 'belongToMany':
             case 'morphedByMany':
                 $isManyToMany = true;
-                $relation = Parser::getDirectiveArgumentByName($directive, 'relation', $lowerName);
-                $this->generateManyToManyMorphTable($this->lowerName, $relation);
                 break;
             }
         }
 
+        // TODO: move this to the a separate class
         foreach ($directives as $directive) {
             $name = $directive->name->value;
             switch ($name) {
@@ -472,7 +416,7 @@ class MigrationGenerator extends BaseGenerator
      * @param string $relation
      * @return string The table name.
      */
-    protected function generateManyToManyMorphTable(string $name, string $relation): string
+    public function generateManyToManyMorphTable(string $name, string $relation): string
     {
         $dummyCode = <<<EOF
 
@@ -511,7 +455,7 @@ EOF;
      * @param string $type2
      * @return string The table name.
      */
-    protected function generateManyToManyTable(string $type1, string $type2): string
+    public function generateManyToManyTable(string $type1, string $type2): string
     {
         $dummyCode = <<<EOF
 
