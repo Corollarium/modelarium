@@ -1,7 +1,7 @@
 <h1 align="center">Modelarium - Scaffolding for PHP and JS</h1>
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Build Status](https://travis-ci.com/Corollarium/modelarium.svg?branch=master)](https://travis-ci.com/Corollarium/modelarium)
+[![Build Status](https://github.com/Corollarium/modelarium/workflows/build/badge.svg)](https://github.com/Corollarium/modelarium/actions?query=workflow%3Abuild)
 [![Code Coverage](https://scrutinizer-ci.com/g/Corollarium/modelarium/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/Corollarium/modelarium/?branch=master)
 [![Latest Stable Version](https://img.shields.io/packagist/v/corollarium/modelarium.svg?style=flat-square)](https://packagist.org/packages/corollarium/modelarium)
 [![Total Downloads](https://img.shields.io/packagist/dt/corollarium/modelarium.svg?style=flat-square)](https://packagist.org/packages/corollarium/modelarium)
