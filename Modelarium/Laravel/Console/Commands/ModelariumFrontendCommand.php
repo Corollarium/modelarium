@@ -147,10 +147,14 @@ class ModelariumFrontendCommand extends Command
                 if ((bool)$this->option('overwrite') === true) {
                     return true;
                 }
-                if ((bool)$this->option('overwrite-graphql') === true &&
-                    StringUtil::endsWith($i->filename, '.graphql')
-                ) {
-                    return true;
+                if ((bool)$this->option('overwrite-graphql') === true) {
+                    if (
+                        StringUtil::endsWith($i->filename, '.graphql')
+                    ) {
+                        return true;
+                    } elseif (StringUtil::endsWith($i->filename, 'model.js')) {
+                        return true;
+                    }
                 }
                 return false;
             }
