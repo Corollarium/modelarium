@@ -14,6 +14,16 @@ Do not generate frontend for this type
 directive @frontendSkip on OBJECT
 
 """
+Alters a table on migration after it was created.
+"""
+directive @migrationAlterTable(
+    """
+    The commands to run, which will be prepended with 'ALTER TABLE tablename"
+    """
+    values: [String!]!
+) on OBJECT
+
+"""
 Default value for database column
 """
 directive @migrationDefaultValue(
@@ -47,6 +57,16 @@ directive @migrationForeign(
     """
     onUpdate: String
 ) on FIELD_DEFINITION
+
+"""
+Add a full text index to table
+"""
+directive @migrationFulltextIndex(
+    """
+    The fields to index. Must be an array even if it is just one field.
+    """
+    fields: [String!]!
+) on TYPE
 
 """
 Generates a composed index on the database for a type

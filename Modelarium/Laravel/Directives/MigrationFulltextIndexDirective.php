@@ -9,6 +9,7 @@ use Modelarium\Laravel\Targets\ModelGenerator;
 use Modelarium\Laravel\Targets\Interfaces\MigrationDirectiveInterface;
 use Modelarium\Laravel\Targets\Interfaces\ModelDirectiveInterface;
 use Modelarium\Laravel\Targets\MigrationCodeFragment;
+use Modelarium\Parser;
 
 class MigrationFulltextIndexDirective implements MigrationDirectiveInterface, ModelDirectiveInterface
 {
@@ -16,19 +17,13 @@ class MigrationFulltextIndexDirective implements MigrationDirectiveInterface, Mo
         MigrationGenerator $generator,
         \GraphQL\Language\AST\DirectiveNode $directive
     ): void {
-        /** @phpstan-ignore-next-line */
-        $values = $directive->arguments[0]->value->values;
-
-        $indexFields = [];
-        foreach ($values as $value) {
-            $indexFields[] = $value->value;
-        }
+        $indexFields = Parser::getDirectiveArgumentByName($directive, 'fields');
 
         if (!count($indexFields)) {
             throw new Exception("You must provide at least one field to a full text index");
         }
         $generator->postCreateCode[] = "DB::statement('ALTER TABLE " .
-            $generator->getLowerNamePlural() .
+            $generator->getTableName()  .
             " ADD FULLTEXT fulltext_index (\"" .
             implode('", "', $indexFields) .
             "\")');";

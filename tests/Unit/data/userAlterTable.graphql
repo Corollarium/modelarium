@@ -1,0 +1,5 @@
+type User @migrationAlterTable(values: ["ADD PERIOD FOR p(checkin,checkout)"]) {
+  id: ID!
+  name: String!
+  description: String!
+}

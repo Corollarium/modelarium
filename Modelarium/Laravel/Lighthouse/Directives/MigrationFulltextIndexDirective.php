@@ -5,17 +5,17 @@ namespace Modelarium\Laravel\Lighthouse\Directives;
 use Nuwave\Lighthouse\Schema\Directives\BaseDirective;
 use Nuwave\Lighthouse\Support\Contracts\DefinedDirective;
 
-class MigrationIndexDirective extends BaseDirective implements DefinedDirective
+class MigrationFulltextIndexDirective extends BaseDirective implements DefinedDirective
 {
     public static function definition(): string
     {
         return /** @lang GraphQL */ <<<'SDL'
 """
-Generates a composed index on the database for a type
+Add a full text index to table
 """
-directive @index(
+directive @migrationFulltextIndex(
     """
-    The list of fields to compose in the index
+    The fields to index. Must be an array even if it is just one field.
     """
     fields: [String!]!
 ) on OBJECT

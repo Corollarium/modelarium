@@ -5,19 +5,19 @@ namespace Modelarium\Laravel\Lighthouse\Directives;
 use Nuwave\Lighthouse\Schema\Directives\BaseDirective;
 use Nuwave\Lighthouse\Support\Contracts\DefinedDirective;
 
-class MigrationIndexDirective extends BaseDirective implements DefinedDirective
+class MigrationAlterTableDirective extends BaseDirective implements DefinedDirective
 {
     public static function definition(): string
     {
         return /** @lang GraphQL */ <<<'SDL'
 """
-Generates a composed index on the database for a type
+Alters a table on migration after it was created.
 """
-directive @index(
+directive @migrationAlterTable(
     """
-    The list of fields to compose in the index
+    The commands to run, which will be prepended with 'ALTER TABLE tablename"
     """
-    fields: [String!]!
+    values: [String!]!
 ) on OBJECT
 SDL;
     }

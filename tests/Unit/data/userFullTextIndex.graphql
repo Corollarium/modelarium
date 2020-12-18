@@ -1,4 +1,4 @@
-type User @migrationFulltextIndex(field: ["name", "description"]) {
+type User @migrationFulltextIndex(fields: ["name", "description"]) {
   id: ID!
   name: String!
   description: String!

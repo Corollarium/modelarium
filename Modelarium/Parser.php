@@ -6,6 +6,7 @@ use GraphQL\Error\SyntaxError;
 use GraphQL\Language\AST\ArgumentNode;
 use GraphQL\Language\AST\DirectiveNode;
 use GraphQL\Language\AST\DocumentNode;
+use GraphQL\Language\AST\ListValueNode;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\NodeList;
 use GraphQL\Language\Visitor;
@@ -381,7 +382,16 @@ class Parser
              * @var ArgumentNode $arg
              */
             if ($arg->name->value === $name) {
-                return $arg->value->value; /** @phpstan-ignore-line */
+                $v = $arg->value;
+                if ($v instanceof ListValueNode) {
+                    $fields = [];
+                    foreach ($v->values as $i) {
+                        $fields[] = $i->value;
+                    }
+                    return $fields;
+                } else {
+                    return $arg->value->value; /** @phpstan-ignore-line */
+                }
             }
         }
         return $default;

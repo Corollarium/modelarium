@@ -2,24 +2,27 @@
 
 namespace Modelarium\Laravel\Directives;
 
+use Modelarium\Exception\DirectiveException;
 use Modelarium\Exception\Exception;
 use Modelarium\Laravel\Targets\MigrationGenerator;
 use Modelarium\Laravel\Targets\Interfaces\MigrationDirectiveInterface;
 use Modelarium\Laravel\Targets\MigrationCodeFragment;
 use Modelarium\Parser;
 
-class MigrationIndexDirective implements MigrationDirectiveInterface
+class MigrationAlterTableDirective implements MigrationDirectiveInterface
 {
     public static function processMigrationTypeDirective(
         MigrationGenerator $generator,
         \GraphQL\Language\AST\DirectiveNode $directive
     ): void {
-        $indexFields = Parser::getDirectiveArgumentByName($directive, 'fields');
-        
-        if (!count($indexFields)) {
-            throw new Exception("You must provide at least one field to an index");
+        $values = Parser::getDirectiveArgumentByName($directive, 'values');
+
+        foreach ($values as $v) {
+            $generator->postCreateCode[] = "DB::statement('ALTER TABLE " .
+                $generator->getTableName() . ' ' .
+                $v .
+                "');";
         }
-        $generator->createCode[] ='$table->index("' . implode('", "', $indexFields) .'");';
     }
 
     public static function processMigrationFieldDirective(
@@ -28,7 +31,7 @@ class MigrationIndexDirective implements MigrationDirectiveInterface
         \GraphQL\Language\AST\DirectiveNode $directive,
         MigrationCodeFragment $code
     ): void {
-        $code->appendExtraLine('$table->index("' . $field->name . '");');
+        throw new DirectiveException("migrationAlterTable only applies to type");
     }
 
     public static function processMigrationRelationshipDirective(
@@ -37,6 +40,6 @@ class MigrationIndexDirective implements MigrationDirectiveInterface
         \GraphQL\Language\AST\DirectiveNode $directive,
         MigrationCodeFragment $code
     ): void {
-        $code->appendExtraLine('$table->index("' . $field->name . '");');
+        throw new DirectiveException("migrationAlterTable only applies to type");
     }
 }
