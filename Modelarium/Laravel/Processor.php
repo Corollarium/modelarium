@@ -168,12 +168,8 @@ class Processor extends ModelariumProcessor
                 if ($name === 'Query' || $name === 'Mutation' || $name === 'Subscription' || $name === 'Can') {
                     continue;
                 }
-                try {
-                    $g = $this->processType((string)$name, $object);
-                    $this->collection = $this->collection->merge($g);
-                } catch (SkipGenerationException $e) {
-                    continue;
-                }
+                $g = $this->processType((string)$name, $object);
+                $this->collection = $this->collection->merge($g);
             }
         }
 
@@ -212,20 +208,32 @@ class Processor extends ModelariumProcessor
         }
 
         if ($this->runMigration) {
-            $collection = $collection->merge((new MigrationGenerator($this->parser, $name, $object))->generate());
+            try {
+                $collection = $collection->merge((new MigrationGenerator($this->parser, $name, $object))->generate());
+            } catch (SkipGenerationException $e) {
+            }
         }
         if ($this->runSeed) {
-            $generator = new SeedGenerator($this->parser, $name, $object);
-            $collection = $collection->merge($generator->generate());
+            try {
+                $generator = new SeedGenerator($this->parser, $name, $object);
+                $collection = $collection->merge($generator->generate());
 
-            $this->seederClass->getMethod('run')
+                $this->seederClass->getMethod('run')
                 ->addBody('$this->call(' . $generator->getStudlyName() . 'Seeder::class);');
+            } catch (SkipGenerationException $e) {
+            }
         }
         if ($this->runFactory) {
-            $collection = $collection->merge((new FactoryGenerator($this->parser, $name, $object))->generate());
+            try {
+                $collection = $collection->merge((new FactoryGenerator($this->parser, $name, $object))->generate());
+            } catch (SkipGenerationException $e) {
+            }
         }
         if ($this->runModel) {
-            $collection = $collection->merge((new ModelGenerator($this->parser, $name, $object))->generate());
+            try {
+                $collection = $collection->merge((new ModelGenerator($this->parser, $name, $object))->generate());
+            } catch (SkipGenerationException $e) {
+            }
         }
         return $collection;
     }
