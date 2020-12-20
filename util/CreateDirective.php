@@ -41,7 +41,9 @@ function createDirective(string $name, array $processors)
     }
     /** @var callable $renderer */
     $renderer = LightnCandy::prepare($phpStr);
-    file_put_contents(__DIR__ . '/../Modelarium/Laravel/Lighthouse/Directives/' . $parameters['studlyName'] . 'Directive.php', $renderer($parameters));
+    $filename = __DIR__ . '/../Modelarium/Laravel/Lighthouse/Directives/' . $parameters['studlyName'] . 'Directive.php';
+    file_put_contents($filename, $renderer($parameters));
+    echo "Wrote $filename\n";
 
     $template = \Safe\file_get_contents(__DIR__ . '/directive.mustache');
     $phpStr = LightnCandy::compile(
@@ -56,7 +58,9 @@ function createDirective(string $name, array $processors)
     /** @var callable $renderer */
     $renderer = LightnCandy::prepare($phpStr);
     $renderer($parameters);
-    file_put_contents(__DIR__ . '/../Modelarium/Laravel/Directives/' . $parameters['studlyName'] . 'Directive.php', $renderer($parameters));
+    $filename = __DIR__ . '/../Modelarium/Laravel/Directives/' . $parameters['studlyName'] . 'Directive.php';
+    file_put_contents($filename, $renderer($parameters));
+    echo "Wrote $filename\n";
 }
 
 // Script example.php
