@@ -1,0 +1,128 @@
+<?php declare(strict_types=1);
+
+namespace Modelarium\Laravel\Directives;
+
+{{#if event}}
+use Modelarium\Laravel\Targets\EventGenerator;
+use Modelarium\Laravel\Targets\Interfaces\EventDirectiveInterface;
+{{/if}}
+{{#if factory}}
+use Modelarium\Laravel\Targets\FactoryGenerator;
+use Modelarium\Laravel\Targets\Interfaces\FactoryDirectiveInterface;
+{{/if}}
+{{#if model}}
+use Modelarium\Laravel\Targets\ModelGenerator;
+use Modelarium\Laravel\Targets\Interfaces\ModelDirectiveInterface;
+{{/if}}
+{{#if migration}}
+use Modelarium\Laravel\Targets\MigrationGenerator;
+use Modelarium\Laravel\Targets\MigrationCodeFragment;
+use Modelarium\Laravel\Targets\Interfaces\MigrationDirectiveInterface;
+{{/if}}
+{{#if policy}}
+use Modelarium\Laravel\Targets\PolicyGenerator;
+use Modelarium\Laravel\Targets\Interfaces\PolicyDirectiveInterface;
+{{/if}}
+{{#if seed}}
+use Modelarium\Laravel\Targets\SeedGenerator;
+use Modelarium\Laravel\Targets\Interfaces\SeedDirectiveInterface;
+{{/if}}
+
+class {{studlyName}}Directive implements {{implements}}
+{
+{{#if event}}
+    public static function processEventFieldDirective(
+        EventGenerator $generator,
+        \GraphQL\Type\Definition\FieldDefinition $field,
+        \GraphQL\Language\AST\Node $directive
+    ): void {
+    }
+{{/if}}
+
+{{#if factory}}
+    public static function processFactoryTypeDirective(
+        FactoryGenerator $generator,
+        \GraphQL\Language\AST\DirectiveNode $directive
+    ): void {
+    }
+
+    public static function processFactoryFieldDirective(
+        FactoryGenerator $generator,
+        \GraphQL\Type\Definition\FieldDefinition $field,
+        \GraphQL\Language\AST\DirectiveNode $directive
+    ): void {
+    }
+{{/if}}
+
+{{#if migration}}
+    public static function processMigrationTypeDirective(
+        MigrationGenerator $generator,
+        \GraphQL\Language\AST\DirectiveNode $directive
+    ): void {
+    }
+
+    public static function processMigrationFieldDirective(
+        MigrationGenerator $generator,
+        \GraphQL\Type\Definition\FieldDefinition $field,
+        \GraphQL\Language\AST\DirectiveNode $directive,
+        MigrationCodeFragment $code
+    ): void {
+    }
+
+    public static function processMigrationRelationshipDirective(
+        MigrationGenerator $generator,
+        \GraphQL\Type\Definition\FieldDefinition $field,
+        \GraphQL\Language\AST\DirectiveNode $directive,
+        MigrationCodeFragment $code
+    ): void {
+    }
+{{/if}}
+
+{{#if model}}
+    public static function processModelTypeDirective(
+        ModelGenerator $generator,
+        \GraphQL\Language\AST\DirectiveNode $directive
+    ): void {
+    }
+
+    public static function processModelFieldDirective(
+        ModelGenerator $generator,
+        \GraphQL\Type\Definition\FieldDefinition $field,
+        \Formularium\Field $fieldFormularium,
+        \GraphQL\Language\AST\DirectiveNode $directive
+    ): void {
+    }
+
+    public static function processModelRelationshipDirective(
+        ModelGenerator $generator,
+        \GraphQL\Type\Definition\FieldDefinition $field,
+        \GraphQL\Language\AST\DirectiveNode $directive
+    ): string {
+        return '';
+    }
+{{/if}}
+
+{{#if policy}}
+    public static function processPolicyFieldDirective(
+        PolicyGenerator $generator,
+        \GraphQL\Type\Definition\FieldDefinition $field,
+        \GraphQL\Language\AST\DirectiveNode $directive
+    ): void {
+    }
+{{/if}}
+
+{{#if seed}}
+    public static function processSeedTypeDirective(
+        SeedGenerator $generator,
+        \GraphQL\Language\AST\DirectiveNode $directive
+    ): void {
+    }
+
+    public static function processSeedFieldDirective(
+        SeedGenerator $generator,
+        \GraphQL\Type\Definition\FieldDefinition $field,
+        \GraphQL\Language\AST\DirectiveNode $directive
+    ): void {
+    }
+{{/if}}
+}

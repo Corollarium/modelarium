@@ -1,0 +1,20 @@
+<?php declare(strict_types=1);
+
+namespace {{namespace}};
+
+use Nuwave\Lighthouse\Schema\Directives\BaseDirective;
+use Nuwave\Lighthouse\Support\Contracts\DefinedDirective;
+
+class {{studlyName}}Directive extends BaseDirective implements DefinedDirective
+{
+    public static function definition(): string
+    {
+        return /** @lang GraphQL */ <<<'SDL'
+"""
+Describe it here.
+"""
+directive @{{name}}(
+) on XXXXXX
+SDL;
+    }
+}
