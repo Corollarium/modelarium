@@ -51,7 +51,7 @@ class PolicyGenerator extends BaseGenerator
     {
         foreach ($this->type->getFields() as $field) {
             $directives = $field->astNode->directives;
-            $this->processDirectives($field, $directives);
+            $this->processFieldDirectives($field, $directives, 'Policy');
         }
 
         $printer = new \Nette\PhpGenerator\PsrPrinter;
@@ -73,26 +73,7 @@ class PolicyGenerator extends BaseGenerator
         return $this->collection;
     }
 
-    public function processDirectives(
-        \GraphQL\Type\Definition\FieldDefinition $field,
-        \GraphQL\Language\AST\NodeList $directives
-    ): void {
-        foreach ($directives as $directive) {
-            $name = $directive->name->value;
-            $className = $this->getDirectiveClass($name);
-            if ($className) {
-                $methodName = "$className::processPolicyFieldDirective";
-                /** @phpstan-ignore-next-line */
-                $methodName(
-                    $this,
-                    $field,
-                    $directive
-                );
-            }
-        }
-    }
-
-    public function getClass(string $name): ClassType
+    public function getPolicyClass(string $name): ClassType
     {
         if (array_key_exists($name, $this->policyClasses)) {
             return $this->policyClasses[$name];

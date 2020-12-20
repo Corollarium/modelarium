@@ -30,10 +30,10 @@ class EventGenerator extends BaseGenerator
     public function generate(): GeneratedCollection
     {
         $this->events = new GeneratedCollection();
-        
+
         foreach ($this->type->getFields() as $field) {
             $directives = $field->astNode->directives;
-            $this->processDirectives($field, $directives);
+            $this->processFieldDirectives($field, $directives, 'Event');
         }
         return $this->events;
     }
@@ -73,10 +73,12 @@ class EventGenerator extends BaseGenerator
         );
     }
 
-    public function processDirectives(
+    public function processFieldDirectives(
         \GraphQL\Type\Definition\FieldDefinition $field,
-        \GraphQL\Language\AST\NodeList $directives
+        \GraphQL\Language\AST\NodeList $directives,
+        string $type
     ): void {
+        // TODO: there's probably no need to override this
         if ($field->type instanceof NonNull) {
             $type = $field->type->getWrappedType();
         } else {

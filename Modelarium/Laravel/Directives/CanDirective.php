@@ -9,6 +9,12 @@ use Modelarium\Laravel\Targets\Interfaces\PolicyDirectiveInterface;
 
 class CanDirective implements PolicyDirectiveInterface
 {
+    public static function processPolicyTypeDirective(
+        PolicyGenerator $generator,
+        \GraphQL\Language\AST\DirectiveNode $directive
+    ): void {
+    }
+
     public static function processPolicyFieldDirective(
         PolicyGenerator $generator,
         \GraphQL\Type\Definition\FieldDefinition $field,
@@ -56,7 +62,7 @@ class CanDirective implements PolicyDirectiveInterface
 
         list($namespace, $modelClassName, $relativePath) = $generator->splitClassName($model);
 
-        $class = $generator->getClass($modelClassName);
+        $class = $generator->getPolicyClass($modelClassName);
 
         $method = $class->addMethod($ability);
         $method->setPublic()

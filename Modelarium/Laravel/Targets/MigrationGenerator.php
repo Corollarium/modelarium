@@ -342,23 +342,6 @@ class MigrationGenerator extends BaseGenerator
         $this->createCode = array_merge($this->createCode, $codeFragment->extraLines);
     }
 
-    protected function processDirectives(
-        \GraphQL\Language\AST\NodeList $directives
-    ): void {
-        foreach ($directives as $directive) {
-            $name = $directive->name->value;
-            $className = $this->getDirectiveClass($name);
-            if ($className) {
-                $methodName = "$className::processMigrationTypeDirective";
-                /** @phpstan-ignore-next-line */
-                $methodName(
-                    $this,
-                    $directive
-                );
-            }
-        }
-    }
-
     public function generateString(): string
     {
         foreach ($this->type->getFields() as $field) {
@@ -386,7 +369,7 @@ class MigrationGenerator extends BaseGenerator
          */
         $directives = $this->type->astNode->directives;
         if ($directives) {
-            $this->processDirectives($directives);
+            $this->processTypeDirectives($directives, 'Migration');
         }
 
         $context = [

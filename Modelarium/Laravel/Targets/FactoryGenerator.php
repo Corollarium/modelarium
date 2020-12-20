@@ -17,6 +17,19 @@ class FactoryGenerator extends BaseGenerator
 
     public function generate(): GeneratedCollection
     {
+        /**
+         * @var \GraphQL\Language\AST\NodeList|null
+         */
+        $directives = $this->type->astNode->directives;
+        if ($directives) {
+            $this->processTypeDirectives($directives, 'Factory');
+        }
+
+        foreach ($this->type->getFields() as $field) {
+            $directives = $field->astNode->directives;
+            $this->processFieldDirectives($field, $directives, 'Factory');
+        }
+        
         return new GeneratedCollection(
             [ new GeneratedItem(
                 GeneratedItem::TYPE_FACTORY,

@@ -5,6 +5,7 @@ namespace Modelarium\Laravel\Targets;
 use GraphQL\Type\Definition\ObjectType;
 use Modelarium\BaseGenerator;
 use Modelarium\Exception\Exception;
+use Modelarium\FormulariumUtils;
 use Modelarium\GeneratedCollection;
 use Modelarium\GeneratedItem;
 use Modelarium\Parser;
@@ -28,13 +29,22 @@ class SeedGenerator extends BaseGenerator
         if (!($this->type instanceof ObjectType)) {
             throw new Exception('Invalid type on seed generator:' . get_class($this->type));
         }
+
+        /**
+         * @var \GraphQL\Language\AST\NodeList|null
+         */
+        $directives = $this->type->astNode->directives;
+        if ($directives) {
+            $this->processTypeDirectives($directives, 'Seed');
+        }
+
         /**
          * @var ObjectType $t
          */
         $t = $this->type;
         foreach ($t->getFields() as $field) {
             $directives = $field->astNode->directives;
-            $this->processDirectives($field, $directives);
+            $this->processFieldDirectives($field, $directives, 'Seed');
         }
 
         return new GeneratedCollection(
@@ -46,24 +56,6 @@ class SeedGenerator extends BaseGenerator
         );
     }
 
-    public function processDirectives(
-        \GraphQL\Type\Definition\FieldDefinition $field,
-        \GraphQL\Language\AST\NodeList $directives
-    ): void {
-        foreach ($directives as $directive) {
-            $name = $directive->name->value;
-            $className = $this->getDirectiveClass($name);
-            if ($className) {
-                $methodName = "$className::processSeedFieldDirective";
-                /** @phpstan-ignore-next-line */
-                $methodName(
-                    $this,
-                    $field,
-                    $directive
-                );
-            }
-        }
-    }
 
     public function generateString(): string
     {

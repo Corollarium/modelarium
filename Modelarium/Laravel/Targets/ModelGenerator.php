@@ -125,6 +125,33 @@ class ModelGenerator extends BaseGenerator
         return $x;
     }
 
+    /**
+     * Override to insert extradata
+     *
+     * @param \GraphQL\Language\AST\NodeList $directives
+     * @param string $generatorType
+     * @return void
+     */
+    protected function processTypeDirectives(
+        \GraphQL\Language\AST\NodeList $directives,
+        string $generatorType
+    ): void {
+        foreach ($directives as $directive) {
+            $name = $directive->name->value;
+            $this->fModel->appendExtradata(FormulariumUtils::directiveToExtradata($directive));
+    
+            $className = $this->getDirectiveClass($name, $generatorType);
+            if ($className) {
+                $methodName = "$className::process{$generatorType}TypeDirective";
+                /** @phpstan-ignore-next-line */
+                $methodName(
+                    $this,
+                    $directive
+                );
+            }
+        }
+    }
+
     protected function processField(
         string $typeName,
         \GraphQL\Type\Definition\FieldDefinition $field,
@@ -186,16 +213,6 @@ class ModelGenerator extends BaseGenerator
         $this->fModel->appendField($fieldFormularium);
     }
 
-    protected function processFieldDirectives(
-        \GraphQL\Type\Definition\FieldDefinition $field,
-        \GraphQL\Language\AST\NodeList $directives
-    ): void {
-        list($type, $isRequired) = Parser::getUnwrappedType($field->type);
-
-        $typeName = $type->name;
-        $this->processField($typeName, $field, $directives, $isRequired);
-    }
-
     protected function processRelationship(
         \GraphQL\Type\Definition\FieldDefinition $field,
         \GraphQL\Language\AST\NodeList $directives
@@ -218,6 +235,7 @@ class ModelGenerator extends BaseGenerator
 
         foreach ($directives as $directive) {
             $name = $directive->name->value;
+
             $className = $this->getDirectiveClass($name);
             if ($className) {
                 $methodName = "$className::processModelRelationshipDirective";
@@ -267,25 +285,6 @@ class ModelGenerator extends BaseGenerator
     ): string {
         return "relationship:" . ($isInverse ? "inverse:" : "") .
             "$relationship:$sourceTypeName:$targetTypeName";
-    }
-
-    protected function processDirectives(
-        \GraphQL\Language\AST\NodeList $directives
-    ): void {
-        foreach ($directives as $directive) {
-            $name = $directive->name->value;
-            $this->fModel->appendExtradata(FormulariumUtils::directiveToExtradata($directive));
-
-            $className = $this->getDirectiveClass($name);
-            if ($className) {
-                $methodName = "$className::processModelTypeDirective";
-                /** @phpstan-ignore-next-line */
-                $methodName(
-                    $this,
-                    $directive
-                );
-            }
-        }
     }
 
     public function generateString(): string
@@ -430,7 +429,9 @@ return $f->getDatatype()->getRandom();')
                 // relationship
                 $this->processRelationship($field, $directives);
             } else {
-                $this->processFieldDirectives($field, $directives);
+                list($type, $isRequired) = Parser::getUnwrappedType($field->type);
+                $typeName = $type->name;
+                $this->processField($typeName, $field, $directives, $isRequired);
             }
         }
 
@@ -439,7 +440,7 @@ return $f->getDatatype()->getRandom();')
          */
         $directives = $this->type->astNode->directives;
         if ($directives) {
-            $this->processDirectives($directives);
+            $this->processTypeDirectives($directives, 'Model');
         }
     }
 

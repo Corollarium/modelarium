@@ -4,6 +4,7 @@ namespace Modelarium;
 
 use GraphQL\Type\Definition\Type;
 use Modelarium\Exception\Exception;
+use Modelarium\Exception\SkipGenerationException;
 use Modelarium\Parser;
 
 use function Safe\class_implements;
@@ -84,5 +85,61 @@ EOF;
             }
         }
         return null;
+    }
+
+    /**
+     * Process all directives from list with directive classes.
+     *
+     * @param \GraphQL\Language\AST\NodeList $directives The directive list
+     * @param string $generatorType The generatorType, like 'Seed' or 'Model'
+     * @return void
+     * @throws SkipGenerationException
+     */
+    protected function processTypeDirectives(
+        \GraphQL\Language\AST\NodeList $directives,
+        string $generatorType
+    ): void {
+        foreach ($directives as $directive) {
+            $name = $directive->name->value;
+    
+            $className = $this->getDirectiveClass($name, $generatorType);
+            if ($className) {
+                $methodName = "$className::process{$generatorType}TypeDirective";
+                /** @phpstan-ignore-next-line */
+                $methodName(
+                    $this,
+                    $directive
+                );
+            }
+        }
+    }
+
+    /**
+     * Process all directives from list with directive classes.
+     *
+     * @param \GraphQL\Type\Definition\FieldDefinition $field
+     * @param \GraphQL\Language\AST\NodeList $directives The directive list
+     * @param string $generatorType The generatorType, like 'Seed' or 'Model'
+     * @return void
+     * @throws SkipGenerationException
+     */
+    public function processFieldDirectives(
+        \GraphQL\Type\Definition\FieldDefinition $field,
+        \GraphQL\Language\AST\NodeList $directives,
+        string $generatorType
+    ): void {
+        foreach ($directives as $directive) {
+            $name = $directive->name->value;
+            $className = $this->getDirectiveClass($name);
+            if ($className) {
+                $methodName = "$className::process{$generatorType}FieldDirective";
+                /** @phpstan-ignore-next-line */
+                $methodName(
+                    $this,
+                    $field,
+                    $directive
+                );
+            }
+        }
     }
 }

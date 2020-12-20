@@ -83,6 +83,13 @@ class MorphOneDirective implements ModelDirectiveInterface, SeedDirectiveInterfa
         );
     }
 
+    public static function processSeedTypeDirective(
+        SeedGenerator $generator,
+        \GraphQL\Language\AST\DirectiveNode $directive
+    ): void {
+        // empty
+    }
+
     public static function processSeedFieldDirective(
         SeedGenerator $generator,
         \GraphQL\Type\Definition\FieldDefinition $field,
