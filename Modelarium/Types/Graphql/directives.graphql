@@ -66,7 +66,7 @@ directive @migrationFulltextIndex(
     The fields to index. Must be an array even if it is just one field.
     """
     fields: [String!]!
-) on TYPE
+) on OBJECT
 
 """
 Generates a composed index on the database for a type
@@ -75,7 +75,7 @@ directive @index(
     """
     The list of fields to compose in the index
     """
-    fields: [String]!
+    fields: [String!]!
 ) on OBJECT
 
 """
@@ -152,6 +152,11 @@ directive @modelMustVerifyEmail on OBJECT
 Use a Notifiable trait on a model
 """
 directive @modelNotifiable on OBJECT
+
+"""
+Do not generate model (and seeder/factory/etc) for this type
+"""
+directive @modelSkip on OBJECT
 
 """
 Generate renderable
