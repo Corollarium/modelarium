@@ -13,7 +13,7 @@ use Modelarium\Laravel\Targets\Interfaces\PolicyDirectiveInterface;
 use Modelarium\Laravel\Targets\Interfaces\SeedDirectiveInterface;
 use Modelarium\Laravel\Targets\SeedGenerator;
 
-class ModelNotifiableDirective implements ModelDirectiveInterface, SeedDirectiveInterface, FactoryDirectiveInterface
+class ModelSkipDirective implements ModelDirectiveInterface, SeedDirectiveInterface, FactoryDirectiveInterface
 {
     public static function processModelTypeDirective(
         ModelGenerator $generator,
