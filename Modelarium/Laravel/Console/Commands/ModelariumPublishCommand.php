@@ -7,21 +7,21 @@ use Modelarium\Modelarium;
 
 use function Safe\unlink;
 
-class ModelariumInitCommand extends Command
+class ModelariumPublishCommand extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'modelarium:init';
+    protected $signature = 'modelarium:publish';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Inits project for Modelarium';
+    protected $description = 'Publishes project files from Modelarium';
 
     /**
      * Create a new command instance.

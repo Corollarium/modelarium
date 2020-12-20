@@ -23,7 +23,7 @@ We strongly suggest installing `mll-lab/laravel-graphql-playground` as well to t
 Init the basic data. This will publish a base Graphql file and a `User` graphql schema that matches Laravel's defaults. Note that it will delete `app/User.php` and `database/migrations/2014_10_12_000000_create_users_table.php` -- if you just need the .graphql files, run `php artisan vendor:publish --provider="Modelarium\Laravel\ServiceProvider" --tag=schema` instead.
 
 ```
-artisan modelarium:init
+artisan modelarium:publish
 ```
 
 At this point you are ready to go, just write your schema. We extend Graphql SDL to support `#import file` syntax, similar to other projects. Let's create a new model `Post`. Add a line `#import data/post.graphql` to `schema.graphql`, then create a file in `graphql/data/post.graphql` with the following:
@@ -34,8 +34,8 @@ type Post @migrationTimestamps {
   title: String!
   content: Text!
   user: User!
-  @belongsTo
-  @migrationForeign(onDelete: "cascade", onUpdate: "cascade")
+    @belongsTo
+    @migrationForeign(onDelete: "cascade", onUpdate: "cascade")
 }
 ```
 
@@ -129,8 +129,8 @@ input CreatePostInput {
 
 extend type Mutation {
   createPost(input: CreatePostInput! @spread): Post!
-  @create
-  @can(ability: "create")
+    @create
+    @can(ability: "create")
 }
 ```
 
@@ -233,19 +233,19 @@ It's time to generate our Vue code now. Let's add some new directives to control
 type Post @migrationTimestamps {
   id: ID!
   title: String!
-  @modelFillable
-  @renderable(
-    label: "Title"
-    comment: "Please add a descriptive title"
-    placeholder: "Type here"
-    size: "large"
-  )
+    @modelFillable
+    @renderable(
+      label: "Title"
+      comment: "Please add a descriptive title"
+      placeholder: "Type here"
+      size: "large"
+    )
   content: Text!
-  @modelFillable
-  @renderable(label: "Content", comment: "Your post contents")
+    @modelFillable
+    @renderable(label: "Content", comment: "Your post contents")
   user: User!
-  @belongsTo
-  @migrationForeign(onDelete: "cascade", onUpdate: "cascade")
+    @belongsTo
+    @migrationForeign(onDelete: "cascade", onUpdate: "cascade")
   comments: [Comment!]! @hasMany
 }
 ```
