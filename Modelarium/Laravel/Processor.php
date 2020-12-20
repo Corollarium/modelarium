@@ -6,6 +6,7 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use HaydenPierce\ClassFinder\ClassFinder;
 use Modelarium\Exception\Exception;
+use Modelarium\Exception\SkipGenerationException;
 use Modelarium\GeneratedCollection;
 use Modelarium\GeneratedItem;
 use Modelarium\Laravel\Targets\EventGenerator;
@@ -167,8 +168,12 @@ class Processor extends ModelariumProcessor
                 if ($name === 'Query' || $name === 'Mutation' || $name === 'Subscription' || $name === 'Can') {
                     continue;
                 }
-                $g = $this->processType((string)$name, $object);
-                $this->collection = $this->collection->merge($g);
+                try {
+                    $g = $this->processType((string)$name, $object);
+                    $this->collection = $this->collection->merge($g);
+                } catch (SkipGenerationException $e) {
+                    continue;
+                }
             }
         }
 

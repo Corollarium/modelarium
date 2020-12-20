@@ -2,10 +2,12 @@
 
 namespace Modelarium\Laravel\Targets;
 
+use GraphQL\Type\Definition\ObjectType;
 use Modelarium\BaseGenerator;
 use Modelarium\GeneratedCollection;
 use Modelarium\GeneratedItem;
 use Illuminate\Support\Str;
+use Modelarium\Exception\Exception;
 use Modelarium\Laravel\Util as LaravelUtil;
 
 class FactoryGenerator extends BaseGenerator
@@ -17,6 +19,10 @@ class FactoryGenerator extends BaseGenerator
 
     public function generate(): GeneratedCollection
     {
+        if (!($this->type instanceof ObjectType)) {
+            throw new Exception('Invalid type on seed generator:' . get_class($this->type));
+        }
+
         /**
          * @var \GraphQL\Language\AST\NodeList|null
          */
@@ -25,7 +31,11 @@ class FactoryGenerator extends BaseGenerator
             $this->processTypeDirectives($directives, 'Factory');
         }
 
-        foreach ($this->type->getFields() as $field) {
+        /**
+         * @var ObjectType $t
+         */
+        $t = $this->type;
+        foreach ($t->getFields() as $field) {
             $directives = $field->astNode->directives;
             $this->processFieldDirectives($field, $directives, 'Factory');
         }

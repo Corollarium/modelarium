@@ -386,7 +386,7 @@ class Parser
                 if ($v instanceof ListValueNode) {
                     $fields = [];
                     foreach ($v->values as $i) {
-                        $fields[] = $i->value;
+                        $fields[] = $i->value; /** @phpstan-ignore-line */
                     }
                     return $fields;
                 } else {
