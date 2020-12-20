@@ -9,6 +9,21 @@ directive @casts(
 ) on FIELD_DEFINITION
 
 """
+Eager load relationships using Laravel Model::$with();
+"""
+directive @eagerLoad (
+    """
+    If present, use this name as the with($name) parameter. Otherwise try to guess from field.
+    """
+    name: String
+
+    """
+    If present, append these values to the with($name) model class.
+    """
+    tables: [String!] 
+) on FIELD_DEFINITION | OBJECT
+
+"""
 Do not generate frontend for this type
 """
 directive @frontendSkip on OBJECT
