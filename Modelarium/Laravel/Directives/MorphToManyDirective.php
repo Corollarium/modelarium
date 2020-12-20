@@ -2,6 +2,7 @@
 
 namespace Modelarium\Laravel\Directives;
 
+use Formularium\Factory\DatatypeFactory;
 use GraphQL\Type\Definition\ObjectType;
 use Illuminate\Support\Str;
 use Modelarium\Exception\Exception;
@@ -24,7 +25,7 @@ class MorphToManyDirective implements ModelDirectiveInterface, SeedDirectiveInte
     public static function processModelFieldDirective(
         ModelGenerator $generator,
         \GraphQL\Type\Definition\FieldDefinition $field,
-       \Formularium\Field $fieldFormularium,
+        \Formularium\Field $fieldFormularium,
         \GraphQL\Language\AST\DirectiveNode $directive
     ): void {
         // nothing
@@ -33,8 +34,9 @@ class MorphToManyDirective implements ModelDirectiveInterface, SeedDirectiveInte
     public static function processModelRelationshipDirective(
         ModelGenerator $generator,
         \GraphQL\Type\Definition\FieldDefinition $field,
-        \GraphQL\Language\AST\DirectiveNode $directive
-    ): string {
+        \GraphQL\Language\AST\DirectiveNode $directive,
+        \Formularium\Datatype $datatype = null
+    ): ?\Formularium\Datatype {
         $name = $directive->name->value;
         list($type, $isRequired) = Parser::getUnwrappedType($field->type);
         $typeName = $type->name;
@@ -75,12 +77,13 @@ class MorphToManyDirective implements ModelDirectiveInterface, SeedDirectiveInte
             ->setBody("return \$this->{$name}($typeName::class, '$targetField');");
 
 
-        return $generator->getRelationshipDatatypeName(
+        $datatypeName = $generator->getRelationshipDatatypeName(
             $relationship,
             $isInverse,
             $sourceTypeName,
             $targetTypeName
         );
+        return DatatypeFactory::factory($datatypeName);
     }
 
     public static function processSeedTypeDirective(

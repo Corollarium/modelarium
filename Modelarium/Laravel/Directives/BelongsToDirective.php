@@ -2,6 +2,8 @@
 
 namespace Modelarium\Laravel\Directives;
 
+use Formularium\Datatype;
+use Formularium\Factory\DatatypeFactory;
 use GraphQL\Type\Definition\ObjectType;
 use Illuminate\Support\Str;
 use Modelarium\Datatypes\RelationshipFactory;
@@ -94,8 +96,9 @@ class BelongsToDirective implements MigrationDirectiveInterface, ModelDirectiveI
     public static function processModelRelationshipDirective(
         ModelGenerator $generator,
         \GraphQL\Type\Definition\FieldDefinition $field,
-        \GraphQL\Language\AST\DirectiveNode $directive
-    ): string {
+        \GraphQL\Language\AST\DirectiveNode $directive,
+        \Formularium\Datatype $datatype = null
+    ): ?\Formularium\Datatype {
         $lowerName = mb_strtolower($generator->getInflector()->singularize($field->name));
         $lowerNamePlural = $generator->getInflector()->pluralize($lowerName);
 
@@ -113,12 +116,13 @@ class BelongsToDirective implements MigrationDirectiveInterface, ModelDirectiveI
             ->setReturnType('\\Illuminate\\Database\\Eloquent\\Relations\\BelongsTo')
             ->setBody("return \$this->belongsTo($targetClass::class);");
 
-        return $generator->getRelationshipDatatypeName(
+        $datatypeName = $generator->getRelationshipDatatypeName(
             $relationship,
             $isInverse,
             $sourceTypeName,
             $targetTypeName
         );
+        return DatatypeFactory::factory($datatypeName);
     }
 
     public static function processSeedTypeDirective(

@@ -56,9 +56,10 @@ class MigrationTimestampsDirective implements MigrationDirectiveInterface, Model
     public static function processModelRelationshipDirective(
         ModelGenerator $generator,
         \GraphQL\Type\Definition\FieldDefinition $field,
-        \GraphQL\Language\AST\DirectiveNode $directive
-    ): string {
+        \GraphQL\Language\AST\DirectiveNode $directive,
+        \Formularium\Datatype $datatype = null
+    ): ?\Formularium\Datatype {
         // nothing
-        return '';
+        return null;
     }
 }

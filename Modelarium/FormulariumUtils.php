@@ -10,6 +10,7 @@ use Formularium\Field;
 use Formularium\Factory\ValidatorFactory;
 use Formularium\Metadata;
 use GraphQL\Language\AST\DirectiveNode;
+use GraphQL\Language\AST\ListValueNode;
 use GraphQL\Language\AST\NodeList;
 use Modelarium\Exception\Exception;
 
@@ -88,10 +89,24 @@ class FormulariumUtils
     {
         $metadataArgs = [];
         foreach ($directive->arguments as $arg) {
+            /**
+             * @var ArgumentNode $arg
+             */
+            $v = $arg->value;
+            $extradataV = null;
+            if ($v instanceof ListValueNode) {
+                $fields = [];
+                foreach ($v->values as $i) {
+                    $fields[] = $i->value; /** @phpstan-ignore-line */
+                }
+                $extradataV = json_encode($fields); // TODO: ExtradataParameter does not support array
+            } else {
+                $extradataV = $arg->value->value; /** @phpstan-ignore-line */
+            }
+
             $metadataArgs[] = new ExtradataParameter(
                 $arg->name->value,
-                // @phpstan-ignore-next-line
-                $arg->value->value
+                $extradataV
             );
         }
         return new Extradata(

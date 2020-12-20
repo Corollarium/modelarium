@@ -2,6 +2,7 @@
 
 namespace Modelarium\Laravel\Directives;
 
+use Formularium\Factory\DatatypeFactory;
 use Illuminate\Support\Str;
 use Modelarium\Datatypes\RelationshipFactory;
 use Modelarium\Laravel\Targets\ModelGenerator;
@@ -31,8 +32,9 @@ class HasOneDirective implements ModelDirectiveInterface, SeedDirectiveInterface
     public static function processModelRelationshipDirective(
         ModelGenerator $generator,
         \GraphQL\Type\Definition\FieldDefinition $field,
-        \GraphQL\Language\AST\DirectiveNode $directive
-    ): string {
+        \GraphQL\Language\AST\DirectiveNode $directive,
+        \Formularium\Datatype $datatype = null
+    ): ?\Formularium\Datatype {
         list($type, $isRequired) = Parser::getUnwrappedType($field->type);
 
         $sourceTypeName = $generator->getLowerName();
@@ -48,12 +50,13 @@ class HasOneDirective implements ModelDirectiveInterface, SeedDirectiveInterface
             ->setReturnType('\\Illuminate\\Database\\Eloquent\\Relations\\HasOne')
             ->setBody("return \$this->hasOne($targetTypeName::class);");
 
-        return $generator->getRelationshipDatatypeName(
+        $datatypeName = $generator->getRelationshipDatatypeName(
             $relationship,
             $isInverse,
             $sourceTypeName,
             $targetTypeName
         );
+        return DatatypeFactory::factory($datatypeName);
     }
 
     public static function processSeedTypeDirective(

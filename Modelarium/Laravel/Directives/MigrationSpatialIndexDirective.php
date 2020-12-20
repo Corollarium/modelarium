@@ -57,9 +57,9 @@ class MigrationSpatialIndexDirective implements MigrationDirectiveInterface, Mod
     public static function processModelRelationshipDirective(
         ModelGenerator $generator,
         \GraphQL\Type\Definition\FieldDefinition $field,
-        \GraphQL\Language\AST\DirectiveNode $directive
-    ): string {
-        // nothing
-        return '';
+        \GraphQL\Language\AST\DirectiveNode $directive,
+        \Formularium\Datatype $datatype = null
+    ): ?\Formularium\Datatype {
+        return null;
     }
 }

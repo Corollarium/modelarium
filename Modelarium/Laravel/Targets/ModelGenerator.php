@@ -80,10 +80,17 @@ class ModelGenerator extends BaseGenerator
     public $fModel = null;
 
     /**
-     *
+     * traits to include
      * @var array
      */
     public $traits = [];
+
+    /**
+     * Eager loading
+     *
+     * @var string[]
+     */
+    public $with = [];
 
     /**
      * Random generation
@@ -217,11 +224,6 @@ class ModelGenerator extends BaseGenerator
         \GraphQL\Type\Definition\FieldDefinition $field,
         \GraphQL\Language\AST\NodeList $directives
     ): void {
-        $lowerName = mb_strtolower($this->getInflector()->singularize($field->name));
-        $lowerNamePlural = $this->getInflector()->pluralize($lowerName);
-
-        $targetClass = '\\App\\Models\\' . Str::studly($this->getInflector()->singularize($field->name));
-
         list($type, $isRequired) = Parser::getUnwrappedType($field->type);
         $typeName = $type->name;
 
@@ -243,7 +245,8 @@ class ModelGenerator extends BaseGenerator
                 $r = $methodName(
                     $this,
                     $field,
-                    $directive
+                    $directive,
+                    $relationshipDatatype
                 );
                 if ($r) {
                     if ($relationshipDatatype) {
@@ -261,7 +264,7 @@ class ModelGenerator extends BaseGenerator
             return;
         }
     
-        $this->processField($relationshipDatatype, $field, $directives, $isRequired);
+        $this->processField($relationshipDatatype->getName(), $field, $directives, $isRequired);
 
         // TODO
         // if ($generateRandom) {
@@ -330,6 +333,12 @@ class ModelGenerator extends BaseGenerator
             ->setProtected()
             ->setValue($this->hidden)
             ->setComment("The attributes that should be hidden for arrays.\n@var array")
+            ->setInitialized();
+
+        $this->class->addProperty('with')
+            ->setProtected()
+            ->setValue($this->with)
+            ->setComment("Eager load these relationships.\n@var array")
             ->setInitialized();
 
         if (!$this->migrationTimestamps) {

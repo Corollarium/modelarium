@@ -2,6 +2,7 @@
 
 namespace Modelarium\Laravel\Directives;
 
+use Formularium\Factory\DatatypeFactory;
 use GraphQL\Type\Definition\ObjectType;
 use Illuminate\Support\Str;
 use Modelarium\Exception\Exception;
@@ -64,8 +65,9 @@ class MorphedByManyDirective implements MigrationDirectiveInterface, ModelDirect
     public static function processModelRelationshipDirective(
         ModelGenerator $generator,
         \GraphQL\Type\Definition\FieldDefinition $field,
-        \GraphQL\Language\AST\DirectiveNode $directive
-    ): string {
+        \GraphQL\Language\AST\DirectiveNode $directive,
+        \Formularium\Datatype $datatype = null
+    ): ?\Formularium\Datatype {
         $name = $directive->name->value;
         list($type, $isRequired) = Parser::getUnwrappedType($field->type);
         $typeName = $type->name;
@@ -113,12 +115,13 @@ class MorphedByManyDirective implements MigrationDirectiveInterface, ModelDirect
             }
         }
 
-        return $generator->getRelationshipDatatypeName(
+        $datatypeName = $generator->getRelationshipDatatypeName(
             $relationship,
             $isInverse,
             $sourceTypeName,
             $targetTypeName
         );
+        return DatatypeFactory::factory($datatypeName);
     }
 
     public static function processSeedTypeDirective(
