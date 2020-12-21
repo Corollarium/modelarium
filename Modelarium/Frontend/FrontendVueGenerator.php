@@ -305,7 +305,7 @@ class FrontendVueGenerator
             new GeneratedItem(
                 GeneratedItem::TYPE_FRONTEND,
                 implode("\n", $import) . "\n" .
-                "export default {\n" .
+                "export {\n" .
                 implode("\n", $export) . "\n};\n",
                 $path
             )

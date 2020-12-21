@@ -16,7 +16,6 @@ class EagerLoadDirective implements ModelDirectiveInterface
         \GraphQL\Language\AST\DirectiveNode $directive
     ): void {
         $target = Parser::getDirectiveArgumentByName($directive, 'tables', []);
-        var_dump($target);
 
         foreach ($target as $t) {
             $generator->with[] = $t;
