@@ -181,7 +181,7 @@ directive @renderable on FIELD_DEFINITION | OBJECT
 """
 Do not process this type in Modelarium. Will not create models, migrations, etc
 """
-directive @typeSkip on OBJECT
+directive @typeSkip on OBJECT | ENUM
 
 type Can {
   ability: String!
