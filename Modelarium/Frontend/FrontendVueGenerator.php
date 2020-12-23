@@ -27,6 +27,7 @@ class FrontendVueGenerator
     public function __construct(FrontendGenerator $generator)
     {
         $this->generator = $generator;
+        $this->buildTemplateParameters();
     }
 
     protected function getCollection(): GeneratedCollection
@@ -77,6 +78,62 @@ class FrontendVueGenerator
         );
         $this->makeVueRoutes();
         $this->makeVueIndex();
+    }
+
+    public function buildTemplateParameters(): void
+    {
+        $hasVuex = true; // TODO
+        $hasCan = $this->generator->getModel()->getExtradataValue('hasCan', 'value', false);
+        $routeBase = $this->generator->getRouteBase();
+        $keyAttribute = $this->generator->getKeyAttribute();
+        $targetAttribute = $hasVuex ? 'to' : 'href';
+        $buttonCreate = $this->generator->getComposer()->nodeElement(
+            'Button',
+            [
+                Button::TYPE => ($hasVuex ? 'router-link' : 'a'),
+                Button::ATTRIBUTES => [
+                    $targetAttribute => "/{$routeBase}/edit",
+                ] + ($hasCan ? [ "v-if" => 'can.create' ]: []),
+            ]
+        )->setContent(
+            '<i class="fa fa-plus"></i> Add new',
+            true,
+            true
+        )->getRenderHTML();
+
+        $buttonEdit = $this->generator->getComposer()->nodeElement(
+            'Button',
+            [
+                Button::TYPE => ($hasVuex ? 'router-link' : 'a'),
+                Button::ATTRIBUTES => [
+                    $targetAttribute => "'/{$routeBase}/' + model.{$keyAttribute} + '/edit'",
+                ] + ($hasCan ? [ "v-if" => 'can.edit' ]: []),
+            ]
+        )->setContent(
+            '<i class="fa fa-pencil"></i> Edit',
+            true,
+            true
+        )->getRenderHTML();
+
+        $buttonDelete = $this->generator->getComposer()->nodeElement(
+            'Button',
+            [
+                Button::TYPE => 'a',
+                Button::COLOR => Button::COLOR_WARNING,
+                Button::ATTRIBUTES => [
+                    'href' => '#',
+                    '@click.prevent' => 'remove',
+                ] + ($hasCan ? [ "v-if" => 'can.delete' ]: []),
+            ]
+        )->setContent(
+            '<i class="fa fa-trash"></i> Delete',
+            true,
+            true
+        )->getRenderHTML();
+
+        $this->generator->templateParameters['buttonCreate'] = $buttonCreate;
+        $this->generator->templateParameters['buttonEdit'] = $buttonEdit;
+        $this->generator->templateParameters['buttonDelete'] = $buttonDelete;
     }
 
     /**

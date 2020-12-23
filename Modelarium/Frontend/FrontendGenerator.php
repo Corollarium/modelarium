@@ -2,14 +2,13 @@
 
 namespace Modelarium\Frontend;
 
-use Formularium\Datatype;
 use Formularium\Element;
 use Formularium\Field;
+use Formularium\Framework;
 use Formularium\Model;
 use Formularium\FrameworkComposer;
 use Formularium\Frontend\HTML\Element\Button;
 use Formularium\Frontend\HTML\Element\Table;
-use Formularium\Frontend\Vue\Element\Pagination as PaginationVue;
 use Formularium\Frontend\Vue\Framework as FrameworkVue;
 use Formularium\HTMLNode;
 use Formularium\Renderable;
@@ -23,9 +22,7 @@ use Modelarium\GeneratedCollection;
 use Modelarium\GeneratedItem;
 use Modelarium\GeneratorInterface;
 use Modelarium\GeneratorNameTrait;
-use Modelarium\Types\ScalarType;
 
-use function Safe\file_get_contents;
 use function Safe\json_encode;
 
 class FrontendGenerator implements GeneratorInterface
@@ -40,7 +37,7 @@ class FrontendGenerator implements GeneratorInterface
     /**
      * @var Model
      */
-    protected $model = null;
+    protected $fModel = null;
 
     /**
      * @var Parser
@@ -79,7 +76,7 @@ class FrontendGenerator implements GeneratorInterface
      *
      * @var array
      */
-    protected $templateParameters = [];
+    public $templateParameters = [];
 
     /**
      * Card fields
@@ -98,19 +95,20 @@ class FrontendGenerator implements GeneratorInterface
     public function __construct(FrameworkComposer $composer, Model $model, Parser $parser)
     {
         $this->composer = $composer;
-        $this->model = $model;
+        $this->fModel = $model;
+        $this->setBaseName($model->getName());
         // TODO: document keyAttribute renderable parameter
         $this->keyAttribute = $model->getRenderable('keyAttribute', 'id');
-        $this->routeBase = $this->model->getRenderable('routeBase', $this->lowerName);
+        $this->routeBase = $this->fModel->getRenderable('routeBase', $this->lowerName);
+        var_dump($this->routeBase);
         $this->parser = $parser;
-        $this->setBaseName($model->getName());
         $this->buildTemplateParameters();
     }
 
     public function generate(): GeneratedCollection
     {
         $this->collection = new GeneratedCollection();
-        if ($this->model->getExtradata('frontendSkip')) {
+        if ($this->fModel->getExtradata('frontendSkip')) {
             return $this->collection;
         }
 
@@ -134,14 +132,12 @@ class FrontendGenerator implements GeneratorInterface
 
     public function buildTemplateParameters(): void
     {
-        $hasVue = $this->composer->getByName('Vue');
-
-        $this->cardFields = $this->model->filterField(
+        $this->cardFields = $this->fModel->filterField(
             function (Field $field) {
                 return $field->getRenderable('card', false);
             }
         );
-        $this->tableFields = $this->model->filterField(
+        $this->tableFields = $this->fModel->filterField(
             function (Field $field) {
                 return $field->getRenderable('table', false);
             }
@@ -153,7 +149,7 @@ class FrontendGenerator implements GeneratorInterface
                 Button::TYPE => 'a',
                 Button::ATTRIBUTES => [
                     'href' => "/{$this->routeBase}/edit"
-                ] + ($hasVue ? [ "v-if" => 'can.create' ]: []),
+                ],
             ]
         )->setContent(
             '<i class="fa fa-plus"></i> Add new',
@@ -164,10 +160,10 @@ class FrontendGenerator implements GeneratorInterface
         $buttonEdit = $this->composer->nodeElement(
             'Button',
             [
-                Button::TYPE => ($hasVue ? 'router-link' : 'a'),
+                Button::TYPE => 'a',
                 Button::ATTRIBUTES => [
                     ':to' => "'/{$this->lowerName}/' + model.{$this->keyAttribute} + '/edit'"
-                ] + ($hasVue ? [ "v-if" => 'can.edit' ]: []),
+                ],
             ]
         )->setContent(
             '<i class="fa fa-pencil"></i> Edit',
@@ -183,7 +179,7 @@ class FrontendGenerator implements GeneratorInterface
                 Button::ATTRIBUTES => [
                     'href' => '#',
                     '@click.prevent' => 'remove'
-                ] + ($hasVue ? [ "v-if" => 'can.delete' ]: []),
+                ],
             ]
         )->setContent(
             '<i class="fa fa-trash"></i> Delete',
@@ -215,7 +211,7 @@ class FrontendGenerator implements GeneratorInterface
             true,
             true
         );
-        $titleFields = $this->model->filterField(
+        $titleFields = $this->fModel->filterField(
             function (Field $field) {
                 return $field->getRenderable('title', false);
             }
@@ -226,6 +222,7 @@ class FrontendGenerator implements GeneratorInterface
             'v-show',
             'isLoading'
         )->getRenderHTML();
+
         $this->templateParameters = [
             'buttonSubmit' => $this->composer->element(
                 'Button',
@@ -238,7 +235,7 @@ class FrontendGenerator implements GeneratorInterface
             'buttonEdit' => $buttonEdit,
             'buttonDelete' => $buttonDelete,
             'filters' => $this->getFilters(),
-            // TODO 'hasCan' => $this->model
+            // TODO 'hasCan' => $this->fModel->,
             'keyAttribute' => $this->keyAttribute,
             'spinner' => $spinner,
             'tablelist' => $table->getRenderHTML(),
@@ -250,7 +247,7 @@ class FrontendGenerator implements GeneratorInterface
         ];
     }
 
-    public function templateCallback(string $stub, FrameworkVue $vue, array $data, Model $m): string
+    public function templateCallback(string $stub, Framework $f, array $data, Model $m): string
     {
         $x = $this->templateFile(
             $stub,
@@ -373,7 +370,7 @@ EOF;
             new GeneratedItem(
                 GeneratedItem::TYPE_FRONTEND,
                 $listQuery,
-                $this->model->getName() . '/queryList.graphql'
+                $this->fModel->getName() . '/queryList.graphql'
             )
         );
 
@@ -409,26 +406,26 @@ EOF;
             new GeneratedItem(
                 GeneratedItem::TYPE_FRONTEND,
                 $tableQuery,
-                $this->model->getName() . '/queryTable.graphql'
+                $this->fModel->getName() . '/queryTable.graphql'
             )
         );
 
         /*
          * item
          */
-        $graphqlQuery = $this->model->mapFields(
+        $graphqlQuery = $this->fModel->mapFields(
             function (Field $f) {
                 return \Modelarium\Frontend\Util::fieldShow($f) ? $f->toGraphqlQuery() : null;
             }
         );
         $graphqlQuery = join("\n", array_filter($graphqlQuery));
 
-        $hasCan = method_exists($this->model, 'getCanAttribute');
-        $canAttribute = $hasCan ? 'can' : '';
+        $hasCan = $this->fModel->getExtradataValue('hasCan', 'value', false);
+        $canAttribute = $hasCan ? 'can' : ''; // TODO: subvalues?
         if ($this->keyAttribute === 'id') {
             $keyAttributeType = 'ID';
         } else {
-            $keyAttributeType = $this->model->getField($this->keyAttribute)->getDatatype()->getGraphqlType();
+            $keyAttributeType = $this->fModel->getField($this->keyAttribute)->getDatatype()->getGraphqlType();
         }
 
         $itemQuery = <<<EOF
@@ -445,7 +442,7 @@ EOF;
             new GeneratedItem(
                 GeneratedItem::TYPE_FRONTEND,
                 $itemQuery,
-                $this->model->getName() . '/queryItem.graphql'
+                $this->fModel->getName() . '/queryItem.graphql'
             )
         );
 
@@ -460,7 +457,7 @@ EOF;
             new GeneratedItem(
                 GeneratedItem::TYPE_FRONTEND,
                 $upsertMutation,
-                $this->model->getName() . '/mutationUpsert.graphql'
+                $this->fModel->getName() . '/mutationUpsert.graphql'
             )
         );
 
@@ -475,15 +472,15 @@ EOF;
             new GeneratedItem(
                 GeneratedItem::TYPE_FRONTEND,
                 $deleteMutation,
-                $this->model->getName() . '/mutationDelete.graphql'
+                $this->fModel->getName() . '/mutationDelete.graphql'
             )
         );
     }
     
     protected function makeJSModel(): void
     {
-        $path = $this->model->getName() . '/model.js';
-        $modelValues = $this->model->getDefault();
+        $path = $this->fModel->getName() . '/model.js';
+        $modelValues = $this->fModel->getDefault();
         $modelValues['id'] = 0;
         $modelJS = 'const model = ' . json_encode($modelValues) .
             ";\n\nexport default model;\n";
@@ -561,17 +558,17 @@ EOF;
      * Get the value of model
      *
      * @return  Model
-     */ 
+     */
     public function getModel()
     {
-        return $this->model;
+        return $this->fModel;
     }
 
     /**
      * Get the value of stubDir
      *
      * @return  string
-     */ 
+     */
     public function getStubDir()
     {
         return $this->stubDir;

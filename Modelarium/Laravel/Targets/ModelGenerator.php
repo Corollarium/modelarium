@@ -230,6 +230,12 @@ class ModelGenerator extends BaseGenerator
         // special types that should be skipped.
         if ($typeName === 'Can') {
             $this->hasCan = true;
+            $this->fModel->appendExtradata(
+                new Extradata(
+                    'hasCan',
+                    [ new ExtradataParameter('value', true) ]
+                )
+            );
             return;
         }
 
