@@ -246,7 +246,6 @@ class FrontendGenerator implements GeneratorInterface
             'buttonEdit' => $buttonEdit,
             'buttonDelete' => $buttonDelete,
             'filters' => $this->getFilters(),
-            // TODO 'hasCan' => $this->fModel->,
             'keyAttribute' => $this->keyAttribute,
             'spinner' => $spinner,
             'tablelist' => $table->getRenderHTML(),

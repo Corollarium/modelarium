@@ -82,15 +82,16 @@ class FrontendVueGenerator
 
     public function buildTemplateParameters(): void
     {
-        $hasVuex = true; // TODO
+        $hasVueRouter = $this->generator != null; //TODO: temporary true condition while we don't have a setting for this
+
         $hasCan = $this->generator->getModel()->getExtradataValue('hasCan', 'value', false);
         $routeBase = $this->generator->getRouteBase();
         $keyAttribute = $this->generator->getKeyAttribute();
-        $targetAttribute = $hasVuex ? 'to' : 'href';
+        $targetAttribute = $hasVueRouter ? 'to' : 'href';
         $buttonCreate = $this->generator->getComposer()->nodeElement(
             'Button',
             [
-                Button::TYPE => ($hasVuex ? 'router-link' : 'a'),
+                Button::TYPE => ($hasVueRouter ? 'router-link' : 'a'),
                 Button::ATTRIBUTES => [
                     $targetAttribute => "/{$routeBase}/edit",
                 ] + ($hasCan ? [ "v-if" => 'can.create' ]: []),
@@ -104,7 +105,7 @@ class FrontendVueGenerator
         $buttonEdit = $this->generator->getComposer()->nodeElement(
             'Button',
             [
-                Button::TYPE => ($hasVuex ? 'router-link' : 'a'),
+                Button::TYPE => ($hasVueRouter ? 'router-link' : 'a'),
                 Button::ATTRIBUTES => [
                     $targetAttribute => "'/{$routeBase}/' + model.{$keyAttribute} + '/edit'",
                 ] + ($hasCan ? [ "v-if" => 'can.edit' ]: []),
