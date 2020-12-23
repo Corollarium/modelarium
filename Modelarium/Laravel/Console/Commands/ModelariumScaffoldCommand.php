@@ -72,9 +72,30 @@ class ModelariumScaffoldCommand extends Command
             ModelGenerator::setModelDir($this->option('modelDir'));
         }
 
+        // this generates the missing types and fills them, but it loses the directives.
+        // if ($this->option('lighthouse')) {
+        //     $output = new BufferedOutput();
+        //     $this->runCommand(
+        //         'lighthouse:print',
+        //         [],
+        //         $output
+        //     );
+        //     $processor->processString($output->fetch());
+        //     SchemaPrinter::printFilteredSchema(
+        //         $schema,
+        //         static function ($type) : bool {
+        //             return ! Directive::isSpecifiedDirective($type);
+        //         },
+        //         static function ($type) : bool {
+        //             return ! Type::isBuiltInType($type);
+        //         },
+        //         $options
+        //     );
+        // } else {
+
         $files = [
-            __DIR__ . '/../../../Types/Graphql/scalars.graphql'
-        ];
+                __DIR__ . '/../../../Types/Graphql/scalars.graphql'
+            ];
 
         if ($this->option('lighthouse')) {
             $files[] = __DIR__ . '/../../Graphql/definitionsLighthouse.graphql';
@@ -85,7 +106,7 @@ class ModelariumScaffoldCommand extends Command
 
         // parse directives from lighthouse
         $modelNames = array_diff($dir, array('.', '..'));
-        
+            
         foreach ($modelNames as $n) {
             if (mb_strpos($n, '.graphql') === false) {
                 continue;
@@ -93,6 +114,7 @@ class ModelariumScaffoldCommand extends Command
             $files[] = base_path('graphql/' . $n);
         }
         $processor->processFiles($files);
+
 
         $files = $processor->getCollection();
         if ($name && $name !== '*' && $name !== 'all') {

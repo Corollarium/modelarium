@@ -92,6 +92,13 @@ class FrontendGenerator implements GeneratorInterface
      */
     protected $tableFields = [];
 
+    /**
+     * title fields
+     *
+     * @var Field[]
+     */
+    protected $titleFields = [];
+
     public function __construct(FrameworkComposer $composer, Model $model, Parser $parser)
     {
         $this->composer = $composer;
@@ -100,7 +107,6 @@ class FrontendGenerator implements GeneratorInterface
         // TODO: document keyAttribute renderable parameter
         $this->keyAttribute = $model->getRenderable('keyAttribute', 'id');
         $this->routeBase = $this->fModel->getRenderable('routeBase', $this->lowerName);
-        var_dump($this->routeBase);
         $this->parser = $parser;
         $this->buildTemplateParameters();
     }
@@ -132,6 +138,11 @@ class FrontendGenerator implements GeneratorInterface
 
     public function buildTemplateParameters(): void
     {
+        $this->titleFields = $this->fModel->filterField(
+            function (Field $field) {
+                return $field->getRenderable('title', false);
+            }
+        );
         $this->cardFields = $this->fModel->filterField(
             function (Field $field) {
                 return $field->getRenderable('card', false);
@@ -322,7 +333,16 @@ class FrontendGenerator implements GeneratorInterface
             },
             $this->cardFields
         );
-        $cardFieldParameters = implode("\n", $cardFieldNames);
+        $graphqlQuery = $this->fModel->mapFields(
+            function (Field $f) use ($cardFieldNames) {
+                if (in_array($f->getName(), $cardFieldNames)) {
+                    // TODO: filter subfields in relationships
+                    return $f->toGraphqlQuery();
+                }
+                return null;
+            }
+        );
+        $cardFieldParameters = join("\n", array_filter($graphqlQuery));
 
         // generate filters for query
         $filters = $this->templateParameters['filters'] ?? [];
@@ -383,7 +403,18 @@ EOF;
             },
             $this->tableFields
         );
-        $tableFieldParameters = implode("\n", $tableFieldNames);
+
+        $graphqlQuery = $this->fModel->mapFields(
+            function (Field $f) use ($tableFieldNames) {
+                if (in_array($f->getName(), $tableFieldNames)) {
+                    // TODO: filter subfields in relationships
+                    return $f->toGraphqlQuery();
+                }
+                return null;
+            }
+        );
+
+        $tableFieldParameters = join("\n", array_filter($graphqlQuery));
 
         $tableQuery = <<<EOF
 query (\$page: Int!$filtersQuery) {
@@ -572,5 +603,15 @@ EOF;
     public function getStubDir()
     {
         return $this->stubDir;
+    }
+
+    /**
+     * Get title fields
+     *
+     * @return  Field[]
+     */
+    public function getTitleFields()
+    {
+        return $this->titleFields;
     }
 }

@@ -1,7 +1,7 @@
 <template>
   <tr class="modelarium-list__row {|lowerName|}-list__row">
     {|#tableItemFields|}
-    <td>{{ {|.|} }}</td>
+    <td>{|{.}|}</td>
     {|/tableItemFields|}
   </tr>
 </template>

@@ -134,6 +134,15 @@ class FrontendVueGenerator
         $this->generator->templateParameters['buttonCreate'] = $buttonCreate;
         $this->generator->templateParameters['buttonEdit'] = $buttonEdit;
         $this->generator->templateParameters['buttonDelete'] = $buttonDelete;
+
+        $this->generator->templateParameters['tableItemFields'] =
+            array_values(array_map(function (Field $f) {
+                if ($f->getDatatype()->getBasetype() === 'relationship') {
+                    $name = $f->getName();
+                    return "<{$name}-link v-bind=\"{$name}\"></{$name}-link>";
+                }
+                return '{{ ' . $f->getName() . ' }}';
+            }, $this->generator->getTableFields()));
     }
 
     /**
@@ -250,6 +259,14 @@ class FrontendVueGenerator
                 'required' => true
             ]);
         }
+        foreach ($this->generator->getTitleFields() as $f) {
+            $vueCode->appendExtraProp([
+                'name' => $f->getName(),
+                'type' => $vueCode->mapTypeToJs($f->getDatatype()),
+                'required' => true
+            ]);
+        }
+
         $this->vueCodeLinkItem($vue);
         $this->makeVue($vue, 'Link', 'viewable', $cardFieldNames);
     }
