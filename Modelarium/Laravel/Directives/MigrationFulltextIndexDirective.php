@@ -24,9 +24,9 @@ class MigrationFulltextIndexDirective implements MigrationDirectiveInterface, Mo
         }
         $generator->postCreateCode[] = "DB::statement('ALTER TABLE " .
             $generator->getTableName()  .
-            " ADD FULLTEXT fulltext_index (\"" .
-            implode('", "', $indexFields) .
-            "\")');";
+            " ADD FULLTEXT fulltext_index (`" .
+            implode('`, `', $indexFields) .
+            "`)');";
     }
 
     public static function processMigrationFieldDirective(

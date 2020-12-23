@@ -119,7 +119,7 @@ final class MigrationGeneratorTest extends TestCase
         $data = $gen->generateString();
         $this->assertNotNull($data);
         $this->assertStringContainsString(
-            'DB::statement(\'ALTER TABLE users ADD FULLTEXT fulltext_index ("name", "description")\');',
+            'DB::statement(\'ALTER TABLE users ADD FULLTEXT fulltext_index (`name`, `description`)\');',
             $data
         );
     }
