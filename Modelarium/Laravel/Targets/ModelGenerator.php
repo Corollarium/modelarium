@@ -104,7 +104,7 @@ class ModelGenerator extends BaseGenerator
      *
      * @var boolean
      */
-    protected $hasCan = true;
+    protected $hasCan = false;
 
     /**
      * If true, we have timestamps on the migration.
@@ -407,7 +407,7 @@ return $f->getDatatype()->getRandom();')
             $this->class->addMethod('getCanAttribute')
                 ->setPublic()
                 ->setReturnType('array')
-                ->addComment("Returns the policy permissions for actions such as editing or deleting.\n@return \Formularium\Model")
+                ->addComment("Returns the policy permissions for actions such as editing or deleting.\n@return array")
                 ->addBody(
                     '$policy = new \\App\\Policies\\' . $this->studlyName . 'Policy();' . "\n" .
                     '$user = Auth::user();' . "\n" .
