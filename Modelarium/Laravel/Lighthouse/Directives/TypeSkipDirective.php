@@ -13,7 +13,7 @@ class TypeSkipDirective extends BaseDirective implements DefinedDirective
 """
 Do not process this type in Modelarium. Will not create models, migrations, etc
 """
-directive @typeSkip on OBJECT
+directive @typeSkip on OBJECT | ENUM
 SDL;
     }
 }
