@@ -51,7 +51,25 @@ class MigrationFulltextIndexDirective implements MigrationDirectiveInterface, Mo
         ModelGenerator $generator,
         \GraphQL\Language\AST\DirectiveNode $directive
     ): void {
-        throw new Exception("Fulltext index model is not implemented yet");
+        $indexFields = Parser::getDirectiveArgumentByName($directive, 'fields');
+        $indexFieldsString = join(', ', $indexFields);
+        
+        $method = $generator->class->addMethod('scopeFulltext')
+            ->setPublic()
+            ->setComment('
+Scope a query to use the fulltext index
+
+@param  \Illuminate\Database\Eloquent\Builder  $query
+@param  string $needle
+@return \Illuminate\Database\Eloquent\Builder
+           ')
+            ->setReturnType('\\Illuminate\\Database\\Eloquent\\Builder')
+            ->setBody("return \$query->whereRaw(\"MATCH ($indexFieldsString) AGAINST (? IN NATURAL LANGUAGE MODE)\", [\$needle]);");
+        
+        $method->addParameter('query')
+            ->setType('\\Illuminate\\Database\\Eloquent\\Builder');
+        $method->addParameter('needle')
+            ->setType('string');
     }
 
     public static function processModelFieldDirective(
