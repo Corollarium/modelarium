@@ -93,7 +93,7 @@ export default {
   methods: {
     async fetch() {
       this.isLoading = true;
-      axios
+      return axios
         .post("/graphql", {
           query: this.query,
           variables: {

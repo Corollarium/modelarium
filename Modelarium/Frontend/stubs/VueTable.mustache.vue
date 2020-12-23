@@ -79,7 +79,7 @@ export default {
 
     index(page) {
       this.isLoading = true;
-      axios.post(
+      return axios.post(
         '/graphql',
         {
             query: tableQuery,

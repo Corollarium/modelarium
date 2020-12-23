@@ -112,7 +112,7 @@ export default {
 	methods: {
     index(page) {
       this.isLoading = true;
-      axios.post(
+      return axios.post(
         '/graphql',
         {
             query: listQuery,

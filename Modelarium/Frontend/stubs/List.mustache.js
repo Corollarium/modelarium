@@ -43,7 +43,7 @@ watch: {
 
 methods: {
   index(page) {
-    axios.post(
+    return axios.post(
       '/graphql',
       {
         query: listQuery,

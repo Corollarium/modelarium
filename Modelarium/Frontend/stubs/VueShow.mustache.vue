@@ -40,7 +40,7 @@ export default {
     },
 
     get(id) {
-      axios
+      return axios
         .post("/graphql", {
           query: itemQuery,
           variables: { {|keyAttribute|}: this.cleanIdentifier(id) },
@@ -68,7 +68,7 @@ export default {
       if (!window.confirm("Really delete?")) {
         return;
       }
-      axios
+      return axios
         .post("/graphql", {
           query: mutationDelete,
           variables: { id: this.model.id },

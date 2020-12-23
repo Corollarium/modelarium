@@ -31,7 +31,7 @@ export default {
 
   methods: {
     get(id) {
-      axios
+      return axios
         .post("/graphql", {
           query: itemQuery,
           variables: { id },
@@ -51,7 +51,7 @@ export default {
       let postData = { ...this.model };
       let query;
 
-      axios
+      return axios
         .post("/graphql", {
           query: mutationUpsert,
           variables: { "{|lowerName|}": postData },
