@@ -23,6 +23,7 @@ class ServiceProvider extends LaravelServiceProvider
                 \Modelarium\Laravel\Console\Commands\ModelariumFrontendCommand::class,
                 \Modelarium\Laravel\Console\Commands\ModelariumScaffoldCommand::class,
                 \Modelarium\Laravel\Console\Commands\ModelariumDatatypeCommand::class,
+                \Modelarium\Laravel\Console\Commands\ModelariumRenderableCommand::class,
                 \Modelarium\Laravel\Console\Commands\ModelariumTypeCommand::class,
             ]);
         }
