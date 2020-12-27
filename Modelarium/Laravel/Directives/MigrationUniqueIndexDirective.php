@@ -4,11 +4,13 @@ namespace Modelarium\Laravel\Directives;
 
 use Illuminate\Support\Str;
 use Modelarium\Exception\DirectiveException;
+use Modelarium\Exception\Exception;
 use Modelarium\Laravel\Targets\Interfaces\MigrationDirectiveInterface;
 use Modelarium\Laravel\Targets\ModelGenerator;
 use Modelarium\Laravel\Targets\Interfaces\ModelDirectiveInterface;
 use Modelarium\Laravel\Targets\MigrationCodeFragment;
 use Modelarium\Laravel\Targets\MigrationGenerator;
+use Modelarium\Parser;
 
 class MigrationUniqueIndexDirective implements ModelDirectiveInterface, MigrationDirectiveInterface
 {
@@ -49,7 +51,12 @@ class MigrationUniqueIndexDirective implements ModelDirectiveInterface, Migratio
         MigrationGenerator $generator,
         \GraphQL\Language\AST\DirectiveNode $directive
     ): void {
-        throw new DirectiveException("Invalid directive on type");
+        $indexFields = Parser::getDirectiveArgumentByName($directive, 'fields');
+        
+        if (!count($indexFields)) {
+            throw new Exception("You must provide at least one field to an index on a model");
+        }
+        $generator->createCode[] = '$table->unique("' . implode('", "', $indexFields) .'");';
     }
 
     public static function processMigrationFieldDirective(

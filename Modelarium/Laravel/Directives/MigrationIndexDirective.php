@@ -19,7 +19,7 @@ class MigrationIndexDirective implements MigrationDirectiveInterface
         if (!count($indexFields)) {
             throw new Exception("You must provide at least one field to an index");
         }
-        $generator->createCode[] ='$table->index("' . implode('", "', $indexFields) .'");';
+        $generator->createCode[] = '$table->index("' . implode('", "', $indexFields) .'");';
     }
 
     public static function processMigrationFieldDirective(

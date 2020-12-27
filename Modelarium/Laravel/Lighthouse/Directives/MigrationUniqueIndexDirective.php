@@ -13,7 +13,12 @@ class MigrationUniqueIndexDirective extends BaseDirective implements DefinedDire
 """
 Generates a unique index on the database for that field
 """
-directive @migrationUniqueIndex on FIELD_DEFINITION
+directive @migrationUniqueIndex (
+    """
+    The list of fields to compose in the index
+    """
+    fields: [String!]
+) on FIELD_DEFINITION | OBJECT
 SDL;
     }
 }
