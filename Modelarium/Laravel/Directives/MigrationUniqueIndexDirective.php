@@ -56,7 +56,7 @@ class MigrationUniqueIndexDirective implements ModelDirectiveInterface, Migratio
         if (!count($indexFields)) {
             throw new Exception("You must provide at least one field to an index on a model");
         }
-        $generator->createCode[] = '$table->unique("' . implode('", "', $indexFields) .'");';
+        $generator->createCode[] = '$table->unique(["' . implode('", "', $indexFields) .'"]);';
     }
 
     public static function processMigrationFieldDirective(
