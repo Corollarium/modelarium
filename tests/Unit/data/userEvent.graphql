@@ -8,3 +8,6 @@ type Mutation {
   createUser(name: String!, email: String!, password: String!): User
     @event(dispatch: "App\\Events\\UserCreated")
 }
+type Query {
+  user(name: String!): User @event(dispatch: "App\\Events\\UserViewed")
+}

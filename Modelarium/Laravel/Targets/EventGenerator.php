@@ -8,6 +8,7 @@ use GraphQL\Type\Definition\Type;
 use Modelarium\BaseGenerator;
 use Modelarium\GeneratedCollection;
 use Modelarium\GeneratedItem;
+use Modelarium\Parser;
 use Nette\PhpGenerator\ClassType;
 
 class EventGenerator extends BaseGenerator
@@ -90,21 +91,7 @@ class EventGenerator extends BaseGenerator
             $name = $directive->name->value;
             switch ($name) {
             case 'event':
-                $dispatch = '';
-                
-                foreach ($directive->arguments as $arg) {
-                    /**
-                     * @var \GraphQL\Language\AST\ArgumentNode $arg
-                     */
-
-                    $value = $arg->value->value;
-
-                    switch ($arg->name->value) {
-                    case 'dispatch':
-                        $dispatch = $value;
-                    break;
-                    }
-                }
+                $dispatch = Parser::getDirectiveArgumentByName($directive, 'dispatch');
                 $e = $this->makeEventClass($dispatch, $typeName);
                 $this->events->push($e);
                 break;
