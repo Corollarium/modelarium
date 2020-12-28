@@ -7,14 +7,11 @@ use Formularium\Extradata;
 use Formularium\ExtradataParameter;
 use Formularium\Field;
 use Formularium\Model;
-use Illuminate\Support\Str;
 use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\UnionType;
 use Modelarium\BaseGenerator;
-use Modelarium\Datatypes\Datatype_relationship;
-use Modelarium\Datatypes\RelationshipFactory;
 use Modelarium\Exception\Exception;
 use Modelarium\FormulariumUtils;
 use Modelarium\GeneratedCollection;
@@ -25,6 +22,7 @@ use Nette\PhpGenerator\Method;
 
 class ModelGenerator extends BaseGenerator
 {
+
     /**
      * @var string
      */
@@ -265,8 +263,7 @@ class ModelGenerator extends BaseGenerator
         }
 
         if (!$relationshipDatatype) {
-            // TODO: generate a warning, perhaps?
-            // throw new Exception("Could not find a relationship in {$typeName} for {$field->name} in {$sourceTypeName}");
+            $this->warn("Could not find a relationship {$typeName} for {$field->name} in {$this->baseName}. Consider adding a @modelAccessor.");
             return;
         }
     
