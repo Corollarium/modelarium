@@ -15,7 +15,9 @@
         {|/filters|}
       </div>
 
-      <{|StudlyName|}Card v-for="l in list" :key="l.id" v-bind="l"></{|StudlyName|}Card>
+      <div class="modelarium-list__items {|lowerName|}-list__items">
+        <{|StudlyName|}Card v-for="l in list" :key="l.id" v-bind="l"></{|StudlyName|}Card>
+      </div>
 
       <Pagination
         v-if="showPagination"
