@@ -144,6 +144,11 @@ directive @minLength(
 ) on OBJECT
 
 """
+Describe it here.
+"""
+directive @modelAccessor on FIELD_DEFINITION
+
+"""
 Base class to extend on model.
 """
 directive @modelExtends(
