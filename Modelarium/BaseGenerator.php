@@ -32,6 +32,16 @@ abstract class BaseGenerator implements GeneratorInterface
     protected $type = null;
 
     /**
+     * @var \Symfony\Component\Console\Output\ConsoleOutput
+     */
+    public $outputSymfony;
+
+    /**
+     * @var \Illuminate\Console\OutputStyle
+     */
+    public $outputStyle;
+
+    /**
      * @param Parser $parser
      * @param string $name The target type name.
      * @param Type|string $type
@@ -48,7 +58,10 @@ abstract class BaseGenerator implements GeneratorInterface
         } else {
             throw new Exception('Invalid model');
         }
-        $this->output = new \Symfony\Component\Console\Output\ConsoleOutput();
+        $this->input = new \Symfony\Component\Console\Input\StringInput("");
+        $this->outputSymfony = new \Symfony\Component\Console\Output\ConsoleOutput();
+        $this->outputStyle = new \Illuminate\Console\OutputStyle($this->input, $this->outputSymfony);
+        $this->output = $this->outputStyle;
     }
 
     protected function phpHeader(): string
