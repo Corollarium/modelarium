@@ -18,12 +18,6 @@
             "Modelarium/Boot.php"
         ]
     },
-    "repositories": [
-        {
-            "type": "vcs",
-            "url": "https://github.com/mcaskill/composer-merge-plugin"
-        }
-    ],
     "require": {
         "php": ">=7.2.0",
         "doctrine/inflector": "^2.0",
@@ -32,7 +26,7 @@
         "composer/composer": "^1.10",
         "webonyx/graphql-php": "^0.13.9",
         "thecodingmachine/safe": "^1.1",
-        "corollarium/formularium": "^0.7.3",
+        "corollarium/formularium": "^0.7.4",
         "nette/php-generator": "^3.4",
         "haydenpierce/class-finder": "^0.4.2",
         "nuwave/lighthouse": "^4.15",
