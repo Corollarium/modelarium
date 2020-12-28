@@ -78,7 +78,7 @@ final class MigrationGeneratorTest extends TestCase
         $gen = new MigrationGenerator($this->getParser('userMultiIndex'), 'User');
         $data = $gen->generateString();
         $this->assertNotNull($data);
-        $this->assertStringContainsString('$table->index("name", "surname");', $data);
+        $this->assertStringContainsString('$table->index(["name", "surname"]);', $data);
     }
 
     public function testGenerateWithSoftDeletes()
