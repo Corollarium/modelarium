@@ -245,6 +245,11 @@ class FrontendGenerator implements GeneratorInterface
             'buttonCreate' => $buttonCreate,
             'buttonEdit' => $buttonEdit,
             'buttonDelete' => $buttonDelete,
+            'options' => [
+                // TODO: frontend options
+                'runtimeValidator' => false,
+                'axios' => 'axios',
+            ],
             'filters' => $this->getFilters(),
             'keyAttribute' => $this->keyAttribute,
             'spinner' => $spinner,
@@ -311,7 +316,7 @@ class FrontendGenerator implements GeneratorInterface
                     $filters[] = [
                         'name' => $arg->name,
                         'type' => $typename,
-                        'required' => $required,
+                        'required' => (bool)$required,
                         'requiredJSBoolean' => $required ? 'true' : 'false'
                     ];
                 }

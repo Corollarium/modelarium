@@ -35,15 +35,27 @@
 import {|StudlyName|}Card from "./{|StudlyName|}Card";
 import axios from 'axios';
 import listQuery from 'raw-loader!./queryList.graphql';
+{|#if options.runtimeValidator|}
+import { tObject, tString, tNumber, tBoolean, optional } from 'runtime-validator';
+{|/if|}
 
 export default {
   props: {
-    {|#filters|}
-    filter{|name|}: {
-      type: String,
-      required: {|requiredJSBoolean|}
+    filters: {
+      type: Object,
+      default: () => ({
+        {|#filters|}
+          {|name|}: undefined,
+        {|/filters|}
+      }),
+      {|#if options.runtimeValidator|}
+      validator: tObject({
+        {|#each filters|}
+        {|name|}: {|#if required|}tString(){|/if|}{|#unless required|}optional(tString()){|/unless|},
+        {|/each|}
+      }).asSuccess
+      {|/if|}
     },
-    {|/filters|}
     showHeader: {
       type: Boolean,
       default: true,
@@ -88,16 +100,6 @@ export default {
     this.index(this.pagination.currentPage);
   },
 
-  computed: {
-    filters() {
-      return {
-        {|#filters|}
-          {|name|}: this.filter{|name|},
-        {|/filters|}
-      };
-    }
-  },
-
   watch: {
     "pagination.currentPage": {
       handler (newVal, oldVal) {
@@ -108,6 +110,9 @@ export default {
           }
         }
       }
+    },
+    filters() {
+      this.index(0);
     },
   },
 

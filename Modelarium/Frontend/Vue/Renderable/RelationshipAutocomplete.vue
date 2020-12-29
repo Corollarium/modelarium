@@ -122,7 +122,7 @@ export default {
       /**
        * Actual values
        */
-      value: [],
+      value: undefined,
       /**
        * If some error happened.
        */
@@ -261,6 +261,10 @@ export default {
     },
   },
 
+  created() {
+    this.value = this.isMultiple ? [] : undefined;
+  },
+
   computed: {
     selectionVisible() {
       if (!this.selectionQuery) {
@@ -285,12 +289,12 @@ export default {
      * handles when field is cleared.
      */
     checkEmpty() {
-      if (this.selectableQuery || this.value === undefined) {
-        return;
-      }
       if (this.isMultiple) {
         // TODO
       } else {
+        if (this.selectableQuery) {
+          return;
+        }
         this.value = undefined;
         this.$emit("input", this.value);
       }
