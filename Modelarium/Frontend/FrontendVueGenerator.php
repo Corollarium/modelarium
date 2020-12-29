@@ -371,7 +371,7 @@ class FrontendVueGenerator
 
         $export = array_map(
             function ($i) use ($name) {
-                return "    {$name}$i,\n";
+                return "    {$name}$i,";
             },
             $items
         );
