@@ -10,42 +10,76 @@
     </select>
     <div class="modelarium-autocomplete__container">
       <autocomplete
-        :debounceTime="200"
+        :debounceTime="debounceTime"
         :search="autocompleteSearch"
         :get-result-value="autocompleteGetResultValue"
         :placeholder="placeholder"
         :aria-label="placeholder"
         @submit="onSubmit"
-      ></autocomplete>
-      <div>Total results: {{ paginatorInfo.total }}</div>
-      <!--
-      <input
-        v-model="selectableQuery"
-        type="text"
-        :list="dataListId"
-        :class="'modelarium-autocomplete__search ' + htmlClass"
-        autocomplete="off"
-        placeholder="search..."
-      />
-      <slot>
-        <datalist :id="dataListId">
-          <option
-            v-for="item in selectable"
-            :key="item.id"
-            class="modelarium-autocomplete__item--selection"
-            :value="item.id"
-            :label="item[titleField]"
-          />
-        </datalist>
-      </slot>
-      -->
+      >
+        <template
+          #default="{
+            rootProps,
+            inputProps,
+            inputListeners,
+            resultListProps,
+            resultListListeners,
+            results,
+            resultProps,
+          }"
+        >
+          <div v-bind="rootProps">
+            <input
+              type="search"
+              v-bind="inputProps"
+              v-on="inputListeners"
+              :class="[
+                'form-control',
+                'autocomplete-input',
+                {
+                  'autocomplete-input-no-results': paginatorInfo.total === 0,
+                },
+              ]"
+              @focus="$event.target.select()"
+              @blur="checkEmpty()"
+            />
+            <ul
+              v-if="paginatorInfo.total === 0"
+              class="modelarium-autocomplete__result-list"
+              style="position: absolute; z-index: 1; width: 100%; top: 100%"
+            >
+              <li class="modelarium-autocomplete__total-results">
+                {{ messages["No results found"] }}
+              </li>
+            </ul>
+            <ul
+              v-bind="resultListProps"
+              v-on="resultListListeners"
+              class="modelarium-autocomplete__result-list"
+            >
+              <li class="modelarium-autocomplete__total-results">
+                {{ messages["Total results"] }}
+                {{ paginatorInfo.total }}
+              </li>
+              <li
+                v-for="(result, index) in results"
+                :key="resultProps[index].id"
+                v-bind="resultProps[index]"
+              >
+                <span>{{ result[titleField] }}</span>
+              </li>
+            </ul>
+          </div>
+        </template>
+      </autocomplete>
       <router-link
+        v-if="canCreate"
         :to="'/' + targetType + '/edit/'"
         target="_blank"
         title="Add a new value for this field"
         class="modelarium-autocomplete__button"
       >
-        <span>＋ Add new</span>
+        <span>＋ {{ messages["Add new"] }}</span>
       </router-link>
       <div class="modelarium-autocomplete__selection" v-if="isMultiple">
         <ul class="modelarium-autocomplete__list" tabindex="-1" title="">
@@ -65,7 +99,7 @@
           class="modelarium-autocomplete__all"
           @click="removeAll"
         >
-          Remove all
+          {{ messages["Remove all"] }}
         </button>
       </div>
     </div>
@@ -85,10 +119,16 @@ export default {
 
   data() {
     return {
+      /**
+       * Actual values
+       */
       value: [],
+      /**
+       * If some error happened.
+       */
       errorMessage: "",
       /**
-       * Returned results
+       * Results from the server
        */
       selectable: [],
       /**
@@ -102,7 +142,7 @@ export default {
         currentPage: 0,
         lastPage: 0,
         perPage: 0,
-        total: 0,
+        total: -1, // -1: nothing yet
       },
     };
   },
@@ -120,13 +160,28 @@ export default {
      */
     htmlClass: {
       type: String,
+      default: "",
+    },
+
+    debounceTime: {
+      type: Number,
+      default: 200, // in milliseconds
     },
 
     /**
-     * The field in the relationship that is used as a title
+     * The field in the relationship model that is used as a title
      */
     titleField: {
       type: String,
+      required: true,
+    },
+
+    /**
+     * The field in the relationship model that is used to query
+     */
+    queryField: {
+      type: String,
+      required: true,
     },
 
     /**
@@ -134,6 +189,7 @@ export default {
      */
     targetType: {
       type: String,
+      required: true,
     },
 
     /**
@@ -141,6 +197,7 @@ export default {
      */
     targetTypePlural: {
       type: String,
+      required: true,
     },
 
     /**
@@ -148,6 +205,7 @@ export default {
      */
     query: {
       type: String,
+      required: true,
     },
 
     /**
@@ -159,24 +217,36 @@ export default {
     },
 
     /**
-     *
+     * If true accepts multiple values.
      */
     isMultiple: {
       type: Boolean,
       default: false,
     },
 
+    /**
+     * Placeholder message
+     */
     placeholder: {
       type: String,
       default: "search...",
     },
+
+    /**
+     * Translatable messages
+     */
+    messages: {
+      type: Object,
+      default: () => ({
+        "No results found": "No results found",
+        "Total results": "Total results",
+        "Remove all": "Remove all",
+        "Add new": "Add new",
+      }),
+    },
   },
 
   computed: {
-    dataListId() {
-      return "datalist-" + targetType;
-    },
-
     selectionVisible() {
       if (!this.selectionQuery) {
         return this.value;
@@ -196,8 +266,24 @@ export default {
       e.target.value = "";
     },
 
+    /**
+     * handles when field is cleared.
+     */
+    checkEmpty() {
+      if (!this.selectableQuery) {
+        if (this.isMultiple) {
+          // TODO
+        } else {
+          this.value = 0;
+          this.$emit("input", this.value);
+        }
+      }
+    },
+
+    /**
+     * push submit events.
+     */
     onSubmit(result) {
-      console.log(result);
       if (this.isMultiple) {
         this.value.push(result.id);
       } else {
@@ -226,7 +312,7 @@ export default {
           query: this.query,
           variables: {
             page: 1,
-            // TODO: query: selectableQuery,
+            [this.queryField]: this.selectableQuery,
             ...this.queryVariables,
           },
         })
@@ -263,7 +349,71 @@ export default {
 };
 </script>
 
-<style>
-.modelarium-autocomplete__container {
+<style scoped>
+/* Loading spinner */
+.autocomplete[data-loading="true"]::after {
+  content: "";
+  border: 3px solid rgba(0, 0, 0, 0.12);
+  border-right: 3px solid rgba(0, 0, 0, 0.48);
+  border-radius: 100%;
+  width: 20px;
+  height: 20px;
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  animation: rotate 1s infinite linear;
+}
+
+.modelarium-autocomplete__result-list {
+  margin: 0;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  padding: 0;
+  box-sizing: border-box;
+  max-height: 296px;
+  overflow-y: auto;
+  background: #fff;
+  list-style: none;
+  box-shadow: 0 2px 2px rgba(0, 0, 0, 0.16);
+}
+
+[data-position="below"] .modelarium-autocomplete__result-list {
+  margin-top: -1px;
+  border-top-color: transparent;
+  border-radius: 0 0 8px 8px;
+  padding-bottom: 8px;
+}
+
+[data-position="above"] .modelarium-autocomplete__result-list {
+  margin-bottom: -1px;
+  border-bottom-color: transparent;
+  border-radius: 8px 8px 0 0;
+  padding-top: 8px;
+}
+
+.modelarium-autocomplete__total-results {
+  padding: 0px 12px;
+  font-size: 0.8rem;
+  font-style: italic;
+}
+
+/* Single result item */
+.autocomplete-result {
+  cursor: default;
+  padding: 12px 12px 12px 12px;
+}
+
+.autocomplete-result:hover,
+.autocomplete-result[aria-selected="true"] {
+  background-color: rgba(0, 0, 0, 0.06);
+}
+
+@keyframes rotate {
+  from {
+    transform: translateY(-50%) rotate(0deg);
+  }
+  to {
+    transform: translateY(-50%) rotate(359deg);
+  }
 }
 </style>
