@@ -185,6 +185,15 @@ export default {
     },
 
     /**
+     * The field in the relationship model that is used to query.
+     * Set as undefined to return the entire entry object.
+     */
+    valueField: {
+      type: String,
+      default: "id",
+    },
+
+    /**
      * The target type, such as 'post'
      */
     targetType: {
@@ -244,6 +253,12 @@ export default {
         "Add new": "Add new",
       }),
     },
+
+    canCreate: {
+      // TODO
+      type: Boolean,
+      default: false,
+    },
   },
 
   computed: {
@@ -270,13 +285,14 @@ export default {
      * handles when field is cleared.
      */
     checkEmpty() {
-      if (!this.selectableQuery) {
-        if (this.isMultiple) {
-          // TODO
-        } else {
-          this.value = 0;
-          this.$emit("input", this.value);
-        }
+      if (this.selectableQuery || this.value === undefined) {
+        return;
+      }
+      if (this.isMultiple) {
+        // TODO
+      } else {
+        this.value = undefined;
+        this.$emit("input", this.value);
       }
     },
 
@@ -284,13 +300,14 @@ export default {
      * push submit events.
      */
     onSubmit(result) {
+      const v = this.valueField ? result[this.valueField] : result;
       if (this.isMultiple) {
-        this.value.push(result.id);
+        this.value.push(v);
       } else {
         if (result) {
-          this.$set(this, "value", result.id);
+          this.$set(this, "value", v);
         } else {
-          this.$set(this, "value", 0);
+          this.$set(this, "value", undefined);
         }
       }
       this.$emit("input", this.value);
