@@ -65,17 +65,7 @@ class FrontendVueGenerator
         $this->makeVue($vue, 'List', 'viewable');
         $this->makeVue($vue, 'Show', 'viewable');
         $this->makeVue($vue, 'Edit', 'editable');
-        $this->makeVue(
-            $vue,
-            'Form',
-            'editable',
-            function (Field $f) {
-                if (!$f->getExtradata('modelFillable')) {
-                    return false;
-                }
-                return true;
-            }
-        );
+        $this->vueForm($vue);
         $this->makeVueRoutes();
         $this->makeVueIndex();
     }
@@ -299,6 +289,21 @@ class FrontendVueGenerator
     public function vueTable(FrameworkVue $vue): void
     {
         $this->makeVue($vue, 'Table', 'viewable');
+    }
+
+    public function vueForm(FrameworkVue $vue): void
+    {
+        $this->makeVue(
+            $vue,
+            'Form',
+            'editable',
+            function (Field $f) {
+                if (!$f->getExtradata('modelFillable')) {
+                    return false;
+                }
+                return true;
+            }
+        );
     }
 
     /**

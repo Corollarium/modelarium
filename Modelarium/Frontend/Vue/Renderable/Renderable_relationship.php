@@ -95,7 +95,8 @@ class Renderable_relationship extends Renderable
          * @var VueFramework $vue
          */
         $vue = $this->framework;
-        $mvar = $vue->getVueCode()->getFieldModelVariable();
+        $vueCode = $vue->getVueCode();
+        $mvar = $vueCode->getFieldModelVariable();
         /**
          * @var Datatype_relationship $datatype
          */
@@ -121,11 +122,14 @@ class Renderable_relationship extends Renderable
                 return $field->getRenderable('title', false);
             }
         );
+        // get the title field
+        $queryField = $titleField;
+
         // import graphql query
         $query = 'relationList' . $targetModel->getName() . 'Query';
         $targetStudly = Str::studly($datatype->getTarget());
-        $vue->getVueCode()->appendImport($query, "raw-loader!../" . $targetStudly . "/queryList.graphql");
-        $vue->getVueCode()->appendExtraData($query, $query);
+        $vueCode->appendImport($query, "raw-loader!../" . $targetStudly . "/queryList.graphql");
+        $vueCode->appendExtraData($query, $query);
         
         $relationship = $datatype->getRelationship();
         if ($relationship === RelationshipFactory::RELATIONSHIP_MANY_TO_MANY ||
@@ -147,7 +151,9 @@ class Renderable_relationship extends Renderable
                     [
                         'name' => $field->getName(),
                         'htmlClass' => $classes,
+                        'class' => '',
                         'titleField' => ($titleField ? $titleField->getName() : 'id'),
+                        'queryField' => ($queryField ? $queryField->getName() : 'id'),
                         ':query' => $query,
                         'targetType' => $datatype->getTarget(),
                         'targetTypePlural' => $datatype->getTargetPlural(),
