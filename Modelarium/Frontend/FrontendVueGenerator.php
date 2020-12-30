@@ -24,6 +24,11 @@ class FrontendVueGenerator
      */
     protected $generator = null;
 
+    /**
+     * Option defaults
+     *
+     * @var array
+     */
     public $options = [
         /**
          * Use the runtimeValidator JS library
