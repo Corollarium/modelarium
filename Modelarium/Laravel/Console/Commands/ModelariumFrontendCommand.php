@@ -132,6 +132,7 @@ class ModelariumFrontendCommand extends Command
     {
         $composer = FrameworkComposer::create($this->frameworks);
         $model = $name::getFormularium();
+        $this->info("Starting $name...");
 
         $generator = new FrontendGenerator($composer, $model, $this->parser);
         $collection = $generator->generate();
