@@ -111,23 +111,29 @@ class ModelGenerator extends BaseGenerator
      */
     public $migrationTimestamps = false;
 
+    /**
+     * Undocumented variable
+     *
+     * @var GeneratedCollection
+     */
+    public $generatedCollection = null;
+
     public function generate(): GeneratedCollection
     {
+        $this->generatedCollection = new GeneratedCollection();
         $this->fModel = Model::create($this->studlyName);
-        $x = new GeneratedCollection([
-            new GeneratedItem(
-                GeneratedItem::TYPE_MODEL,
-                $this->generateString(),
-                $this->getGenerateFilename()
-            ),
-            new GeneratedItem(
-                GeneratedItem::TYPE_MODEL,
-                $this->templateStub('model'),
-                $this->getGenerateFilename(false),
-                true
-            )
-        ]);
-        return $x;
+        $this->generatedCollection->push(new GeneratedItem(
+            GeneratedItem::TYPE_MODEL,
+            $this->generateString(),
+            $this->getGenerateFilename()
+        ));
+        $this->generatedCollection->push(new GeneratedItem(
+            GeneratedItem::TYPE_MODEL,
+            $this->templateStub('model'),
+            $this->getGenerateFilename(false),
+            true
+        ));
+        return $this->generatedCollection;
     }
 
     /**
@@ -407,6 +413,7 @@ return $f->getDatatype()->getRandom();')
             ->addParameter('f')->setType('Formularium\Field');
 
         // TODO perhaps we can use PolicyGenerator->policyClasses to auto generate
+
         if ($this->hasCan) {
             $this->class->addMethod('getCanAttribute')
                 ->setPublic()
@@ -419,6 +426,15 @@ return $f->getDatatype()->getRandom();')
                     '    //[ "ability" => "create", "value" => $policy->create($user) ]' . "\n" .
                     '];'
                 );
+
+            /*  This creates a policy, but it's not useful. It's an empty file and @can won't patch it for now
+            if (!class_exists('\\App\\Policies\\' . $this->studlyName . 'Policy')) {
+                $policyGenerator = new PolicyGenerator($this->parser, 'Mutation', $this->type);
+                $z = $policyGenerator->getPolicyClass($this->studlyName);
+                $x = $policyGenerator->generate();
+                $this->generatedCollection = $this->generatedCollection->merge($x);
+            }
+            */
         }
         
         $printer = new \Nette\PhpGenerator\PsrPrinter;
