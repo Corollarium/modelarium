@@ -36,7 +36,7 @@ export default {
     },
 
     cleanIdentifier(identifier) {
-      return identifier.replace('_', ' ');
+      return identifier.replaceAll('_', ' ').replaceAll('-', ' ');
     },
 
     get(id) {
