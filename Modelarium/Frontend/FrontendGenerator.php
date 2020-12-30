@@ -15,6 +15,7 @@ use Formularium\Renderable;
 use GraphQL\Type\Definition\CustomScalarType;
 use GraphQL\Type\Definition\FieldArgument;
 use GraphQL\Type\Definition\InputType;
+use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ScalarType as DefinitionScalarType;
 use Modelarium\Exception\Exception;
@@ -297,10 +298,22 @@ class FrontendGenerator implements GeneratorInterface
 
                     $type = $arg->getType();
 
-                    $required = false;
+                    // this code for serializarion is crap. review it.
+                    $isRequired = false;
+                    $isArray = false;
+                    $isInternalRequired = false;
                     if ($type instanceof NonNull) {
                         $type = $type->getWrappedType();
-                        $required = true;
+                        $isRequired = true;
+                    }
+
+                    if ($type instanceof ListOfType) {
+                        $isArray = true;
+                        $type = $type->getWrappedType();
+                        if ($type instanceof NonNull) { /** @phpstan-ignore-line */
+                            $isInternalRequired = true;
+                            $type = $type->getWrappedType();
+                        }
                     }
 
                     if ($type instanceof CustomScalarType) {
@@ -315,12 +328,18 @@ class FrontendGenerator implements GeneratorInterface
                         // TODO throw new Exception("Unsupported type {$arg->name} in query filter generation for {$this->baseName} " . get_class($type));
                         continue;
                     }
-
+                    
                     $filters[] = [
                         'name' => $arg->name,
                         'type' => $typename,
-                        'required' => (bool)$required,
-                        'requiredJSBoolean' => $required ? 'true' : 'false'
+                        'graphqlType' =>  $arg->name  . ': ' .
+                            ($isArray ? '[' : '') .
+                            $typename .
+                            ($isInternalRequired ? '!' : '') .
+                            ($isArray ? ']' : '') .
+                            ($isRequired ? '!' : ''),
+                        'required' => (bool)$isRequired,
+                        'requiredJSBoolean' => $isRequired ? 'true' : 'false'
                     ];
                 }
                 break;
@@ -358,7 +377,8 @@ class FrontendGenerator implements GeneratorInterface
                 ', ',
                 array_map(
                     function ($item) {
-                        return '$' . $item['name']  . ': ' . $item['type'] . ($item['required'] ? '!' : '');
+                        // TODO: still buggy, misses the internal ! in [Xyz!]!
+                        return '$' . $item['graphqlType'];
                     },
                     $filters
                 )
