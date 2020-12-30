@@ -14,6 +14,7 @@ use Formularium\HTMLNode;
 use Formularium\Renderable;
 use GraphQL\Type\Definition\CustomScalarType;
 use GraphQL\Type\Definition\FieldArgument;
+use GraphQL\Type\Definition\InputType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ScalarType as DefinitionScalarType;
 use Modelarium\Exception\Exception;
@@ -305,6 +306,8 @@ class FrontendGenerator implements GeneratorInterface
                     if ($type instanceof CustomScalarType) {
                         $typename = $type->astNode->name->value;
                     } elseif ($type instanceof DefinitionScalarType) {
+                        $typename = $type->name;
+                    } elseif ($type instanceof InputType) {
                         $typename = $type->name;
                     }
                     // } elseif ($type instanceof Input with @spread) {
