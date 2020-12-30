@@ -247,11 +247,6 @@ class FrontendGenerator implements GeneratorInterface
             'buttonCreate' => $buttonCreate,
             'buttonEdit' => $buttonEdit,
             'buttonDelete' => $buttonDelete,
-            'options' => [
-                // TODO: frontend options
-                'runtimeValidator' => false,
-                'axios' => 'axios',
-            ],
             'filters' => $this->getFilters(),
             'keyAttribute' => $this->keyAttribute,
             'spinner' => $spinner,

@@ -24,6 +24,21 @@ class FrontendVueGenerator
      */
     protected $generator = null;
 
+    public $options = [
+        /**
+         * Use the runtimeValidator JS library
+         */
+        'runtimeValidator' => false,
+        /**
+         * The axios variable name
+         */
+        'axios' => 'axios',
+        /**
+         * Generate action buttons even if we don't have a can field in the model
+         */
+        'actionButtonsNoCan' => false
+    ];
+
     public function __construct(FrontendGenerator $generator)
     {
         $this->generator = $generator;
@@ -78,6 +93,7 @@ class FrontendVueGenerator
         $routeBase = $this->generator->getRouteBase();
         $keyAttribute = $this->generator->getKeyAttribute();
         $targetAttribute = $hasVueRouter ? 'to' : 'href';
+
         $buttonCreate = $this->generator->getComposer()->nodeElement(
             'Button',
             [
@@ -122,9 +138,16 @@ class FrontendVueGenerator
             true
         )->getRenderHTML();
 
-        $this->generator->templateParameters['buttonCreate'] = $buttonCreate;
-        $this->generator->templateParameters['buttonEdit'] = $buttonEdit;
-        $this->generator->templateParameters['buttonDelete'] = $buttonDelete;
+        if (!$hasCan && $this->options['actionButtonsNoCan'] === false) {
+            $this->generator->templateParameters['buttonCreate'] = '';
+            $this->generator->templateParameters['buttonEdit'] = '';
+            $this->generator->templateParameters['buttonDelete'] = '';
+        } else {
+            $this->generator->templateParameters['buttonCreate'] = $buttonCreate;
+            $this->generator->templateParameters['buttonEdit'] = $buttonEdit;
+            $this->generator->templateParameters['buttonDelete'] = $buttonDelete;
+        }
+        $this->generator->templateParameters['options'] = $this->options;
 
         $this->generator->templateParameters['tableItemFields'] =
             array_values(array_map(function (Field $f) {
