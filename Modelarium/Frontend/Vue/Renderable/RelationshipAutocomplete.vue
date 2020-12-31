@@ -13,9 +13,9 @@
         :debounceTime="debounceTime"
         :search="autocompleteSearch"
         :get-result-value="autocompleteGetResultValue"
-        :placeholder="placeholder"
+        :placeholder="placeholderComputed"
         :default-value="initialValue"
-        :aria-label="placeholder"
+        :aria-label="placeholderComputed"
         @submit="onSubmit"
       >
         <template
@@ -59,7 +59,7 @@
               class="modelarium-autocomplete__result-list"
             >
               <li class="modelarium-autocomplete__total-results">
-                {{ messages["Total results"] }}
+                {{ messages["Total results:"] }}
                 {{ paginatorInfo.total }}
               </li>
               <li
@@ -250,20 +250,41 @@ export default {
      */
     placeholder: {
       type: String,
-      default: "search...",
+      default: undefined,
     },
+
+    /**
+     * Translatable messages
+     */
 
     /**
      * Translatable messages
      */
     messages: {
       type: Object,
-      default: () => ({
-        "No results found": "No results found",
-        "Total results": "Total results",
-        "Remove all": "Remove all",
-        "Add new": "Add new",
-      }),
+      default: () => {
+        switch (Vue.$locale) {
+          case "pt":
+          case "pt_PT":
+          case "pt_BR":
+            return {
+              "No results found": "Nada achado",
+              "Total results:": "Total achado:",
+              "Remove all": "Remover tudo",
+              "Add new": "Criar",
+              "search...": "buscar...",
+            };
+          case "en":
+          default:
+            return {
+              "No results found": "No results found",
+              "Total results:": "Total results:",
+              "Remove all": "Remove all",
+              "Add new": "Add new",
+              "search...": "search...",
+            };
+        }
+      },
     },
 
     canCreate: {
@@ -288,6 +309,12 @@ export default {
       return this.actualValues.filter(
         (i) => i[this.titleField].indexOf(this.selectionQuery) != -1
       );
+    },
+    placeholderComputed() {
+      if (this.placeholder || this.placeholder === null) {
+        return this.placeholder;
+      }
+      return this.messages["search..."];
     },
   },
 
