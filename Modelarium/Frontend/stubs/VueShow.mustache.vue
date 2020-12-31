@@ -36,11 +36,11 @@ export default {
     },
 
     cleanIdentifier(identifier) {
-      return identifier.replaceAll('_', ' ').replaceAll('-', ' ');
+      {|{options.cleanIdentifierBody}|}
     },
 
     get(id) {
-      return axios
+      return {|options.axios|}
         .post("/graphql", {
           query: itemQuery,
           variables: { {|keyAttribute|}: this.cleanIdentifier(id) },
@@ -68,7 +68,7 @@ export default {
       if (!window.confirm("Really delete?")) {
         return;
       }
-      return axios
+      return {|options.axios|}
         .post("/graphql", {
           query: mutationDelete,
           variables: { id: this.model.id },

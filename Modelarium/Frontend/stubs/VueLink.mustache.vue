@@ -4,6 +4,19 @@
   </router-link>
 </template>
 <script>
-{|{script}|}
+{|{imports}|}
+
+export default {
+    {|{otherData}|}
+    data() {
+        return {|{jsonData}|};
+    },
+    computed: { {|{computedCode}|} },
+    props: {|{propsCode}|},
+    methods: {
+      escapeIdentifier(identifier) { {|{options.escapeIdentifierBody}|} },
+      {|{methodsCode}|}
+    }
+};
 </script>
 <style></style>

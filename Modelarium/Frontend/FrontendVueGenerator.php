@@ -13,6 +13,7 @@ use Formularium\Frontend\Vue\Element\Pagination as PaginationVue;
 use Formularium\Frontend\Vue\Framework as FrameworkVue;
 use Modelarium\GeneratedCollection;
 use Modelarium\GeneratedItem;
+use Modelarium\Options;
 
 use function Safe\file_get_contents;
 use function Safe\json_encode;
@@ -25,11 +26,17 @@ class FrontendVueGenerator
     protected $generator = null;
 
     /**
+     *
+     * @var Options
+     */
+    protected $options = null;
+
+    /**
      * Option defaults
      *
      * @var array
      */
-    public $options = [
+    const DEFAULT_VUE_OPTIONS = [
         /**
          * Use the runtimeValidator JS library
          */
@@ -41,12 +48,21 @@ class FrontendVueGenerator
         /**
          * Generate action buttons even if we don't have a can field in the model
          */
-        'actionButtonsNoCan' => false
+        'actionButtonsNoCan' => false,
+        /**
+         * cleanIdentifier method
+         */
+        'cleanIdentifierBody' => 'return identifier;',
+        /**
+         * escapeIdentifier method
+         */
+        'escapeIdentifierBody' => 'return identifier;'
     ];
 
     public function __construct(FrontendGenerator $generator)
     {
         $this->generator = $generator;
+        $this->options = (new Options())->setSectionDefaults('vue', self::DEFAULT_VUE_OPTIONS);
         $this->buildTemplateParameters();
     }
 
@@ -143,7 +159,7 @@ class FrontendVueGenerator
             true
         )->getRenderHTML();
 
-        if (!$hasCan && $this->options['actionButtonsNoCan'] === false) {
+        if (!$hasCan && $this->options->getOption('vue', 'actionButtonsNoCan') === false) {
             $this->generator->templateParameters['buttonCreate'] = '';
             $this->generator->templateParameters['buttonEdit'] = '';
             $this->generator->templateParameters['buttonDelete'] = '';
@@ -152,7 +168,7 @@ class FrontendVueGenerator
             $this->generator->templateParameters['buttonEdit'] = $buttonEdit;
             $this->generator->templateParameters['buttonDelete'] = $buttonDelete;
         }
-        $this->generator->templateParameters['options'] = $this->options;
+        $this->generator->templateParameters['options'] = $this->options->getSection('vue');
 
         $this->generator->templateParameters['tableItemFields'] =
             array_values(array_map(function (Field $f) {
@@ -225,7 +241,7 @@ class FrontendVueGenerator
         $vue->getVueCode()->appendComputed(
             'link',
             'return "/' . $this->generator->getRouteBase() .
-                '/" + this.' . $this->generator->getKeyAttribute()
+                '/" + this.escapeIdentifier(this.' . $this->generator->getKeyAttribute() . ')'
         );
     }
 
@@ -247,12 +263,17 @@ class FrontendVueGenerator
         $this->vueCodeLinkItem($vue);
 
         foreach ($this->generator->getCardFields() as $f) {
-            $vueCode->appendExtraProp([
+            $vueCode->appendExtraProp($f->getName(), [
                 'name' => $f->getName(),
                 'type' => $vueCode->mapTypeToJs($f->getDatatype()),
                 'required' => true
             ]);
         }
+        $vueCode->appendMethod(
+            'escapeIdentifier(identifier)',
+            $this->options->getOption('vue', 'escapeIdentifierBody')
+        );
+
         $this->makeVue($vue, 'Card', 'viewable', $cardFieldNames);
     }
 
@@ -272,14 +293,14 @@ class FrontendVueGenerator
             return $f->getName();
         }, $this->generator->getCardFields());
         foreach ($this->generator->getCardFields() as $f) {
-            $vueCode->appendExtraProp([
+            $vueCode->appendExtraProp($f->getName(), [
                 'name' => $f->getName(),
                 'type' => $vueCode->mapTypeToJs($f->getDatatype()),
                 'required' => true
             ]);
         }
         foreach ($this->generator->getTitleFields() as $f) {
-            $vueCode->appendExtraProp([
+            $vueCode->appendExtraProp($f->getName(), [
                 'name' => $f->getName(),
                 'type' => $vueCode->mapTypeToJs($f->getDatatype()),
                 'required' => true
@@ -305,7 +326,7 @@ class FrontendVueGenerator
         ];
         $vueCode->setExtraProps($extraprops);
         foreach ($this->generator->getTableFields() as $f) {
-            $vueCode->appendExtraProp([
+            $vueCode->appendExtraProp($f->getName(), [
                 'name' => $f->getName(),
                 'type' => $vueCode->mapTypeToJs($f->getDatatype()),
                 'required' => true
