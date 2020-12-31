@@ -14,6 +14,7 @@
         :search="autocompleteSearch"
         :get-result-value="autocompleteGetResultValue"
         :placeholder="placeholder"
+        :default-value="initialValue"
         :aria-label="placeholder"
         @submit="onSubmit"
       >
@@ -122,7 +123,13 @@ export default {
       /**
        * Actual values
        */
-      value: undefined,
+      actualValues: undefined,
+
+      /**
+       * This is the initial value, copied from the prop.
+       */
+      initialValue: undefined,
+
       /**
        * If some error happened.
        */
@@ -148,6 +155,11 @@ export default {
   },
 
   props: {
+    value: {
+      type: [String, Number, Array, Object],
+      default: undefined,
+    },
+
     /**
      * The form field name
      */
@@ -262,15 +274,18 @@ export default {
   },
 
   created() {
-    this.value = this.isMultiple ? [] : undefined;
+    this.actualValues = this.isMultiple ? [] : undefined;
+    if (this.value) {
+      this.initialValue = this.value;
+    }
   },
 
   computed: {
     selectionVisible() {
       if (!this.selectionQuery) {
-        return this.value;
+        return this.actualValues;
       }
-      return this.value.filter(
+      return this.actualValues.filter(
         (i) => i[this.titleField].indexOf(this.selectionQuery) != -1
       );
     },
@@ -295,8 +310,8 @@ export default {
         if (this.selectableQuery) {
           return;
         }
-        this.value = undefined;
-        this.$emit("input", this.value);
+        this.actualValues = undefined;
+        this.$emit("input", this.actualValues);
       }
     },
 
@@ -305,16 +320,17 @@ export default {
      */
     onSubmit(result) {
       const v = this.valueField ? result[this.valueField] : result;
+
       if (this.isMultiple) {
-        this.value.push(v);
+        this.actualValues.push(v);
       } else {
         if (result) {
-          this.$set(this, "value", v);
+          this.$set(this, "actualValues", v);
         } else {
-          this.$set(this, "value", undefined);
+          this.$set(this, "actualValues", undefined);
         }
       }
-      this.$emit("input", this.value);
+      this.$emit("input", this.actualValues);
     },
 
     autocompleteSearch(input) {
@@ -356,11 +372,13 @@ export default {
     },
 
     addItem(item) {
-      this.value.push(item);
+      this.actualValues.push(item);
     },
 
     removeItem(item) {
-      this.value = this.value.filter((value) => item.id != value.id);
+      this.actualValues = this.actualValues.filter(
+        (value) => item.id != value.id
+      );
     },
 
     removeAll(item) {
