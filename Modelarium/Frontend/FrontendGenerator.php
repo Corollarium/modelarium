@@ -14,6 +14,7 @@ use Formularium\HTMLNode;
 use Formularium\Renderable;
 use GraphQL\Type\Definition\CustomScalarType;
 use GraphQL\Type\Definition\FieldArgument;
+use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InputType;
 use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
@@ -296,7 +297,8 @@ class FrontendGenerator implements GeneratorInterface
                     // this code for serializarion is crap. review it.
                     $isRequired = false;
                     $isArray = false;
-                    $isInternalRequired = false;
+                    // TODO phpstan $isInternalRequired = false;
+                    $isInternalRequiredString = '';
                     if ($type instanceof NonNull) {
                         $type = $type->getWrappedType();
                         $isRequired = true;
@@ -306,7 +308,8 @@ class FrontendGenerator implements GeneratorInterface
                         $isArray = true;
                         $type = $type->getWrappedType();
                         if ($type instanceof NonNull) { /** @phpstan-ignore-line */
-                            $isInternalRequired = true;
+                            // TODO phpstan $isInternalRequired = true;
+                            $isInternalRequiredString = '!';
                             $type = $type->getWrappedType();
                         }
                     }
@@ -315,7 +318,7 @@ class FrontendGenerator implements GeneratorInterface
                         $typename = $type->astNode->name->value;
                     } elseif ($type instanceof DefinitionScalarType) {
                         $typename = $type->name;
-                    } elseif ($type instanceof InputType) {
+                    } elseif ($type instanceof InputObjectType) {
                         $typename = $type->name;
                     }
                     // } elseif ($type instanceof Input with @spread) {
@@ -330,7 +333,7 @@ class FrontendGenerator implements GeneratorInterface
                         'graphqlType' =>  $arg->name  . ': ' .
                             ($isArray ? '[' : '') .
                             $typename .
-                            ($isInternalRequired ? '!' : '') .
+                            $isInternalRequiredString, // TODO: phpstan complains, issue with graphqlphp ($isInternalRequired ? '!' : '') .
                             ($isArray ? ']' : '') .
                             ($isRequired ? '!' : ''),
                         'required' => (bool)$isRequired,
