@@ -23,7 +23,7 @@ class GeneratedItem
     public $filename;
 
     /**
-     * @var string
+     * @var string|callable
      */
     public $contents;
 
@@ -32,7 +32,15 @@ class GeneratedItem
      */
     public $onlyIfNewFile;
 
-    public function __construct(string $type, string $contents, string $filename, bool $onlyIfNewFile = false)
+    /**
+     * Undocumented function
+     *
+     * @param string $type
+     * @param string|callable $contents
+     * @param string $filename
+     * @param boolean $onlyIfNewFile
+     */
+    public function __construct(string $type, $contents, string $filename, bool $onlyIfNewFile = false)
     {
         $this->type = $type;
         $this->contents = $contents;

@@ -35,10 +35,15 @@ trait WriterTrait
             } else {
                 throw new Exception("Invalid overwrite value on writeFiles");
             }
+            $contents = $element->contents;
+            if (is_callable($contents)) {
+                $contents = $contents($basepath, $element);
+            }
+        
             $this->writeFile(
                 $path,
                 $o,
-                $element->contents
+                $contents
             );
             $writtenFiles[] = $path;
         }
