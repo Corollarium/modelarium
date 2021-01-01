@@ -333,7 +333,7 @@ class FrontendGenerator implements GeneratorInterface
                         'graphqlType' =>  $arg->name  . ': ' .
                             ($isArray ? '[' : '') .
                             $typename .
-                            $isInternalRequiredString, // TODO: phpstan complains, issue with graphqlphp ($isInternalRequired ? '!' : '') .
+                            $isInternalRequiredString . // TODO: phpstan complains, issue with graphqlphp ($isInternalRequired ? '!' : '') .
                             ($isArray ? ']' : '') .
                             ($isRequired ? '!' : ''),
                         'required' => (bool)$isRequired,
