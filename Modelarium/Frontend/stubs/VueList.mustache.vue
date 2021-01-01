@@ -1,9 +1,9 @@
 <template>
   <main class="modelarium-list {|lowerName|}-list">
-    <h1 class="modelarium-list__title {|lowerName|}-list__title" v-if="showTitle">{|typeTitle|}</h1>
+    <h1 class="modelarium-list__title {|lowerName|}-list__title"><slot name="title">{|typeTitle|}</slot></h1>
 
-    <div class="modelarium-list__header {|lowerName|}-list__header" v-if="showHeader && can.create">
-      {|{buttonCreate}|}
+    <div class="modelarium-list__header {|lowerName|}-list__header">
+      <slot name="header">{|{buttonCreate}|}</slot>
     </div>
 
     {|{ spinner }|}
@@ -19,15 +19,21 @@
         <{|StudlyName|}Card v-for="l in list" :key="l.id" v-bind="l"></{|StudlyName|}Card>
       </div>
 
-      <Pagination
-        v-if="showPagination"
-        v-bind="pagination"
-        @page="pagination.currentPage = $event"
-      ></Pagination>
+      <slot name="pagination">
+        <Pagination
+          v-bind="pagination"
+          @page="pagination.currentPage = $event"
+        ></Pagination>
+      </slot>
     </div>
     <div class="modelarium-list__empty {|lowerName|}-list__empty" v-else>
       Nothing found.
     </div>
+
+    <div class="modelarium-list__footer {|lowerName|}-list__footer">
+      <slot name="footer"></slot>
+    </div>
+
   </main>
 </template>
 
@@ -55,18 +61,6 @@ export default {
         {|/each|}
       }).asSuccess
       {|/if|}
-    },
-    showHeader: {
-      type: Boolean,
-      default: true,
-    },
-    showPagination: {
-      type: Boolean,
-      default: true,
-    },
-    showTitle: {
-      type: Boolean,
-      default: true,
     }
   },
 
@@ -111,8 +105,11 @@ export default {
         }
       }
     },
-    filters() {
-      this.index(0);
+    filters: {
+      handler() {
+        this.index(0);
+      },
+      deep: true
     },
   },
 
