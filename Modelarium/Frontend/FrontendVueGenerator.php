@@ -14,9 +14,11 @@ use Formularium\Frontend\Vue\Framework as FrameworkVue;
 use Modelarium\GeneratedCollection;
 use Modelarium\GeneratedItem;
 use Modelarium\Options;
+use Formularium\StringUtil;
 
 use function Safe\file_get_contents;
-use function Safe\json_encode;
+use function Safe\scandir;
+use function Safe\substr;
 
 class FrontendVueGenerator
 {
@@ -407,35 +409,50 @@ class FrontendVueGenerator
         $path = $this->generator->getModel()->getName() . '/index.js';
         $name = $this->generator->getStudlyName();
 
-        $items = [
-            'Card',
-            'Edit',
-            'Link',
-            'List',
-            'Show',
-            'Table',
-        ];
+        $contents = function ($basepath, $element) use ($name) {
+            $dir = $basepath . '/' . $name;
+            $import = [];
+            $export = [];
+            foreach (scandir($dir) as $i) {
+                if (StringUtil::endsWith($i, '.vue')) {
+                    $name = substr($i, 0, -4);
+                    $import[] = "import $name from './$name.vue';";
+                    $export[] = "    {$name},";
+                }
+            }
+            return
+            implode("\n", $import) . "\n\n" .
+            "export default {\n" .
+            implode("\n", $export) . "\n};\n";
+        };
+        
+        // $items = [
+        //     'Card',
+        //     'Edit',
+        //     'Link',
+        //     'List',
+        //     'Show',
+        //     'Table',
+        // ];
 
-        $import = array_map(
-            function ($i) use ($name) {
-                return "import {$name}$i from './{$name}$i.vue';";
-            },
-            $items
-        );
+        // $import = array_map(
+        //     function ($i) use ($name) {
+        //         return "import {$name}$i from './{$name}$i.vue';";
+        //     },
+        //     $items
+        // );
 
-        $export = array_map(
-            function ($i) use ($name) {
-                return "    {$name}$i,";
-            },
-            $items
-        );
+        // $export = array_map(
+        //     function ($i) use ($name) {
+        //         return "    {$name}$i,";
+        //     },
+        //     $items
+        // );
 
         $this->getCollection()->push(
             new GeneratedItem(
                 GeneratedItem::TYPE_FRONTEND,
-                implode("\n", $import) . "\n" .
-                "export default {\n" .
-                implode("\n", $export) . "\n};\n",
+                $contents,
                 $path
             )
         );
