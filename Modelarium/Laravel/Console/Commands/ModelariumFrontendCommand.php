@@ -12,8 +12,6 @@ use Modelarium\Frontend\FrontendGenerator;
 use Modelarium\GeneratedItem;
 use Modelarium\Laravel\Processor as LaravelProcessor;
 
-use function Modelarium\Laravel\Targets\endsWith;
-
 class ModelariumFrontendCommand extends Command
 {
     use WriterTrait;
@@ -134,7 +132,9 @@ class ModelariumFrontendCommand extends Command
         $model = $name::getFormularium();
         $this->info("Starting $name...");
 
+        $basepath = base_path('resources/js/components/');
         $generator = new FrontendGenerator($composer, $model, $this->parser);
+        $generator->setBasePath($basepath);
         $collection = $generator->generate();
     
         if (!$collection->count()) {
@@ -153,7 +153,6 @@ class ModelariumFrontendCommand extends Command
             }
         }
 
-        $basepath = base_path('resources/js/components/');
         $writtenFiles = $this->writeFiles(
             $collection,
             $basepath,
