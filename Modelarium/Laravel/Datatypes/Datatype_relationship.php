@@ -22,6 +22,7 @@ class Datatype_relationship extends \Modelarium\Datatypes\Datatype_relationship
         $builder = $this->targetClass::select();
         $usingSoftDeletes = in_array(
             SoftDeletes::class,
+            /** @phpstan-ignore-next-line */
             array_keys((new \ReflectionClass($this->targetClass))->getTraits())
         );
         if ($usingSoftDeletes) {

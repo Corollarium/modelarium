@@ -44,7 +44,6 @@ class MigrationForeignDirective implements MigrationDirectiveInterface
                 case 'belongToMany':
                 case 'morphedByMany':
                     throw new DirectiveException("Foreign keys cannot be used with many-to-many-relationships. Check field: " . $field->name);
-                    break;
             }
         }
 
