@@ -5,6 +5,7 @@ namespace Modelarium\Laravel\Datatypes;
 use Formularium\Exception\ValidatorException;
 use Formularium\Field;
 use Formularium\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 use Modelarium\BaseGenerator;
 use Modelarium\Datatypes\Datatype_relationship as DatatypesDatatype_relationship;
@@ -18,7 +19,15 @@ class Datatype_relationship extends \Modelarium\Datatypes\Datatype_relationship
 
     public function getRandom(array $params = [])
     {
-        return $this->targetClass::where('active', 1)->inRandomOrder()->limit($params['total'] ?? 1)->get();
+        $builder = $this->targetClass::select();
+        $usingSoftDeletes = in_array(
+            SoftDeletes::class,
+            array_keys((new \ReflectionClass($this->targetClass))->getTraits())
+        );
+        if ($usingSoftDeletes) {
+            $builder->where('active', 1);
+        }
+        return $builder->inRandomOrder()->limit($params['total'] ?? 1)->get();
     }
 
     public function validate($value, Model $model = null)
