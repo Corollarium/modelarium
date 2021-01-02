@@ -28,7 +28,7 @@ class Datatype_relationship extends \Modelarium\Datatypes\Datatype_relationship
         if ($usingSoftDeletes) {
             $builder->where('active', 1);
         }
-        return $builder->inRandomOrder()->limit($params['total'] ?? 1)->get();
+        return $builder->inRandomOrder()->limit($params['total'] ?? 1)->get()->first()->id;
     }
 
     public function validate($value, Model $model = null)
@@ -62,7 +62,7 @@ class Datatype_relationship extends \Modelarium\Datatypes\Datatype_relationship
         if (!($params[self::RECURSE_INVERSE] ?? true) && $this->isInverse) {
             return '';
         }
-        
+
         $model = $this->getTargetClass();
         if ($this->isInverse) {
             $fieldName = Str::snake(Str::studly($name));
@@ -77,7 +77,7 @@ class Datatype_relationship extends \Modelarium\Datatypes\Datatype_relationship
              * @var Model $sourceModel
              */
             $sourceModel = call_user_func($this->sourceClass . "::getFormularium"); /** @phpstan-ignore-line */
-            
+
             $morphableTargets = explode(
                 ',',
                 $sourceModel->getField($name)->getExtradata('morphTo')->value('targetModels')
