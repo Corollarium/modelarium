@@ -252,6 +252,7 @@ class MigrationGenerator extends BaseGenerator
         $currentChoices = $ourDatatype->getChoices();
         if (array_diff_key($currentChoices, $parsedValues) || array_diff_key($parsedValues, $currentChoices)) {
             // TODO???
+            $this->warn('Enum had its possible values changed. Please review the datatype class.');
         }
 
         $options = []; // TODO: from directives
@@ -268,7 +269,6 @@ class MigrationGenerator extends BaseGenerator
 
         list($type, $isRequired) = Parser::getUnwrappedType($field->type);
         $typeName = $type->name;
-        $tableName = self::toTableName($typeName);
 
         // special types that should be skipped.
         if ($typeName === 'Can') {
