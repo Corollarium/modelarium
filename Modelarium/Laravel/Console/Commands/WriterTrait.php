@@ -5,6 +5,7 @@ namespace Modelarium\Laravel\Console\Commands;
 use Modelarium\Exception\Exception;
 use Modelarium\GeneratedCollection;
 use Modelarium\GeneratedItem;
+use Symfony\Component\Console\Output\OutputInterface;
 
 trait WriterTrait
 {
@@ -75,6 +76,10 @@ trait WriterTrait
             $this->error("Cannot write to $targetPath");
             return;
         }
-        $this->line("Wrote $targetPath");
+        $this->line(
+            "Wrote $targetPath",
+            null,
+            OutputInterface::VERBOSITY_VERBOSE
+        );
     }
 }
