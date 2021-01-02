@@ -263,10 +263,6 @@ class MigrationGenerator extends BaseGenerator
         \GraphQL\Type\Definition\FieldDefinition $field,
         \GraphQL\Language\AST\NodeList $directives
     ): void {
-        $lowerName = mb_strtolower($this->getInflector()->singularize($field->name));
-        $lowerNamePlural = $this->getInflector()->pluralize($lowerName);
-        $fieldName = $lowerName . '_id';
-
         list($type, $isRequired) = Parser::getUnwrappedType($field->type);
         $typeName = $type->name;
 
@@ -277,7 +273,6 @@ class MigrationGenerator extends BaseGenerator
 
         $codeFragment = new MigrationCodeFragment();
 
-        $isManyToMany = false;
         foreach ($directives as $directive) {
             $name = $directive->name->value;
             if ($name === 'migrationSkip') {
@@ -294,41 +289,6 @@ class MigrationGenerator extends BaseGenerator
                     $directive,
                     $codeFragment
                 );
-            }
-
-            // TODO: handle isManyToMany for migrationForeign
-            switch ($name) {
-            case 'belongToMany':
-            case 'morphedByMany':
-                $isManyToMany = true;
-                break;
-            }
-        }
-
-        // TODO: move this to the a separate class
-        foreach ($directives as $directive) {
-            $name = $directive->name->value;
-            switch ($name) {
-            case 'migrationForeign':
-                if (!$isManyToMany) {
-                    $arguments = array_merge(
-                        [
-                            'references' => 'id',
-                            'on' => $lowerNamePlural
-                        ],
-                        Parser::getDirectiveArguments($directive)
-                    );
-    
-                    $codeFragment->appendExtraLine(
-                        '$table->foreign("' . $fieldName . '")' .
-                        "->references(\"{$arguments['references']}\")" .
-                        "->on(\"{$arguments['on']}\")" .
-                        (($arguments['onDelete'] ?? '') ? "->onDelete(\"{$arguments['onDelete']}\")" : '') .
-                        (($arguments['onUpdate'] ?? '') ? "->onUpdate(\"{$arguments['onUpdate']}\")" : '') .
-                        ';'
-                    );
-                }
-                break;
             }
         }
 
