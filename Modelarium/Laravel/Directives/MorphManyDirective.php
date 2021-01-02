@@ -109,10 +109,11 @@ class MorphManyDirective implements ModelDirectiveInterface, SeedDirectiveInterf
 
     protected static function makeManyToManySeed(string $sourceModel, string $targetModel, string $relationship): string
     {
+        $className = Str::studly($targetModel);
         return <<<EOF
 
         try {
-            \${$targetModel}Items = App\\Models\\$targetModel::all();
+            \${$targetModel}Items = App\\Models\\$className::all();
             \$model->{$relationship}()->attach(
                 \${$targetModel}Items->random(rand(1, 3))->pluck('id')->toArray()
             );

@@ -400,17 +400,26 @@ class ModelGenerator extends BaseGenerator
             ->addBody('return $data;');
         $this->class->addMember($this->methodRandom);
 
-        $this->class->addMethod('getRandomFieldData')
+        $getRandomFieldData = $this->class->addMethod('getRandomFieldData')
             ->setPublic()
             ->setStatic()
             ->addComment("Filters fields and generate random data. Throw NoRandomException for fields you don't want to generate random data, or return a valid value.")
             ->addBody('
-$d = $f->getDatatype();
-if ($d instanceof Datatype_relationship) {
-    throw new NoRandomException($f->getName());
+$d = $field->getDatatype();
+if ($field->getExtradata("migrationSkip")) {
+    throw new NoRandomException($field->getName());
 }
-return $f->getDatatype()->getRandom();')
-            ->addParameter('f')->setType('Formularium\Field');
+if ($d instanceof Datatype_relationship) {
+    if (!$d->getIsInverse() || !$field->getValidatorOption("required", "value", false)) {
+        throw new NoRandomException($field->getName());
+    }
+    $data[$field->getName() . "_id"] = $field->getDatatype()->getRandom();
+} else {
+    $data[$field->getName()] = $field->getDatatype()->getRandom();
+}');
+        $getRandomFieldData->addParameter('field')->setType('Formularium\Field');
+        $getRandomFieldData->addParameter('model')->setType('Formularium\Model');
+        $getRandomFieldData->addParameter('data')->setType('array')->setReference(true);
 
         // TODO perhaps we can use PolicyGenerator->policyClasses to auto generate
 
