@@ -464,3 +464,5 @@ composer.lock
 docs/coverage-report
 composer.local.json
 node_modules
+
+.phpunit.result.cache

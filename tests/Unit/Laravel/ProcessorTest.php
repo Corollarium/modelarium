@@ -251,9 +251,9 @@ EOF;
         $this->assertStringNotContainsString('image_id', $userMigration->contents);
         $this->assertStringNotContainsString('->references;', $userMigration->contents);
 
-        $this->assertContains('$table->bigIncrements("id");', $imageMigration->contents);
-        $this->assertContains('unsignedBigInteger("imageable_id")', $imageMigration->contents);
-        $this->assertContains('string("imageable_type")', $imageMigration->contents);
+        $this->assertStringContainsString('$table->bigIncrements("id");', $imageMigration->contents);
+        $this->assertStringContainsString('unsignedBigInteger("imageable_id")', $imageMigration->contents);
+        $this->assertStringContainsString('string("imageable_type")', $imageMigration->contents);
 
         $userModel = $data->filter(
             function (GeneratedItem $i) {
@@ -269,11 +269,11 @@ EOF;
             }
         )->first();
 
-        $this->assertContains('public function image()', $userModel->contents);
-        $this->assertContains('return $this->morphOne(Image::class, \'imageable\');', $userModel->contents);
+        $this->assertStringContainsString('public function image()', $userModel->contents);
+        $this->assertStringContainsString('return $this->morphOne(Image::class, \'imageable\');', $userModel->contents);
 
-        $this->assertContains('public function imageable()', $imageModel->contents);
-        $this->assertContains('return $this->morphTo();', $imageModel->contents);
+        $this->assertStringContainsString('public function imageable()', $imageModel->contents);
+        $this->assertStringContainsString('return $this->morphTo();', $imageModel->contents);
     }
 
     public function testParseRelationshipMorphOneToMany()
@@ -299,9 +299,9 @@ EOF;
         $this->assertStringNotContainsString('image_id', $userMigration->contents);
         $this->assertStringNotContainsString('->references;', $userMigration->contents);
 
-        $this->assertContains('$table->bigIncrements("id");', $imageMigration->contents);
-        $this->assertContains('unsignedBigInteger("imageable_id")', $imageMigration->contents);
-        $this->assertContains('string("imageable_type")', $imageMigration->contents);
+        $this->assertStringContainsString('$table->bigIncrements("id");', $imageMigration->contents);
+        $this->assertStringContainsString('unsignedBigInteger("imageable_id")', $imageMigration->contents);
+        $this->assertStringContainsString('string("imageable_type")', $imageMigration->contents);
 
         $userModel = $data->filter(
             function (GeneratedItem $i) {
@@ -317,11 +317,11 @@ EOF;
             }
         )->first();
 
-        $this->assertContains('public function images()', $userModel->contents);
-        $this->assertContains('return $this->morphMany(Image::class, \'imageable\');', $userModel->contents);
+        $this->assertStringContainsString('public function images()', $userModel->contents);
+        $this->assertStringContainsString('return $this->morphMany(Image::class, \'imageable\');', $userModel->contents);
 
-        $this->assertContains('public function imageable()', $imageModel->contents);
-        $this->assertContains('return $this->morphTo();', $imageModel->contents);
+        $this->assertStringContainsString('public function imageable()', $imageModel->contents);
+        $this->assertStringContainsString('return $this->morphTo();', $imageModel->contents);
     }
 
     public function testParseRelationshipMorphManyToMany()
@@ -354,14 +354,14 @@ EOF;
         $this->assertStringNotContainsString('tag_id', $postMigration->contents);
         $this->assertStringNotContainsString('->references;', $postMigration->contents);
 
-        $this->assertContains('$table->bigIncrements("id");', $tagMigration->contents);
-        $this->assertContains('string("name")', $tagMigration->contents);
+        $this->assertStringContainsString('$table->bigIncrements("id");', $tagMigration->contents);
+        $this->assertStringContainsString('string("name")', $tagMigration->contents);
 
         $this->assertStringNotContainsString('increments', $taggablesMigration->contents);
-        $this->assertContains("create('taggables'", $taggablesMigration->contents);
-        $this->assertContains('unsignedBigInteger("tag_id")', $taggablesMigration->contents);
-        $this->assertContains('unsignedBigInteger("taggable_id")', $taggablesMigration->contents);
-        $this->assertContains('string("taggable_type")', $taggablesMigration->contents);
+        $this->assertStringContainsString("create('taggables'", $taggablesMigration->contents);
+        $this->assertStringContainsString('unsignedBigInteger("tag_id")', $taggablesMigration->contents);
+        $this->assertStringContainsString('unsignedBigInteger("taggable_id")', $taggablesMigration->contents);
+        $this->assertStringContainsString('string("taggable_type")', $taggablesMigration->contents);
 
         $postModel = $data->filter(
             function (GeneratedItem $i) {
@@ -377,12 +377,12 @@ EOF;
             }
         )->first();
 
-        $this->assertContains('public function tags()', $postModel->contents);
-        $this->assertContains('return $this->morphToMany(Tag::class, \'taggable\');', $postModel->contents);
+        $this->assertStringContainsString('public function tags()', $postModel->contents);
+        $this->assertStringContainsString('return $this->morphToMany(Tag::class, \'taggable\');', $postModel->contents);
 
-        $this->assertContains('public function posts()', $tagModel->contents);
-        $this->assertContains('public function videos()', $tagModel->contents);
-        $this->assertContains('return $this->morphedByMany(Post::class, \'taggable\');', $tagModel->contents);
-        $this->assertContains('return $this->morphedByMany(Video::class, \'taggable\');', $tagModel->contents);
+        $this->assertStringContainsString('public function posts()', $tagModel->contents);
+        $this->assertStringContainsString('public function videos()', $tagModel->contents);
+        $this->assertStringContainsString('return $this->morphedByMany(Post::class, \'taggable\');', $tagModel->contents);
+        $this->assertStringContainsString('return $this->morphedByMany(Video::class, \'taggable\');', $tagModel->contents);
     }
 }

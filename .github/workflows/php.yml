@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        php-versions: ["7.2", "7.3", "7.4"]
+        php-versions: ["7.2", "7.3", "7.4", "8.0"]
 
     name: PHP ${{ matrix.php-versions }} Test
     steps:
@@ -101,7 +101,6 @@ jobs:
 
       - name: Nojekyll
         run: touch docs/coverage-report/.nojekyll
-
 #       - name: Deploy 🚀
 #         uses: JamesIves/github-pages-deploy-action@3.7.1
 #         with:

@@ -18,8 +18,8 @@ final class FormulariumScalarTypeTest extends TestCase
         $scalarType = $parser->getScalarType('Year');
         $this->assertInstanceOf(FormulariumScalarType::class, $scalarType);
         $this->assertInstanceOf(Datatype::class, $scalarType->getDatatype());
-        $this->assertContains('INT', $scalarType->getSQLType());
-        $this->assertContains('year(', $scalarType->getLaravelSQLType('x'));
-        $this->assertContains('xxxx', $scalarType->getLaravelSQLType('xxxx'));
+        $this->assertStringContainsString('INT', $scalarType->getSQLType());
+        $this->assertStringContainsString('year(', $scalarType->getLaravelSQLType('x'));
+        $this->assertStringContainsString('xxxx', $scalarType->getLaravelSQLType('xxxx'));
     }
 }
