@@ -3,9 +3,9 @@
 namespace Modelarium\Laravel\Directives;
 
 use GraphQL\Language\AST\DirectiveNode;
-use GraphQL\Type\Definition\NonNull;
 use Modelarium\Laravel\Targets\PolicyGenerator;
 use Modelarium\Laravel\Targets\Interfaces\PolicyDirectiveInterface;
+use Modelarium\Parser;
 
 class CanDirective implements PolicyDirectiveInterface
 {
@@ -25,16 +25,11 @@ class CanDirective implements PolicyDirectiveInterface
         $injected = false;
         $args = false;
 
-        if ($field->type instanceof NonNull) {
-            $type = $field->type->getWrappedType();
-        } else {
-            $type = $field->type;
-        }
+        list($type, $isRequired) = Parser::getUnwrappedType($field->type);
 
         /**
          * @var DirectiveNode $directive
          */
-
         $model = $type->name; /** @phpstan-ignore-line */
         
         foreach ($directive->arguments as $arg) {
