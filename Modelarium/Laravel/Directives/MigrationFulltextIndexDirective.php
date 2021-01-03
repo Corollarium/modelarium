@@ -23,10 +23,10 @@ class MigrationFulltextIndexDirective implements MigrationDirectiveInterface, Mo
             throw new Exception("You must provide at least one field to a full text index");
         }
         $generator->postCreateCode[] =
-            "if (env('APP_ENV') !== 'testing') {
+            "if (!App::environment('testing')) {
             DB::statement('ALTER TABLE " . $generator->getTableName()  .
                 " ADD FULLTEXT fulltext_index (`" . implode('`, `', $indexFields) . "`)');
-            }";
+        }";
     }
 
     public static function processMigrationFieldDirective(
