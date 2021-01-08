@@ -29,6 +29,7 @@ class ModelariumFrontendCommand extends Command
         {--overwrite-match= : overwrite files that contain this string}
         {--overwrite : overwrite all files if they exist}
         {--prettier : run prettier on files}
+        {--eslint : run eslint fix on files}
     ';
 
     /**
@@ -78,7 +79,7 @@ class ModelariumFrontendCommand extends Command
             // @phpstan-ignore-next-line
             $this->frameworks = [$this->frameworks];
         }
-      
+
         $this->loadParser();
         if ($name === '*' || $name === 'all') {
             /** @var array<class-string> $classesInNamespace */
@@ -114,7 +115,7 @@ class ModelariumFrontendCommand extends Command
 
         // parse directives from lighthouse
         $modelNames = array_diff($dir, array('.', '..'));
-        
+
         foreach ($modelNames as $n) {
             if (mb_strpos($n, '.graphql') === false) {
                 continue;
@@ -134,7 +135,7 @@ class ModelariumFrontendCommand extends Command
 
         $generator = new FrontendGenerator($composer, $model, $this->parser);
         $collection = $generator->generate();
-    
+
         if (!$collection->count()) {
             $this->info('Nothing generated.');
             return;
@@ -183,6 +184,25 @@ class ModelariumFrontendCommand extends Command
                 $command = "cd $basepath && npx prettier --write ";
             } else {
                 $command = "cd $basepath && yarn prettier --write ";
+            }
+
+            // this runs all prettier commands in parallel.
+            $run = array_reduce(
+                $writtenFiles,
+                function ($carry, $f) use ($command) {
+                    return $carry . '(' . $command . $f . ') & ';
+                }
+            );
+            shell_exec($run . ' wait');
+        }
+
+        if ($this->option('eslint')) {
+            $this->info('Running eslint on generated files.');
+            $useYarn = file_exists(base_path('yarn.lock'));
+            if ($useYarn) {
+                $command = "cd $basepath && npx eslint --fix ";
+            } else {
+                $command = "cd $basepath && yarn eslint --fix ";
             }
 
             // this runs all prettier commands in parallel.
