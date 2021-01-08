@@ -29,6 +29,11 @@ Do not generate frontend for this type
 directive @frontendSkip on OBJECT
 
 """
+Make this field hidden. It will not show up on introspection or queries.
+"""
+directive @hidden on FIELD_DEFINITION
+
+"""
 Alters a table on migration after it was created.
 """
 directive @migrationAlterTable(
@@ -132,16 +137,6 @@ directive @migrationUniqueIndex (
     """
     fields: [String!]
 ) on FIELD_DEFINITION | OBJECT
-
-"""
-Base class to extend on model.
-"""
-directive @minLength(
-    """
-    The base class name with namespace
-    """
-    value: Int!
-) on OBJECT
 
 """
 Describe it here.

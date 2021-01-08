@@ -20,7 +20,7 @@ class HiddenDirective extends BaseDirective implements FieldManipulator
 """
 Make this field hidden. It will not show up on introspection or queries.
 """
-directive @hidden on ARGUMENT_DEFINITION
+directive @hidden on FIELD_DEFINITION
 GRAPHQL;
     }
 
