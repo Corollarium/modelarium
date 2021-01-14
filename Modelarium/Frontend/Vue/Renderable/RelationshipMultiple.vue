@@ -91,6 +91,8 @@
 </template>
 
 <script>
+import {|options.axios.method|} from "{|options.axios.importFile|}";
+
 export default {
   data() {
     return {
@@ -169,7 +171,7 @@ export default {
   methods: {
     async fetch() {
       this.isLoading = true;
-      return axios
+      return {|options.axios.method|}
         .post("/graphql", {
           query: this.query,
           variables: {

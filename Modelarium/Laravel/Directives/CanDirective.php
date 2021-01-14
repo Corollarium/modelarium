@@ -30,8 +30,8 @@ class CanDirective implements PolicyDirectiveInterface
         /**
          * @var DirectiveNode $directive
          */
-        $model = $type->name; /** @phpstan-ignore-line */
-        
+        $modelName = $type->name; /** @phpstan-ignore-line */
+
         foreach ($directive->arguments as $arg) {
             switch ($arg->name->value) {
                 case 'ability':
@@ -44,7 +44,7 @@ class CanDirective implements PolicyDirectiveInterface
                 break;
                 case 'model':
                     // @phpstan-ignore-next-line
-                    $model = $arg->value->value;
+                    $modelName = $arg->value->value;
                 break;
                 case 'injectArgs':
                     $injected = true;
@@ -55,7 +55,7 @@ class CanDirective implements PolicyDirectiveInterface
             }
         }
 
-        list($namespace, $modelClassName, $relativePath) = $generator->splitClassName($model);
+        list($namespace, $modelClassName, $relativePath) = $generator->splitClassName($modelName);
 
         $class = $generator->getPolicyClass($modelClassName);
 

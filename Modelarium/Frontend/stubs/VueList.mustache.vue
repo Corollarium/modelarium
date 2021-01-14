@@ -1,6 +1,6 @@
 <template>
   <main class="modelarium-list {|lowerName|}-list">
-    <h1 class="modelarium-list__title {|lowerName|}-list__title"><slot name="title">{|typeTitle|}</slot></h1>
+    <slot name="title"><h1 class="modelarium-list__title {|lowerName|}-list__title">{|typeTitle|}</h1></slot>
 
     <div class="modelarium-list__header {|lowerName|}-list__header">
       <slot name="header">{|{buttonCreate}|}</slot>
@@ -39,7 +39,7 @@
 
 <script>
 import {|StudlyName|}Card from "./{|StudlyName|}Card";
-import axios from 'axios';
+import {|options.axios.method|} from "{|options.axios.importFile|}";
 import listQuery from 'raw-loader!./queryList.graphql';
 {|#if options.runtimeValidator|}
 import { tObject, tString, tNumber, tBoolean, optional } from 'runtime-validator';
@@ -69,9 +69,6 @@ export default {
       type: "{|lowerName|}",
       list: [],
       isLoading: true,
-      can: {
-        create: true,
-      },
       pagination: {
         currentPage: 1,
         lastPage: 1,
@@ -114,9 +111,13 @@ export default {
   },
 
 	methods: {
+    can(ability) {
+      return false;
+    },
+
     index(page) {
       this.isLoading = true;
-      return axios.post(
+      return {|options.axios.method|}.post(
         '/graphql',
         {
             query: listQuery,

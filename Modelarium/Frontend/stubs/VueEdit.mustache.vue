@@ -8,6 +8,10 @@
 import {|StudlyName|}Form from "./{|StudlyName|}Form";
 
 export default {
+  components: {
+    {|StudlyName|}Form
+  },
+
   data() {
     return {
     };

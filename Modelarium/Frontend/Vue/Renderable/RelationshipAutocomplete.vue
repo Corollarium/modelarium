@@ -111,6 +111,7 @@
 </template>
 
 <script>
+import {|options.axios.method|} from "{|options.axios.importFile|}";
 import Autocomplete from "@trevoreyre/autocomplete-vue/dist/autocomplete.esm";
 
 export default {
@@ -371,7 +372,7 @@ export default {
 
     async fetch() {
       this.isLoading = true;
-      return axios
+      return {|options.axios.method|}
         .post("/graphql", {
           query: this.query,
           variables: {

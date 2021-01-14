@@ -43,10 +43,15 @@ class FrontendVueGenerator
          * Use the runtimeValidator JS library
          */
         'runtimeValidator' => false,
+
         /**
          * The axios variable name
          */
-        'axios' => 'axios',
+        'axios' => [
+            'importFile' => 'axios',
+            'method' => 'axios'
+        ],
+
         /**
          * Generate action buttons even if we don't have a can field in the model
          */
@@ -123,7 +128,7 @@ class FrontendVueGenerator
                 Button::TYPE => ($hasVueRouter ? 'router-link' : 'a'),
                 Button::ATTRIBUTES => [
                     $targetAttribute => "/{$routeBase}/edit",
-                ] + ($hasCan ? [ "v-if" => 'can.create' ]: []),
+                ] + ($hasCan ? [ "v-if" => 'can(\'create\')' ]: []),
             ]
         )->setContent(
             '<i class="fa fa-plus"></i> Add new',
@@ -137,7 +142,7 @@ class FrontendVueGenerator
                 Button::TYPE => ($hasVueRouter ? 'router-link' : 'a'),
                 Button::ATTRIBUTES => [
                     $targetAttribute => "'/{$routeBase}/' + model.{$keyAttribute} + '/edit'",
-                ] + ($hasCan ? [ "v-if" => 'can.edit' ]: []),
+                ] + ($hasCan ? [ "v-if" => 'can(\'edit\')' ]: []),
             ]
         )->setContent(
             '<i class="fa fa-pencil"></i> Edit',
@@ -153,7 +158,7 @@ class FrontendVueGenerator
                 Button::ATTRIBUTES => [
                     'href' => '#',
                     '@click.prevent' => 'remove',
-                ] + ($hasCan ? [ "v-if" => 'can.delete' ]: []),
+                ] + ($hasCan ? [ "v-if" => 'can(\'delete\')' ]: []),
             ]
         )->setContent(
             '<i class="fa fa-trash"></i> Delete',
@@ -192,14 +197,24 @@ class FrontendVueGenerator
         $this->getCollection()->push(
             new GeneratedItem(
                 GeneratedItem::TYPE_FRONTEND,
-                file_get_contents(__DIR__ . "/Vue/Renderable/RelationshipAutocomplete.vue"),
+                $this->generator->templateCallback(
+                    __DIR__ . "/Vue/Renderable/RelationshipAutocomplete.vue",
+                    $this->generator->getComposer()->getByName('Vue'),
+                    [],
+                    $this->generator->getModel()
+                ),
                 "Modelarium/RelationshipAutocomplete.vue"
             )
         );
         $this->getCollection()->push(
             new GeneratedItem(
                 GeneratedItem::TYPE_FRONTEND,
-                file_get_contents(__DIR__ . "/Vue/Renderable/RelationshipSelect.vue"),
+                $this->generator->templateCallback(
+                    __DIR__ . "/Vue/Renderable/RelationshipSelect.vue",
+                    $this->generator->getComposer()->getByName('Vue'),
+                    [],
+                    $this->generator->getModel()
+                ),
                 "Modelarium/RelationshipSelect.vue"
             )
         );
@@ -283,14 +298,7 @@ class FrontendVueGenerator
     {
         $vueCode = $vue->getVueCode();
         // set basic data for vue
-        $extraprops = [
-            [
-                'name' => 'id',
-                'type' => 'String',
-                'required' => true
-            ]
-        ];
-        $vueCode->setExtraProps($extraprops);
+        $vueCode->setExtraProps([]);
         $cardFieldNames = array_map(function (Field $f) {
             return $f->getName();
         }, $this->generator->getCardFields());
@@ -420,12 +428,11 @@ class FrontendVueGenerator
                     $export[] = "    {$name},";
                 }
             }
-            return
-            implode("\n", $import) . "\n\n" .
-            "export default {\n" .
-            implode("\n", $export) . "\n};\n";
+            return implode("\n", $import) . "\n\n" .
+                "export default {\n" .
+                implode("\n", $export) . "\n};\n";
         };
-        
+
         // $items = [
         //     'Card',
         //     'Edit',

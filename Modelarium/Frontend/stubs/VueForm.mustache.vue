@@ -9,7 +9,7 @@
 </template>
 
 <script>
-import axios from "axios";
+import {|options.axios.method|} from "{|options.axios.importFile|}";
 import mutationUpsert from "raw-loader!./mutationUpsert.graphql";
 import itemQuery from "raw-loader!./queryItem.graphql";
 import model from "./model";
@@ -31,7 +31,7 @@ export default {
 
   methods: {
     get(id) {
-      return axios
+      return {|options.axios.method|}
         .post("/graphql", {
           query: itemQuery,
           variables: { id },
@@ -49,9 +49,8 @@ export default {
 
     save() {
       let postData = { ...this.model };
-      let query;
 
-      return axios
+      return {|options.axios.method|}
         .post("/graphql", {
           query: mutationUpsert,
           variables: { "{|lowerName|}": postData },

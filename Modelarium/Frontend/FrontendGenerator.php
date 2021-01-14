@@ -326,7 +326,7 @@ class FrontendGenerator implements GeneratorInterface
                         // TODO throw new Exception("Unsupported type {$arg->name} in query filter generation for {$this->baseName} " . get_class($type));
                         continue;
                     }
-                    
+
                     $filters[] = [
                         'name' => $arg->name,
                         'type' => $typename,
@@ -401,7 +401,7 @@ query (\$page: Int!$filtersQuery) {
             id
             $cardFieldParameters
         }
-      
+
         paginatorInfo {
             currentPage
             perPage
@@ -448,7 +448,7 @@ query (\$page: Int!$filtersQuery) {
             id
             $tableFieldParameters
         }
-      
+
         paginatorInfo {
             currentPage
             perPage
@@ -477,7 +477,7 @@ EOF;
         $graphqlQuery = join("\n", array_filter($graphqlQuery));
 
         $hasCan = $this->fModel->getExtradataValue('hasCan', 'value', false);
-        $canAttribute = $hasCan ? 'can' : ''; // TODO: subvalues?
+        $canAttribute = $hasCan ? "can {\nability\nvalue\n}" : '';
         if ($this->keyAttribute === 'id') {
             $keyAttributeType = 'ID';
         } else {
@@ -532,15 +532,21 @@ EOF;
             )
         );
     }
-    
+
     protected function makeJSModel(): void
     {
         $path = $this->fModel->getName() . '/model.js';
         $modelValues = $this->fModel->getDefault();
         $modelValues['id'] = 0;
+
+        $hasCan = $this->fModel->getExtradataValue('hasCan', 'value', false);
+        if ($hasCan) {
+            $modelValues['can'] = [];
+        }
+
         $modelJS = 'const model = ' . json_encode($modelValues) .
             ";\n\nexport default model;\n";
-        
+
         $this->collection->push(
             new GeneratedItem(
                 GeneratedItem::TYPE_FRONTEND,

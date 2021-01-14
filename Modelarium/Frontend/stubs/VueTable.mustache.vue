@@ -28,7 +28,7 @@
 
 <script>
 import {|StudlyName|}TableItem from "./{|StudlyName|}TableItem";
-import axios from 'axios';
+import {|options.axios.method|} from "{|options.axios.importFile|}";
 import tableQuery from 'raw-loader!./queryTable.graphql';
 
 export default {
@@ -73,13 +73,17 @@ export default {
   },
 
 	methods: {
+    can(ability) {
+      return false;
+    },
+
     sort(field, order) {
       // TODO
     },
 
     index(page) {
       this.isLoading = true;
-      return axios.post(
+      return {|options.axios.method|}.post(
         '/graphql',
         {
             query: tableQuery,

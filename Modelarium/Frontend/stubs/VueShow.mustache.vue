@@ -9,7 +9,7 @@
 </template>
 
 <script>
-import axios from "axios";
+import {|options.axios.method|} from "{|options.axios.importFile|}";
 import itemQuery from "raw-loader!./queryItem.graphql";
 import mutationDelete from "raw-loader!./mutationDelete.graphql";
 import model from "./model";
@@ -18,10 +18,6 @@ export default {
   data() {
     return {
       model: model,
-      can: {
-        edit: true,
-        delete: true,
-      },
       {|{extraData}|}
     };
   },
@@ -35,12 +31,16 @@ export default {
       this.get(this.$route.params.{|keyAttribute|});
     },
 
+    can(ability) {
+      return this.model.can.find((i) => i.ability === ability && i.value);
+    },
+
     cleanIdentifier(identifier) {
       {|{options.cleanIdentifierBody}|}
     },
 
     get(id) {
-      return {|options.axios|}
+      return {|options.axios.method|}
         .post("/graphql", {
           query: itemQuery,
           variables: { {|keyAttribute|}: this.cleanIdentifier(id) },
@@ -68,7 +68,7 @@ export default {
       if (!window.confirm("Really delete?")) {
         return;
       }
-      return {|options.axios|}
+      return {|options.axios.method|}
         .post("/graphql", {
           query: mutationDelete,
           variables: { id: this.model.id },
