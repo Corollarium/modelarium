@@ -53,7 +53,7 @@ class MigrationFulltextIndexDirective implements MigrationDirectiveInterface, Mo
     ): void {
         $indexFields = Parser::getDirectiveArgumentByName($directive, 'fields');
         $indexFieldsString = join(', ', $indexFields);
-        
+
         $method = $generator->class->addMethod('scopeFulltext')
             ->setPublic()
             ->setComment('
@@ -64,8 +64,11 @@ Scope a query to use the fulltext index
 @return \Illuminate\Database\Eloquent\Builder
            ')
             ->setReturnType('\\Illuminate\\Database\\Eloquent\\Builder')
-            ->setBody("return \$query->whereRaw(\"MATCH ($indexFieldsString) AGAINST (? IN NATURAL LANGUAGE MODE)\", [\$needle]);");
-        
+            ->setBody("\$parts = array_filter(explode(' ', str_replace(',', '', \$needle)));\n" .
+                "\$search = implode(',', \$parts);\n" .
+                "return \$query->whereRaw(\"MATCH ($indexFieldsString) AGAINST (? IN NATURAL LANGUAGE MODE)\", [\$search]);"
+            );
+
         $method->addParameter('query')
             ->setType('\\Illuminate\\Database\\Eloquent\\Builder');
         $method->addParameter('needle')
