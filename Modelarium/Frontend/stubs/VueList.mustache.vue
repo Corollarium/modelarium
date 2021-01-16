@@ -1,5 +1,5 @@
 <template>
-  <main class="modelarium-list {|lowerName|}-list">
+  <main :class="{ 'modelarium-list': true, '{|lowerName|}-list': true, 'modelarium-list--loading': isLoading, '{|lowerName|}-list--loading': isLoading }">
     <slot name="title"><h1 class="modelarium-list__title {|lowerName|}-list__title">{|typeTitle|}</h1></slot>
 
     <div class="modelarium-list__header {|lowerName|}-list__header">
