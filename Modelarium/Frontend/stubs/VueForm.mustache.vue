@@ -11,7 +11,7 @@
 <script>
 import {|options.axios.method|} from "{|options.axios.importFile|}";
 import mutationUpsert from "raw-loader!./mutationUpsert.graphql";
-import itemQuery from "raw-loader!./queryItem.graphql";
+import queryItem from "raw-loader!./queryItem.graphql";
 import model from "./model";
 {|{imports}|}
 
@@ -19,6 +19,8 @@ export default {
   data() {
     return {
       model: model,
+      queryItem: queryItem,
+      mutationUpsert: mutationUpsert,
       {|{extraData}|}
     };
   },
@@ -33,7 +35,7 @@ export default {
     get(id) {
       return {|options.axios.method|}
         .post("/graphql", {
-          query: itemQuery,
+          query: this.queryItem,
           variables: { id },
         })
         .then((result) => {
@@ -52,7 +54,7 @@ export default {
 
       return {|options.axios.method|}
         .post("/graphql", {
-          query: mutationUpsert,
+          query: this.mutationUpsert,
           variables: { "{|lowerName|}": postData },
         })
         .then((result) => {

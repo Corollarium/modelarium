@@ -10,7 +10,7 @@
 
 <script>
 import {|options.axios.method|} from "{|options.axios.importFile|}";
-import itemQuery from "raw-loader!./queryItem.graphql";
+import queryItem from "raw-loader!./queryItem.graphql";
 import mutationDelete from "raw-loader!./mutationDelete.graphql";
 import model from "./model";
 
@@ -18,6 +18,8 @@ export default {
   data() {
     return {
       model: model,
+      queryItem: queryItem,
+      mutationDelete: mutationDelete,
       {|{extraData}|}
     };
   },
@@ -42,7 +44,7 @@ export default {
     get(id) {
       return {|options.axios.method|}
         .post("/graphql", {
-          query: itemQuery,
+          query: this.queryItem,
           variables: { {|keyAttribute|}: this.cleanIdentifier(id) },
         })
         .then((result) => {
@@ -70,7 +72,7 @@ export default {
       }
       return {|options.axios.method|}
         .post("/graphql", {
-          query: mutationDelete,
+          query: this.mutationDelete,
           variables: { id: this.model.id },
         })
         .then((result) => {

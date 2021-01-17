@@ -40,7 +40,7 @@
 <script>
 import {|StudlyName|}Card from "./{|StudlyName|}Card";
 import {|options.axios.method|} from "{|options.axios.importFile|}";
-import listQuery from 'raw-loader!./queryList.graphql';
+import queryList from 'raw-loader!./queryList.graphql';
 {|#if options.runtimeValidator|}
 import { tObject, tString, tNumber, tBoolean, optional } from 'runtime-validator';
 {|/if|}
@@ -61,7 +61,19 @@ export default {
         {|/each|}
       }).asSuccess
       {|/if|}
-    }
+    },
+    queryList: {
+      type: String,
+      default: queryList,
+    },
+    queryName: {
+      type: String,
+      default: '{|lowerNamePlural|}'
+    },
+    variables: {
+      type: Object,
+      default: () => ({}),
+    },
   },
 
   data() {
@@ -73,7 +85,7 @@ export default {
         currentPage: 1,
         lastPage: 1,
         perPage: 20,
-        lastPage: 1,
+        total: 1,
         html: "",
       },
       {|{extraData}|}
@@ -120,8 +132,8 @@ export default {
       return {|options.axios.method|}.post(
         '/graphql',
         {
-            query: listQuery,
-            variables: { page, ...this.filters },
+            query: this.queryList,
+            variables: { page, ...this.filters, ...this.variables },
         }
       ).then((result) => {
         if (result.data.errors) {
@@ -129,9 +141,15 @@ export default {
             console.error(result.data.errors);
             return;
         }
-        const data = result.data.data;
-        this.$set(this, 'list', data.{|lowerNamePlural|}.data);
-        this.$set(this, 'pagination', data.{|lowerNamePlural|}.paginatorInfo);
+        const resultData = result.data.data;
+        if ("data" in resultData[this.queryName]) {
+            this.$set(this, "list", resultData[this.queryName].data);
+        } else {
+            this.$set(this, "list", resultData[this.queryName]);
+        }
+        if ("pagination" in resultData[this.queryName]) {
+            this.$set(this, "pagination", resultData[this.queryName].paginatorInfo);
+        }
       }).finally(() => {
         this.isLoading = false;
       });

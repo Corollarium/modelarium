@@ -29,19 +29,31 @@
 <script>
 import {|StudlyName|}TableItem from "./{|StudlyName|}TableItem";
 import {|options.axios.method|} from "{|options.axios.importFile|}";
-import tableQuery from 'raw-loader!./queryTable.graphql';
+import queryTable from 'raw-loader!./queryTable.graphql';
 
 export default {
   data() {
     return {
       type: "{|lowerName|}",
       list: [],
+      queryTable: {
+        type: String,
+        default: queryTable,
+      },
+      queryName: {
+        type: String,
+        default: '{|lowerNamePlural|}'
+      },
+      variables: {
+        type: Object,
+        default: () => ({}),
+      },
       isLoading: true,
       pagination: {
         currentPage: 1,
         lastPage: 1,
         perPage: 20,
-        lastPage: 1,
+        total: 1,
         html: "",
       },
       {|{extraData}|}
@@ -83,11 +95,12 @@ export default {
 
     index(page) {
       this.isLoading = true;
+
       return {|options.axios.method|}.post(
         '/graphql',
         {
-            query: tableQuery,
-            variables: { page },
+            query: this.queryTable,
+            variables: { page, ...this.filters, ...this.variables },
         }
       ).then((result) => {
         if (result.data.errors) {
@@ -95,9 +108,15 @@ export default {
             console.error(result.data.errors);
             return;
         }
-        const data = result.data.data;
-        this.$set(this, 'list', data.{|lowerNamePlural|}.data);
-        this.$set(this, 'pagination', data.{|lowerNamePlural|}.paginatorInfo);
+        const resultData = result.data.data;
+        if ("data" in resultData[this.queryName]) {
+            this.$set(this, "list", resultData[this.queryName].data);
+        } else {
+            this.$set(this, "list", resultData[this.queryName]);
+        }
+        if ("pagination" in resultData[this.queryName]) {
+            this.$set(this, "pagination", resultData[this.queryName].paginatorInfo);
+        }
       }).finally(() => {
         this.isLoading = false;
       });
