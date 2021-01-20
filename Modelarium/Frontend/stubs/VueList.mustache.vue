@@ -147,7 +147,7 @@ export default {
         } else {
             this.$set(this, "list", resultData[this.queryName]);
         }
-        if ("pagination" in resultData[this.queryName]) {
+        if ("paginatorInfo" in resultData[this.queryName]) {
             this.$set(this, "pagination", resultData[this.queryName].paginatorInfo);
         }
       }).finally(() => {
