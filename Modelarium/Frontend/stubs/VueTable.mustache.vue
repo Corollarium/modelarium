@@ -49,7 +49,7 @@ export default {
       }).asSuccess
       {|/if|}
     },
-    queryList: {
+    queryTable: {
       type: String,
       default: queryTable,
     },
