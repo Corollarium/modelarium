@@ -3,6 +3,7 @@
     {|#tableItemFields|}
     <td>{|{.}|}</td>
     {|/tableItemFields|}
+    <slot name="extraColumns" :props="$props"></slot>
   </tr>
 </template>
 <script>

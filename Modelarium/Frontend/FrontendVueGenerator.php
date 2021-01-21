@@ -321,6 +321,14 @@ class FrontendVueGenerator
             ]);
         }
 
+        if (!$vueCode->getExtraProps()) {
+            $vueCode->appendExtraProp('id', [
+                'name' => 'id',
+                'type' => 'String',
+                'required' => true
+            ]);
+        }
+
         $this->vueCodeLinkItem($vue);
         $this->makeVue($vue, 'Link', 'viewable', $cardFieldNames);
     }

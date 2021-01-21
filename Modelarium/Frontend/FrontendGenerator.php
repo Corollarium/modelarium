@@ -216,15 +216,22 @@ class FrontendGenerator implements GeneratorInterface
                 Table::STRIPED => true
             ]
         );
+
+        // TODO: this has vue code, move to vue
         /**
          * @var HTMLNode $tbody
          */
         $tbody = $table->get('tbody')[0];
         $tbody->setContent(
-            '<' . $this->studlyName . 'TableItem v-for="l in list" :key="l.id" v-bind="l"></' . $this->studlyName . 'TableItem>',
+            '<' . $this->studlyName . 'TableItem v-for="l in list" :key="l.id" v-bind="l">' .
+            '<template v-for="(_, slot) in $scopedSlots" #[slot]="props"><slot :name="slot" v-bind="props" /></template>' .
+            '</' . $this->studlyName . 'TableItem>',
             true,
             true
         );
+        foreach ($table->get('tr') as $t) {
+            $t->appendContent('<slot name="extraHeaders" :props="$props"></slot>', true);
+        }
         $titleFields = $this->fModel->filterField(
             function (Field $field) {
                 return $field->getRenderable('title', false);
