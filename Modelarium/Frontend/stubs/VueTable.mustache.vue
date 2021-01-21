@@ -51,7 +51,7 @@ export default {
     },
     queryList: {
       type: String,
-      default: queryList,
+      default: queryTable,
     },
     // the query name (which is used to access the resulting data)
     queryName: {
