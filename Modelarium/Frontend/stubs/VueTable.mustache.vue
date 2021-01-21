@@ -21,7 +21,7 @@
       ></Pagination>
     </div>
     <div class="modelarium-table__empty {|lowerName|}-table__empty" v-else>
-      Nothing found.
+      {{ messageNothingFound }}
     </div>
   </main>
 </template>
@@ -32,22 +32,47 @@ import {|options.axios.method|} from "{|options.axios.importFile|}";
 import queryTable from 'raw-loader!./queryTable.graphql';
 
 export default {
+
+  props: {
+    filters: {
+      type: Object,
+      default: () => ({
+        {|#filters|}
+          {|name|}: undefined,
+        {|/filters|}
+      }),
+      {|#if options.runtimeValidator|}
+      validator: tObject({
+        {|#each filters|}
+        {|name|}: {|#if required|}tString(){|/if|}{|#unless required|}optional(tString()){|/unless|},
+        {|/each|}
+      }).asSuccess
+      {|/if|}
+    },
+    queryList: {
+      type: String,
+      default: queryList,
+    },
+    // the query name (which is used to access the resulting data)
+    queryName: {
+      type: String,
+      default: '{|lowerNamePlural|}'
+    },
+    // the variables for the graphql query
+    queryVariables: {
+      type: Object,
+      default: () => ({}),
+    },
+    messageNothingFound: {
+      type: String,
+      default: '{|options.messages.nothingFound|}'
+    }
+  },
+
   data() {
     return {
       type: "{|lowerName|}",
       list: [],
-      queryTable: {
-        type: String,
-        default: queryTable,
-      },
-      queryName: {
-        type: String,
-        default: '{|lowerNamePlural|}'
-      },
-      variables: {
-        type: Object,
-        default: () => ({}),
-      },
       isLoading: true,
       pagination: {
         currentPage: 1,

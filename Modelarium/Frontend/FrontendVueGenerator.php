@@ -63,7 +63,11 @@ class FrontendVueGenerator
         /**
          * escapeIdentifier method
          */
-        'escapeIdentifierBody' => 'return identifier;'
+        'escapeIdentifierBody' => 'return identifier;',
+
+        'messages' => [
+            'nothingFound' => 'Nothing found'
+        ]
     ];
 
     public function __construct(FrontendGenerator $generator)

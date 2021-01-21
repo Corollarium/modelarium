@@ -27,7 +27,7 @@
       </slot>
     </div>
     <div class="modelarium-list__empty {|lowerName|}-list__empty" v-else>
-      Nothing found.
+      {{messageNothingFound}}
     </div>
 
     <div class="modelarium-list__footer {|lowerName|}-list__footer">
@@ -66,14 +66,20 @@ export default {
       type: String,
       default: queryList,
     },
+    // the query name (which is used to access the resulting data)
     queryName: {
       type: String,
       default: '{|lowerNamePlural|}'
     },
-    variables: {
+    // the variables for the graphql query
+    queryVariables: {
       type: Object,
       default: () => ({}),
     },
+    messageNothingFound: {
+      type: String,
+      default: '{|options.messages.nothingFound|}'
+    }
   },
 
   data() {
@@ -133,7 +139,7 @@ export default {
         '/graphql',
         {
             query: this.queryList,
-            variables: { page, ...this.filters, ...this.variables },
+            variables: { page, ...this.filters, ...this.queryVariables },
         }
       ).then((result) => {
         if (result.data.errors) {
