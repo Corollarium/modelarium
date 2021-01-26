@@ -1,3 +1,5 @@
+#import lighthouse.graphql
+
 scalar TestScalarType @scalar(class: "ModelariumTests\\TestScalarType")
 
 schema {

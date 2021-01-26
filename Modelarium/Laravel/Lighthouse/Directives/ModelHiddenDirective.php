@@ -3,9 +3,8 @@
 namespace Modelarium\Laravel\Lighthouse\Directives;
 
 use Nuwave\Lighthouse\Schema\Directives\BaseDirective;
-use Nuwave\Lighthouse\Support\Contracts\DefinedDirective;
 
-class ModelHiddenDirective extends BaseDirective implements DefinedDirective
+class ModelHiddenDirective extends BaseDirective
 {
     public static function definition(): string
     {

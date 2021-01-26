@@ -13,7 +13,6 @@ use GraphQL\Language\Visitor;
 use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ObjectType;
-use GraphQL\Type\Definition\OutputType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\SchemaExtender;
@@ -53,6 +52,8 @@ class Parser
 
         $this->imports = [
             'formularium.graphql' => \Safe\file_get_contents(__DIR__ . '/Types/Graphql/scalars.graphql'),
+            'lighthouse.graphql' => \Safe\file_get_contents(__DIR__ . '/Laravel/Graphql/definitionsLighthouse.graphql'),
+            'modelarium.graphql' => \Safe\file_get_contents(__DIR__ . '/Types/Graphql/directives.graphql'),
         ];
     }
 
@@ -121,7 +122,7 @@ class Parser
             $end = $e->getPositions()[0] + 50;
             $start = $start <= 0 ? 0 : $start;
             $end = $end >= $source->length ? $source->length : $end;
-            echo $e->message, "\nat: ...", mb_substr($source->body, $start, $end - $start), '...';
+            echo $e->getMessage(), "\nat: ...", mb_substr($source->body, $start, $end - $start), '...';
             throw $e;
         }
 
@@ -196,20 +197,16 @@ class Parser
                 $scalarName = $node->name->value;
 
                 // load classes
-                $className = null;
+                $className = '';
                 foreach ($node->directives as $directive) {
                     switch ($directive->name->value) {
                     case 'scalar':
                         foreach ($directive->arguments as $arg) {
-                            /**
-                             * @var \GraphQL\Language\AST\ArgumentNode $arg
-                             */
-
                             $value = $arg->value->value;
 
                             switch ($arg->name->value) {
                             case 'class':
-                                $className = $value;
+                                $className = (string)$value;
                             break;
                             }
                         }
@@ -308,7 +305,7 @@ class Parser
     /**
      * Given a list of directives, return an array with [ name => [ argument => value] ]
      *
-     * @param NodeList $list
+     * @param \GraphQL\Language\AST\NodeList<\GraphQL\Language\AST\DirectiveNode> $list
      * @return array
      */
     public static function getDirectives(NodeList $list): array
@@ -326,10 +323,10 @@ class Parser
     /**
      * Gets unwrapped type
      *
-     * @param OutputType $type
+     * @param Type $type
      * @return array [OutputType type, bool isRequired]
      */
-    public static function getUnwrappedType(OutputType $type): array
+    public static function getUnwrappedType(Type $type): array
     {
         $ret = $type;
         $isRequired = false;
@@ -341,7 +338,7 @@ class Parser
 
         if ($ret instanceof ListOfType) {
             $ret = $ret->getWrappedType();
-            if ($ret instanceof NonNull) { /** @phpstan-ignore-line */
+            if ($ret instanceof NonNull) {
                 $ret = $ret->getWrappedType();
             }
         }

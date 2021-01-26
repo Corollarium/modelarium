@@ -3,9 +3,8 @@
 namespace Modelarium\Laravel\Lighthouse\Directives;
 
 use Nuwave\Lighthouse\Schema\Directives\BaseDirective;
-use Nuwave\Lighthouse\Support\Contracts\DefinedDirective;
 
-class CastsDirective extends BaseDirective implements DefinedDirective
+class CastsDirective extends BaseDirective
 {
     public static function definition(): string
     {

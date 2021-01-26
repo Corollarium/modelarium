@@ -35,7 +35,7 @@ class HasManyDirective implements ModelDirectiveInterface, SeedDirectiveInterfac
         \GraphQL\Language\AST\DirectiveNode $directive,
         \Formularium\Datatype $datatype = null
     ): ?\Formularium\Datatype {
-        list($type, $isRequired) = Parser::getUnwrappedType($field->type);
+        list($type, $isRequired) = Parser::getUnwrappedType($field->getType());
 
         $sourceTypeName = $generator->getLowerName();
         $targetTypeName = $type->name;

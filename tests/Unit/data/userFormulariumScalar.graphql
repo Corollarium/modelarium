@@ -1,4 +1,5 @@
 #import formularium.graphql
+#import lighthouse.graphql
 
 type User {
   id: ID!

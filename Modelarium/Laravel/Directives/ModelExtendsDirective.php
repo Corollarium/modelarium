@@ -21,7 +21,7 @@ class ModelExtendsDirective implements ModelDirectiveInterface
 
             switch ($arg->name->value) {
                 case 'class':
-                    $generator->parentClassName = $value;
+                    $generator->parentClassName = (string)$value;
                 break;
             }
         }

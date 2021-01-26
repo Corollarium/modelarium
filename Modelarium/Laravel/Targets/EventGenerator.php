@@ -74,18 +74,24 @@ class EventGenerator extends BaseGenerator
         );
     }
 
+    /**
+     * @param \GraphQL\Type\Definition\FieldDefinition $field
+     * @param \GraphQL\Language\AST\NodeList<\GraphQL\Language\AST\DirectiveNode> $directives
+     * @param string $type
+     * @return void
+     */
     public function processFieldDirectives(
         \GraphQL\Type\Definition\FieldDefinition $field,
         \GraphQL\Language\AST\NodeList $directives,
         string $type
     ): void {
         // TODO: there's probably no need to override this
-        if ($field->type instanceof NonNull) {
-            $type = $field->type->getWrappedType();
+        if ($field->getType() instanceof NonNull) {
+            $type = $field->getType()->getWrappedType();
         } else {
-            $type = $field->type;
+            $type = $field->getType();
         }
-        $typeName = $type->name; /** @phpstan-ignore-line */
+        $typeName = $type->name;
         
         foreach ($directives as $directive) {
             $name = $directive->name->value;

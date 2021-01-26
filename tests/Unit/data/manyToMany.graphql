@@ -1,3 +1,6 @@
+#import lighthouse.graphql
+#import modelarium.graphql
+
 type User {
   id: ID!
   roles: [Role!]! @belongsToMany

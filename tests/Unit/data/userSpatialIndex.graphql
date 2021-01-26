@@ -1,3 +1,5 @@
+#import modelarium.graphql
+
 type User @migrationSpatialIndex(field: "location") {
   id: ID!
   name: String!

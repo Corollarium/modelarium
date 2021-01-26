@@ -24,7 +24,7 @@ class ModelAccessorDirective implements ModelDirectiveInterface
     ): void {
         $studly = Str::studly($field->name);
         // TODO: return type, converted to PHP
-        // list($type, $isRequired) = Parser::getUnwrappedType($field->type);
+        // list($type, $isRequired) = Parser::getUnwrappedType($field->getType());
         // $typeName = $type->name;
 
         $generator->class->addMethod("get{$studly}Attribute")
@@ -39,7 +39,7 @@ class ModelAccessorDirective implements ModelDirectiveInterface
         \Formularium\Datatype $datatype = null
     ): ?\Formularium\Datatype {
         $studly = Str::studly($field->name);
-        list($type, $isRequired) = Parser::getUnwrappedType($field->type);
+        list($type, $isRequired) = Parser::getUnwrappedType($field->getType());
 
         $generator->class->addMethod("get{$studly}Attribute")
             ->setPublic()

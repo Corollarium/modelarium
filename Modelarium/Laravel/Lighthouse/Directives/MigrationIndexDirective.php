@@ -3,9 +3,8 @@
 namespace Modelarium\Laravel\Lighthouse\Directives;
 
 use Nuwave\Lighthouse\Schema\Directives\BaseDirective;
-use Nuwave\Lighthouse\Support\Contracts\DefinedDirective;
 
-class MigrationIndexDirective extends BaseDirective implements DefinedDirective
+class MigrationIndexDirective extends BaseDirective
 {
     public static function definition(): string
     {
@@ -13,7 +12,7 @@ class MigrationIndexDirective extends BaseDirective implements DefinedDirective
 """
 Generates a composed index on the database for a type
 """
-directive @index(
+directive @migrationIndex(
     """
     The list of fields to compose in the index
     """

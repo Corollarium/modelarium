@@ -19,6 +19,14 @@ use function Safe\json_encode;
 
 class FormulariumUtils
 {
+    /**
+     * Undocumented function
+     *
+     * @param string $fieldName
+     * @param string $datatypeName
+     * @param NodeList<DirectiveNode> $directives
+     * @return Field
+     */
     public static function getFieldFromDirectives(
         string $fieldName,
         string $datatypeName,

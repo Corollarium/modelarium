@@ -96,8 +96,7 @@ class Processor extends ModelariumProcessor
                     continue;
                 }
                 
-                $name = DirectiveFactory::directiveName((string)$class);
-                // @phpstan-ignore-next-line
+                $name = \Nuwave\Lighthouse\Schema\DirectiveLocator::directiveName((string)$class);
                 $directives[$name] = trim($class::definition());
             }
         }

@@ -46,7 +46,7 @@ class MorphToDirective implements MigrationDirectiveInterface, ModelDirectiveInt
         MigrationCodeFragment $codeFragment
     ): void {
         $lowerName = mb_strtolower($generator->getInflector()->singularize($field->name));
-        list($type, $isRequired) = Parser::getUnwrappedType($field->type);
+        list($type, $isRequired) = Parser::getUnwrappedType($field->getType());
         $relation = Parser::getDirectiveArgumentByName($directive, 'relation', $lowerName);
         $codeFragment->appendBase('->unsignedBigInteger("' . $relation . '_id")');
         $codeFragment->appendExtraLine(
@@ -68,7 +68,7 @@ class MorphToDirective implements MigrationDirectiveInterface, ModelDirectiveInt
         \Formularium\Field $fieldFormularium,
         \GraphQL\Language\AST\DirectiveNode $directive
     ): void {
-        list($type, $isRequired) = Parser::getUnwrappedType($field->type);
+        list($type, $isRequired) = Parser::getUnwrappedType($field->getType());
         $typeName = $type->name;
 
         if (!($type instanceof UnionType)) {

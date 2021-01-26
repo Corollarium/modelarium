@@ -12,7 +12,7 @@ final class ProcessorTest extends TestCase
     public function testParseRelationshipOneToOne()
     {
         $processor = new LaravelProcessor();
-        $data = $processor->processString(file_get_contents($this->getPathGraphql('oneToOne')));
+        $data = $processor->processFiles([$this->getPathGraphql('oneToOne')]);
         $this->_checkOneToMany($data);
     }
 
@@ -65,7 +65,7 @@ final class ProcessorTest extends TestCase
     public function testParseRelationshipOneToOneNullable()
     {
         $processor = new LaravelProcessor();
-        $data = $processor->processString(file_get_contents($this->getPathGraphql('oneToOneNullable')));
+        $data = $processor->processFiles([$this->getPathGraphql('oneToOneNullable')]);
 
         $userMigration = $data->filter(
             function (GeneratedItem $i) {
@@ -94,7 +94,7 @@ final class ProcessorTest extends TestCase
     public function testParseRelationshipOneToMany()
     {
         $processor = new LaravelProcessor();
-        $data = $processor->processString(file_get_contents($this->getPathGraphql('oneToMany')));
+        $data = $processor->processFiles([$this->getPathGraphql('oneToMany')]);
 
         $postMigration = $data->filter(
             function (GeneratedItem $i) {
@@ -142,7 +142,7 @@ final class ProcessorTest extends TestCase
     public function testParseRelationshipManyToMany()
     {
         $processor = new LaravelProcessor();
-        $data = $processor->processString(file_get_contents($this->getPathGraphql('manyToMany')));
+        $data = $processor->processFiles([$this->getPathGraphql('manyToMany')]);
 
         $this->assertEquals(3, $data->filterByType(GeneratedItem::TYPE_MIGRATION)->count());
         $roleToUser = $data->filter(
@@ -196,7 +196,7 @@ final class ProcessorTest extends TestCase
     {
         $strings = [
             LaravelProcessor::getDirectivesGraphqlString(),
-            \Safe\file_get_contents(__DIR__ . '/../data/lighthouse-schema-directives.graphql')
+            \Safe\file_get_contents(__DIR__ . '/../../../Modelarium/Laravel/Graphql/definitionsLighthouse.graphql')
         ];
 
         $strings[] = <<< EOF
@@ -231,7 +231,7 @@ EOF;
     public function testParseRelationshipMorphOneToOne()
     {
         $processor = new LaravelProcessor();
-        $data = $processor->processString(file_get_contents($this->getPathGraphql('morphOneToOne')));
+        $data = $processor->processFiles([$this->getPathGraphql('morphOneToOne')]);
         $this->assertNotNull($data);
 
         $userMigration = $data->filter(
@@ -279,7 +279,7 @@ EOF;
     public function testParseRelationshipMorphOneToMany()
     {
         $processor = new LaravelProcessor();
-        $data = $processor->processString(file_get_contents($this->getPathGraphql('morphOneToMany')));
+        $data = $processor->processFiles([$this->getPathGraphql('morphOneToMany')]);
         $this->assertNotNull($data);
 
         $userMigration = $data->filter(
@@ -327,7 +327,7 @@ EOF;
     public function testParseRelationshipMorphManyToMany()
     {
         $processor = new LaravelProcessor();
-        $data = $processor->processString(file_get_contents($this->getPathGraphql('morphManyToMany')));
+        $data = $processor->processFiles([$this->getPathGraphql('morphManyToMany')]);
         $this->assertNotNull($data);
 
         $postMigration = $data->filter(

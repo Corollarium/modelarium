@@ -1,7 +1,8 @@
 #import formularium.graphql
+#import lighthouse.graphql
 
 type User {
   id: ID!
   name: String!
-  counter: Uinteger! @unsigned
+  counter: Uinteger!
 }

@@ -69,7 +69,7 @@ class MorphedByManyDirective implements MigrationDirectiveInterface, ModelDirect
         \Formularium\Datatype $datatype = null
     ): ?\Formularium\Datatype {
         $name = $directive->name->value;
-        list($type, $isRequired) = Parser::getUnwrappedType($field->type);
+        list($type, $isRequired) = Parser::getUnwrappedType($field->getType());
         $typeName = $type->name;
 
         $lowerName = mb_strtolower($generator->getInflector()->singularize($field->name));

@@ -11,6 +11,7 @@ use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\UnionType;
+use GraphQL\Language\AST\DirectiveNode;
 use Modelarium\BaseGenerator;
 use Modelarium\Exception\Exception;
 use Modelarium\FormulariumUtils;
@@ -139,7 +140,7 @@ class ModelGenerator extends BaseGenerator
     /**
      * Override to insert extradata
      *
-     * @param \GraphQL\Language\AST\NodeList $directives
+     * @param \GraphQL\Language\AST\NodeList<\GraphQL\Language\AST\DirectiveNode> $directives
      * @param string $generatorType
      * @return void
      */
@@ -163,6 +164,13 @@ class ModelGenerator extends BaseGenerator
         }
     }
 
+    /**
+     * @param string $typeName
+     * @param \GraphQL\Type\Definition\FieldDefinition $field
+     * @param \GraphQL\Language\AST\NodeList<DirectiveNode> $directives
+     * @param boolean $isRequired
+     * @return void
+     */
     protected function processField(
         string $typeName,
         \GraphQL\Type\Definition\FieldDefinition $field,
@@ -224,11 +232,16 @@ class ModelGenerator extends BaseGenerator
         $this->fModel->appendField($fieldFormularium);
     }
 
+    /**
+     * @param \GraphQL\Type\Definition\FieldDefinition $field
+     * @param \GraphQL\Language\AST\NodeList<DirectiveNode> $directives
+     * @return void
+     */
     protected function processRelationship(
         \GraphQL\Type\Definition\FieldDefinition $field,
         \GraphQL\Language\AST\NodeList $directives
     ): void {
-        list($type, $isRequired) = Parser::getUnwrappedType($field->type);
+        list($type, $isRequired) = Parser::getUnwrappedType($field->getType());
         $typeName = $type->name;
 
         // special types that should be skipped.
@@ -454,27 +467,28 @@ if ($d instanceof Datatype_relationship) {
     {
         foreach ($this->type->getFields() as $field) {
             $directives = $field->astNode->directives;
+            $type = $field->getType();
             if (
-                ($field->type instanceof ObjectType) ||
-                ($field->type instanceof ListOfType) ||
-                ($field->type instanceof UnionType) ||
-                ($field->type instanceof NonNull && (
-                    ($field->type->getWrappedType() instanceof ObjectType) ||
-                    ($field->type->getWrappedType() instanceof ListOfType) ||
-                    ($field->type->getWrappedType() instanceof UnionType)
+                ($type instanceof ObjectType) ||
+                ($type instanceof ListOfType) ||
+                ($type instanceof UnionType) ||
+                ($type instanceof NonNull && (
+                    ($type->getWrappedType() instanceof ObjectType) ||
+                    ($type->getWrappedType() instanceof ListOfType) ||
+                    ($type->getWrappedType() instanceof UnionType)
                 ))
             ) {
                 // relationship
                 $this->processRelationship($field, $directives);
             } else {
-                list($type, $isRequired) = Parser::getUnwrappedType($field->type);
+                list($type, $isRequired) = Parser::getUnwrappedType($field->getType());
                 $typeName = $type->name;
                 $this->processField($typeName, $field, $directives, $isRequired);
             }
         }
 
         /**
-         * @var \GraphQL\Language\AST\NodeList|null
+         * @var \GraphQL\Language\AST\NodeList<\GraphQL\Language\AST\DirectiveNode>|null
          */
         $directives = $this->type->astNode->directives;
         if ($directives) {

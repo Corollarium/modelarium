@@ -36,7 +36,7 @@ GRAPHQL;
     ) {
         $fieldName = $fieldDefinition->name->value;
         /**
-         * @var NodeList $fields
+         * @var NodeList<FieldDefinitionNode> $fields
          */
         $fields = $parentType->fields;
         foreach ($fields as $k => $f) {

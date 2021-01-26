@@ -13,8 +13,8 @@ final class ParserTest extends TestCase
         $parser = (new Parser())->fromString(
             <<<EOF
 type Query {
-    users: [User!]! @paginate(defaultCount: 10)
-    user(id: ID @eq): User @find
+    users: [User!]!
+    user(id: ID): User
 }
 
 type User {

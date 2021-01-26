@@ -31,7 +31,7 @@ class SeedGenerator extends BaseGenerator
         }
 
         /**
-         * @var \GraphQL\Language\AST\NodeList|null
+         * @var \GraphQL\Language\AST\NodeList<\GraphQL\Language\AST\DirectiveNode>|null
          */
         $directives = $this->type->astNode->directives;
         if ($directives) {

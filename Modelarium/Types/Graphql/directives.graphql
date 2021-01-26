@@ -91,7 +91,7 @@ directive @migrationFulltextIndex(
 """
 Generates a composed index on the database for a type
 """
-directive @index(
+directive @migrationIndex(
     """
     The list of fields to compose in the index
     """
@@ -177,6 +177,11 @@ directive @modelNotifiable on OBJECT
 Do not generate model (and seeder/factory/etc) for this type
 """
 directive @modelSkip on OBJECT
+
+"""
+Handles the target of morphMany
+"""
+directive @morphedByMany on FIELD_DEFINITION
 
 """
 Generate renderable

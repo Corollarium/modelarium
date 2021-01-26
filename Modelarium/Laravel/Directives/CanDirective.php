@@ -25,7 +25,7 @@ class CanDirective implements PolicyDirectiveInterface
         $injected = false;
         $args = false;
 
-        list($type, $isRequired) = Parser::getUnwrappedType($field->type);
+        list($type, $isRequired) = Parser::getUnwrappedType($field->getType());
 
         /**
          * @var DirectiveNode $directive
@@ -36,7 +36,7 @@ class CanDirective implements PolicyDirectiveInterface
             switch ($arg->name->value) {
                 case 'ability':
                     // @phpstan-ignore-next-line
-                    $ability = $arg->value->value;
+                    $ability = (string)$arg->value->value;
                 break;
                 case 'find':
                     // @phpstan-ignore-next-line

@@ -44,7 +44,7 @@ class BelongsToDirective implements MigrationDirectiveInterface, ModelDirectiveI
         $lowerName = mb_strtolower($generator->getInflector()->singularize($field->name));
         $fieldName = $lowerName . '_id';
 
-        list($type, $isRequired) = Parser::getUnwrappedType($field->type);
+        list($type, $isRequired) = Parser::getUnwrappedType($field->getType());
         $typeName = $type->name;
         $tableName = MigrationGenerator::toTableName($typeName);
 

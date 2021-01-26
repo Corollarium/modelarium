@@ -314,7 +314,7 @@ class FrontendGenerator implements GeneratorInterface
                     if ($type instanceof ListOfType) {
                         $isArray = true;
                         $type = $type->getWrappedType();
-                        if ($type instanceof NonNull) { /** @phpstan-ignore-line */
+                        if ($type instanceof NonNull) {
                             // TODO phpstan $isInternalRequired = true;
                             $isInternalRequiredString = '!';
                             $type = $type->getWrappedType();

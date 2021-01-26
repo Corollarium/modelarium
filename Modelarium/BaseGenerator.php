@@ -106,7 +106,7 @@ EOF;
     /**
      * Process all directives from list with directive classes.
      *
-     * @param \GraphQL\Language\AST\NodeList $directives The directive list
+     * @param \GraphQL\Language\AST\NodeList<\GraphQL\Language\AST\DirectiveNode> $directives
      * @param string $generatorType The generatorType, like 'Seed' or 'Model'
      * @return void
      * @throws SkipGenerationException
@@ -134,7 +134,7 @@ EOF;
      * Process all directives from list with directive classes.
      *
      * @param \GraphQL\Type\Definition\FieldDefinition $field
-     * @param \GraphQL\Language\AST\NodeList $directives The directive list
+     * @param \GraphQL\Language\AST\NodeList<\GraphQL\Language\AST\DirectiveNode> $directives
      * @param string $generatorType The generatorType, like 'Seed' or 'Model'
      * @return void
      * @throws SkipGenerationException

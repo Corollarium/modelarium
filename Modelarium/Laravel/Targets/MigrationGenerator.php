@@ -120,16 +120,21 @@ class MigrationGenerator extends BaseGenerator
         return $this->collection;
     }
 
+    /**
+     * @param \GraphQL\Type\Definition\FieldDefinition $field
+     * @param \GraphQL\Language\AST\NodeList<\GraphQL\Language\AST\DirectiveNode> $directives
+     * @return void
+     */
     protected function processBasetype(
         \GraphQL\Type\Definition\FieldDefinition $field,
         \GraphQL\Language\AST\NodeList $directives
     ): void {
         $fieldName = $field->name;
 
-        if ($field->type instanceof NonNull) {
-            $type = $field->type->getWrappedType();
+        if ($field->getType() instanceof NonNull) {
+            $type = $field->getType()->getWrappedType();
         } else {
-            $type = $field->type;
+            $type = $field->getType();
         }
 
         $codeFragment = new MigrationCodeFragment();
@@ -161,7 +166,7 @@ class MigrationGenerator extends BaseGenerator
             throw new Exception("Invalid field type: " . get_class($type));
         }
 
-        if (!($field->type instanceof NonNull)) {
+        if (!($field->getType() instanceof NonNull)) {
             $codeFragment->appendBase('->nullable()');
         }
 
@@ -259,11 +264,16 @@ class MigrationGenerator extends BaseGenerator
         $codeFragment->appendBase('$table->'  . $ourType->getLaravelSQLType($fieldName, $options));
     }
 
+    /**
+     * @param \GraphQL\Type\Definition\FieldDefinition $field
+     * @param \GraphQL\Language\AST\NodeList<\GraphQL\Language\AST\DirectiveNode> $directives
+     * @return void
+     */
     protected function processRelationship(
         \GraphQL\Type\Definition\FieldDefinition $field,
         \GraphQL\Language\AST\NodeList $directives
     ): void {
-        list($type, $isRequired) = Parser::getUnwrappedType($field->type);
+        list($type, $isRequired) = Parser::getUnwrappedType($field->getType());
         $typeName = $type->name;
 
         // special types that should be skipped.
@@ -293,7 +303,7 @@ class MigrationGenerator extends BaseGenerator
         }
 
         if ($codeFragment->base) {
-            if (!($field->type instanceof NonNull)) {
+            if (!($field->getType() instanceof NonNull)) {
                 $codeFragment->appendBase('->nullable()');
             }
             $this->createCode[] = '$table' . $codeFragment->base . ';';
@@ -306,14 +316,15 @@ class MigrationGenerator extends BaseGenerator
     {
         foreach ($this->type->getFields() as $field) {
             $directives = $field->astNode->directives;
+            $type = $field->getType();
             if (
-                ($field->type instanceof ObjectType) ||
-                ($field->type instanceof ListOfType) ||
-                ($field->type instanceof UnionType) ||
-                ($field->type instanceof NonNull && (
-                    ($field->type->getWrappedType() instanceof ObjectType) ||
-                    ($field->type->getWrappedType() instanceof ListOfType) ||
-                    ($field->type->getWrappedType() instanceof UnionType)
+                ($type instanceof ObjectType) ||
+                ($type instanceof ListOfType) ||
+                ($type instanceof UnionType) ||
+                ($type instanceof NonNull && (
+                    ($type->getWrappedType() instanceof ObjectType) ||
+                    ($type->getWrappedType() instanceof ListOfType) ||
+                    ($type->getWrappedType() instanceof UnionType)
                 ))
             ) {
                 // relationship
@@ -325,7 +336,7 @@ class MigrationGenerator extends BaseGenerator
 
         assert($this->type->astNode !== null);
         /**
-         * @var \GraphQL\Language\AST\NodeList|null
+         * @var \GraphQL\Language\AST\NodeList<\GraphQL\Language\AST\DirectiveNode>|null
          */
         $directives = $this->type->astNode->directives;
         if ($directives) {

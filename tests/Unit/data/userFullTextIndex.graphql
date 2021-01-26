@@ -1,3 +1,5 @@
+#import modelarium.graphql
+
 type User @migrationFulltextIndex(fields: ["name", "description"]) {
   id: ID!
   name: String!

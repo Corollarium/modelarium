@@ -4,15 +4,15 @@ namespace Modelarium\Laravel\Lighthouse\Directives;
 
 use Nuwave\Lighthouse\Schema\Directives\BaseDirective;
 
-class TypeSkipDirective extends BaseDirective
+class MorphedByManyDirective extends BaseDirective
 {
     public static function definition(): string
     {
         return /** @lang GraphQL */ <<<'SDL'
 """
-Do not process this type in Modelarium. Will not create models, migrations, etc
+Handles the target of morphMany
 """
-directive @typeSkip on OBJECT | ENUM
+directive @morphedByMany on FIELD_DEFINITION
 SDL;
     }
 }

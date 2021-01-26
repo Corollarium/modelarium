@@ -1,3 +1,5 @@
+#import lighthouse.graphql
+
 scalar TestText @scalar(class: "ModelariumTests\\Laravel\\ScalarTestText")
 
 type User {

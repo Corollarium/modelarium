@@ -24,12 +24,12 @@
         "illuminate/console": "^7.16",
         "illuminate/support": "^7.16",
         "composer/composer": "^1.10",
-        "webonyx/graphql-php": "^0.13.9",
+        "webonyx/graphql-php": "^14.5",
         "thecodingmachine/safe": "^1.1",
-        "corollarium/formularium": "^0.8.0",
+        "corollarium/formularium": "^0.8",
         "nette/php-generator": "^3.4",
         "haydenpierce/class-finder": "^0.4.2",
-        "nuwave/lighthouse": "^4.15",
+        "nuwave/lighthouse": "^5.1",
         "zordius/lightncandy": "^1.2"
     },
     "require-dev": {
