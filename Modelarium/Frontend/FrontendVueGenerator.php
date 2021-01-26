@@ -339,14 +339,15 @@ class FrontendVueGenerator
         $tableFieldNames = array_map(function (Field $f) {
             return $f->getName();
         }, $this->generator->getTableFields());
-        $extraprops = [
+        $vueCode->setExtraProps([]);
+        $vueCode->appendExtraProp('id',
             [
                 'name' => 'id',
                 'type' => 'String',
                 'required' => true
             ]
-        ];
-        $vueCode->setExtraProps($extraprops);
+        );
+
         foreach ($this->generator->getTableFields() as $f) {
             $vueCode->appendExtraProp($f->getName(), [
                 'name' => $f->getName(),
