@@ -66,7 +66,8 @@ class PolicyGenerator extends BaseGenerator
                 new GeneratedItem(
                     GeneratedItem::TYPE_POLICY,
                     "<?php declare(strict_types=1);\n\n" . $printer->printNamespace($namespace),
-                    $this->getGenerateFilename($name)
+                    $this->getGenerateFilename($name),
+                    true
                 )
             );
         }
