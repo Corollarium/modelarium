@@ -464,14 +464,14 @@ EOF;
     protected function generateFilename(string $basename): string
     {
         $this->mode = self::MODE_CREATE;
-        $match = '_' . $basename . '_table.php';
+        $match = '/(patch|create)_' . preg_quote($basename) . '_(table|[0-9])/';
 
         $basepath = $this->getBasePath('database/migrations/');
         if (is_dir($basepath)) {
             $migrationFiles = \Safe\scandir($basepath);
             rsort($migrationFiles);
             foreach ($migrationFiles as $m) {
-                if (!endsWith($m, $match)) {
+                if (!preg_match($match, $m)) {
                     continue;
                 }
 
@@ -482,7 +482,7 @@ EOF;
                 $model = trim(getStringBetween($data, '# start graphql', '# end graphql'));
 
                 // if equal ignore and don't output file
-                if ($model === $this->currentModel) {
+                if ($model === trim($this->currentModel)) {
                     $this->mode = self::MODE_NO_CHANGE;
                 } else {
                     // else we'll generate a diff and patch
