@@ -12,7 +12,36 @@ class RenderableDirective extends BaseDirective
 """
 Generate renderable
 """
-directive @renderable on FIELD_DEFINITION | OBJECT
+directive @renderable (
+    """Label for this field"""
+    label: String
+
+    """Comment for this field"""
+    comment: String
+
+    """Should this field be used in show pages?"""
+    show: Boolean
+
+    """Is this field the title field for this object?"""
+    title: Boolean
+    
+    """Should this field be used in card components?"""
+    card: Boolean
+
+    """Should this field be used in table components?"""
+    table: Boolean
+
+    """Field size in render"""
+    size: String
+
+    # move to schemaRenderable()
+    itemtype: String
+
+    # move to typeRenderable()
+    routeBase: String
+    keyAttribute: String
+    name: String
+) on FIELD_DEFINITION | OBJECT
 SDL;
     }
 }
