@@ -17,7 +17,7 @@ class {|className|}Table extends Migration
      */
     public function up()
     {
-        Schema::create('{|dummytablename|}', function (Blueprint $table) {
+        Schema::{|upOperation|}('{|dummytablename|}', function (Blueprint $table) {
             {|&dummyCode|}
         });
         {|&dummyPostCreateCode|}
@@ -30,7 +30,9 @@ class {|className|}Table extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('{|dummytablename|}');
+        Schema::{|downOperation|}('{|dummytablename|}'{|#if dummyInverseCode|}, function (Blueprint $table) {
+            {|&dummyInverseCode|}
+        }{|/if|});
     }
 
     /**

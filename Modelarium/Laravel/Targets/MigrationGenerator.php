@@ -103,16 +103,25 @@ class MigrationGenerator extends BaseGenerator
      */
     protected $currentModel = '';
 
+    /**
+     * Time stamp
+     *
+     * @var string
+     */
+    protected $stamp = '';
+
     public function generate(): GeneratedCollection
     {
         $this->collection = new GeneratedCollection();
         $this->currentModel = \GraphQL\Language\Printer::doPrint($this->type->astNode);
+        $this->stamp = date('Y_m_d_His');
         $filename = $this->generateFilename($this->lowerName);
 
         if ($this->mode !== self::MODE_NO_CHANGE) {
+            $code = $this->generateString();
             $item = new GeneratedItem(
                 GeneratedItem::TYPE_MIGRATION,
-                $this->generateString(),
+                $code,
                 $filename
             );
             $this->collection->prepend($item);
@@ -352,11 +361,17 @@ class MigrationGenerator extends BaseGenerator
 
         if ($this->mode === self::MODE_CREATE) {
             $context['className'] = 'Create' . $this->studlyName;
+            $context['upOperation'] = 'create';
+            $context['downOperation'] = 'dropIfExists';
             $context['dummyCode'] = join("\n            ", $this->createCode);
+            $context['dummyInverseCode'] = null;
             $context['dummyPostCreateCode'] = join("\n            ", $this->postCreateCode);
         } else {
-            $context['className'] = 'Patch' . $this->studlyName . date('YmdHis');
+            $context['className'] = 'Patch' . $this->studlyName . str_replace('_', '', $this->stamp);
+            $context['upOperation'] = 'table';
+            $context['downOperation'] = 'table';
             $context['dummyCode'] = '// TODO: write the patch please';
+            $context['dummyInverseCode'] = '// TODO: write the inverse patch please';
             $context['dummyPostCreateCode'] = '';
         }
 
@@ -380,6 +395,8 @@ class MigrationGenerator extends BaseGenerator
 EOF;
         $context = [
             'dummyCode' => $dummyCode,
+            'upOperation' => 'create',
+            'downOperation' => 'dropIfExists',
             'dummytablename' => $this->getInflector()->pluralize($relation), // TODO: check, toTableName()?
             'modelSchemaCode' => ''
         ];
@@ -390,7 +407,7 @@ EOF;
             $contents,
             $this->getBasePath(
                 'database/migrations/' .
-                date('Y_m_d_His') .
+                $this->stamp .
                 str_pad((string)(static::$counter++), 3, "0", STR_PAD_LEFT) . // so we keep the same order of types in schema
                 '_' . $this->mode . '_' .
                 $relation .
@@ -419,6 +436,8 @@ EOF;
 EOF;
         $context = [
             'dummyCode' => $dummyCode,
+            'upOperation' => 'create',
+            'downOperation' => 'dropIfExists',
             'dummytablename' => "{$type1}_{$type2}",
             'className' => Str::studly($this->mode) . Str::studly($type1) . Str::studly($type2),
             'modelSchemaCode' => ''
@@ -430,7 +449,7 @@ EOF;
             $contents,
             $this->getBasePath(
                 'database/migrations/' .
-                date('Y_m_d_His') .
+                $this->stamp .
                 str_pad((string)(static::$counter++), 3, "0", STR_PAD_LEFT) . // so we keep the same order of types in schema
                 '_' . $this->mode . '_' .
                 $type1 . '_' . $type2 .
@@ -475,10 +494,13 @@ EOF;
 
         return $this->getBasePath(
             'database/migrations/' .
-            date('Y_m_d_His') .
+            $this->stamp .
             str_pad((string)(static::$counter++), 3, "0", STR_PAD_LEFT) . // so we keep the same order of types in schema
             '_' . $this->mode . '_' .
-            $basename . '_table.php'
+            $basename . '_' .
+            str_replace('_', '', $this->stamp) . '_' .
+            'table' .
+            '.php'
         );
     }
 }
