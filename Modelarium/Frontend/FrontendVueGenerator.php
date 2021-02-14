@@ -77,6 +77,11 @@ class FrontendVueGenerator
         $this->buildTemplateParameters();
     }
 
+    public function getStubDir()
+    {
+        return $this->generator->getStubDir() . '/Vue/';
+    }
+
     protected function getCollection(): GeneratedCollection
     {
         return $this->generator->getCollection();
@@ -340,7 +345,8 @@ class FrontendVueGenerator
             return $f->getName();
         }, $this->generator->getTableFields());
         $vueCode->setExtraProps([]);
-        $vueCode->appendExtraProp('id',
+        $vueCode->appendExtraProp(
+            'id',
             [
                 'name' => 'id',
                 'type' => 'String',
@@ -390,7 +396,7 @@ class FrontendVueGenerator
         $path = $this->generator->getModel()->getName() . '/' .
             $this->generator->getModel()->getName() . $component . '.vue';
 
-        $stub = $this->generator->getStubDir() . "/Vue{$component}.mustache.vue";
+        $stub = $this->getStubDir() . "/Vue{$component}.mustache.vue";
 
         if ($mode == 'editable') {
             $vue->setEditableTemplate(
@@ -486,7 +492,7 @@ class FrontendVueGenerator
             new GeneratedItem(
                 GeneratedItem::TYPE_FRONTEND,
                 $this->generator->templateFile(
-                    $this->generator->getStubDir() . "/routes.mustache.js",
+                    $this->getStubDir() . "/routes.mustache.js",
                     [
                         'routeName' => $this->generator->getRouteBase(),
                         'keyAttribute' => $this->generator->getKeyAttribute()

@@ -14,7 +14,9 @@ class ModelariumPublishCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'modelarium:publish';
+    protected $signature = 'modelarium:publish 
+        {--vue : publish vue stubs for customization}
+    ';
 
     /**
      * The console command description.
@@ -61,6 +63,14 @@ class ModelariumPublishCommand extends Command
                 '--provider' => "$plugin\\Laravel\\ServiceProvider",
                 '--tag' => "schemabase",
             ]);
+
+            if ($this->option('vue')) {
+                $this->call('vendor:publish', [
+                    '--provider' => "$plugin\\Laravel\\ServiceProvider",
+                    '--tag' => "vue",
+                    '--force' => true
+                ]);
+            }
         }
 
         $this->info("Setup done.");

@@ -1,5 +1,9 @@
 <template>
-  <main :class="{ 'modelarium-list': true, '{|lowerName|}-list': true, 'modelarium-list--loading': isLoading, '{|lowerName|}-list--loading': isLoading }">
+  <main 
+    v-show="!(hideNoResults && list.length == 0)"
+    :class="{ 'modelarium-list': true, '{|lowerName|}-list': true, 'modelarium-list--loading': isLoading, '{|lowerName|}-list--loading': isLoading }"
+    itemtype="ItemList"
+  >
     <slot name="title"><h1 class="modelarium-list__title {|lowerName|}-list__title">{|typeTitle|}</h1></slot>
 
     <div class="modelarium-list__header {|lowerName|}-list__header">
@@ -75,6 +79,11 @@ export default {
     queryVariables: {
       type: Object,
       default: () => ({}),
+    },
+    // don't show entire component if we get no results
+    hideNoResults: {
+      type: Boolean,
+      default: false,
     },
     messageNothingFound: {
       type: String,

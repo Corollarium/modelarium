@@ -44,6 +44,16 @@ class ServiceProvider extends LaravelServiceProvider
             __DIR__ . '/Graphql/schema.graphql' => base_path('graphql/schema.graphql'),
         ], 'schemabase');
 
+        $vueStubs = [];
+        $vueDir = __DIR__ . '/../Frontend/stubs/Vue/';
+        foreach (scandir($vueDir) as $i) {
+            if ($i == "." || $i == "..") {
+                continue;
+            }
+            $vueStubs[$vueDir . $i] = base_path('resources/modelarium/stubs/Vue/' . $i);
+        }
+        $this->publishes($vueStubs, 'vue');
+
         Event::listen(
             RegisterDirectiveNamespaces::class,
             function (RegisterDirectiveNamespaces $registerDirectiveNamespaces): string {
