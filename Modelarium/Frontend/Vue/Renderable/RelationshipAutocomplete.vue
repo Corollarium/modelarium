@@ -9,70 +9,30 @@
       ></option>
     </select>
     <div class="modelarium-autocomplete__container">
-      <autocomplete
-        :debounceTime="debounceTime"
-        :search="autocompleteSearch"
-        :get-result-value="autocompleteGetResultValue"
-        :placeholder="placeholderComputed"
-        :default-value="initialValue"
-        :aria-label="placeholderComputed"
-        @submit="onSubmit"
+      <vue-simple-suggest
+        v-model="selectableQuery"
+        :styles="{
+          defaultInput: 'form-control autocomplete-input',
+          suggestions: 'modelarium-autocomplete__result-list',
+          suggestItem: 'modelarium-autocomplete__result-item',
+        }"
+        :display-attribute="titleField"
+        :value-attribute="valueField"
+        :debounce="debounceTime"
+        :list="fetch"
+        :placeholder="placeholder"
+        @select="onSelect"
       >
-        <template
-          #default="{
-            rootProps,
-            inputProps,
-            inputListeners,
-            resultListProps,
-            resultListListeners,
-            results,
-            resultProps,
-          }"
-        >
-          <div v-bind="rootProps">
-            <input
-              type="search"
-              v-bind="inputProps"
-              v-on="inputListeners"
-              :class="[
-                'form-control',
-                'autocomplete-input',
-                {
-                  'autocomplete-input-no-results': paginatorInfo.total === 0,
-                },
-              ]"
-              @focus="$event.target.select()"
-              @blur="checkEmpty()"
-            />
-            <ul
-              v-if="paginatorInfo.total === 0"
-              class="modelarium-autocomplete__result-list"
-              style="position: absolute; z-index: 1; width: 100%; top: 100%"
-            >
-              <li class="modelarium-autocomplete__total-results">
-                {{ messages["No results found"] }}
-              </li>
-            </ul>
-            <ul
-              v-bind="resultListProps"
-              v-on="resultListListeners"
-              class="modelarium-autocomplete__result-list"
-            >
-              <li class="modelarium-autocomplete__total-results">
-                {{ messages["Total results:"] }}
-                {{ paginatorInfo.total }}
-              </li>
-              <li
-                v-for="(result, index) in results"
-                :key="resultProps[index].id"
-                v-bind="resultProps[index]"
-              >
-                <span>{{ result[titleField] }}</span>
-              </li>
-            </ul>
+        <template slot="misc-item-above" slot-scope="{ suggestions, query }">
+          <div class="modelarium-autocomplete__total-results">
+            <!-- <span>{{ messages["Busca:"] }} {{ query }}.</span> -->
+            {{ messages["Total results:"] }}
+            {{ paginatorInfo.total }}
           </div>
+          <hr />
         </template>
-      </autocomplete>
+      </vue-simple-suggest>
+
       <router-link
         v-if="canCreate"
         :to="'/' + targetType + '/edit/'"
@@ -82,7 +42,7 @@
       >
         <span>＋ {{ messages["Add new"] }}</span>
       </router-link>
-      <div class="modelarium-autocomplete__selection" v-if="isMultiple">
+      <div v-if="isMultiple" class="modelarium-autocomplete__selection">
         <ul class="modelarium-autocomplete__list" tabindex="-1" title="">
           <li
             v-for="item in selectionVisible"
@@ -90,7 +50,7 @@
             class="modelarium-autocomplete__item--selection"
             @click="removeItem(item)"
           >
-            <slot v-bind:item="item">
+            <slot :item="item">
               <span>{{ item[titleField] }}</span>
             </slot>
           </li>
@@ -111,50 +71,13 @@
 </template>
 
 <script>
-import {|options.axios.method|} from "{|options.axios.importFile|}";
-import Autocomplete from "@trevoreyre/autocomplete-vue/dist/autocomplete.esm";
+import ajax from "../../code/ajax";
+import VueSimpleSuggest from "vue-simple-suggest";
 
 export default {
   components: {
-    Autocomplete,
+    VueSimpleSuggest,
   },
-
-  data() {
-    return {
-      /**
-       * Actual values
-       */
-      actualValues: undefined,
-
-      /**
-       * This is the initial value, copied from the prop.
-       */
-      initialValue: undefined,
-
-      /**
-       * If some error happened.
-       */
-      errorMessage: "",
-      /**
-       * Results from the server
-       */
-      selectable: [],
-      /**
-       * What the user is typing
-       */
-      selectableQuery: "",
-      /**
-       * Pagination about returned results
-       */
-      paginatorInfo: {
-        currentPage: 0,
-        lastPage: 0,
-        perPage: 0,
-        total: -1, // -1: nothing yet
-      },
-    };
-  },
-
   props: {
     value: {
       type: [String, Number, Array, Object],
@@ -166,14 +89,7 @@ export default {
      */
     name: {
       type: String,
-    },
-
-    /**
-     * html classes applied on <select></select>
-     */
-    htmlClass: {
-      type: String,
-      default: "",
+      required: true,
     },
 
     debounceTime: {
@@ -257,10 +173,6 @@ export default {
     /**
      * Translatable messages
      */
-
-    /**
-     * Translatable messages
-     */
     messages: {
       type: Object,
       default: () => {
@@ -293,13 +205,43 @@ export default {
       type: Boolean,
       default: false,
     },
+
+    // TODO
+    prefetch: {
+      type: Boolean,
+      default: false,
+    },
   },
 
-  created() {
-    this.actualValues = this.isMultiple ? [] : undefined;
-    if (this.value) {
-      this.initialValue = this.value;
-    }
+  data() {
+    return {
+      /**
+       * Actual values
+       */
+      actualValues: undefined,
+
+      /**
+       * If some error happened.
+       */
+      errorMessage: "",
+      /**
+       * Results from the server
+       */
+      selectable: [],
+      /**
+       * What the user is typing
+       */
+      selectableQuery: "",
+      /**
+       * Pagination about returned results
+       */
+      paginatorInfo: {
+        currentPage: 0,
+        lastPage: 0,
+        perPage: 0,
+        total: -1, // -1: nothing yet
+      },
+    };
   },
 
   computed: {
@@ -317,6 +259,14 @@ export default {
       }
       return this.messages["search..."];
     },
+  },
+
+  mounted() {
+    this.actualValues = this.isMultiple ? [] : undefined;
+    if (this.value) {
+      this.selectableQuery = this.value;
+    }
+    // TODO: check multiple case
   },
 
   methods: {
@@ -346,7 +296,7 @@ export default {
     /**
      * push submit events.
      */
-    onSubmit(result) {
+    onSelect(result) {
       const v = this.valueField ? result[this.valueField] : result;
 
       if (this.isMultiple) {
@@ -361,18 +311,9 @@ export default {
       this.$emit("input", this.actualValues);
     },
 
-    autocompleteSearch(input) {
-      this.selectableQuery = input;
-      return this.fetch();
-    },
-
-    autocompleteGetResultValue(result) {
-      return result[this.titleField];
-    },
-
     async fetch() {
       this.isLoading = true;
-      return {|options.axios.method|}
+      return ajax
         .post("/graphql", {
           query: this.query,
           variables: {
@@ -409,29 +350,14 @@ export default {
       );
     },
 
-    removeAll(item) {
+    removeAll() {
       this.$set(this, "value", []);
     },
   },
 };
 </script>
 
-<style scoped>
-/* Loading spinner */
-.autocomplete[data-loading="true"]::after {
-  content: "";
-  border: 3px solid rgba(0, 0, 0, 0.12);
-  border-right: 3px solid rgba(0, 0, 0, 0.48);
-  border-radius: 100%;
-  width: 20px;
-  height: 20px;
-  position: absolute;
-  right: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  animation: rotate 1s infinite linear;
-}
-
+<style>
 .modelarium-autocomplete__result-list {
   margin: 0;
   border: 1px solid rgba(0, 0, 0, 0.12);
@@ -444,43 +370,40 @@ export default {
   box-shadow: 0 2px 2px rgba(0, 0, 0, 0.16);
 }
 
-[data-position="below"] .modelarium-autocomplete__result-list {
-  margin-top: -1px;
-  border-top-color: transparent;
-  border-radius: 0 0 8px 8px;
-  padding-bottom: 8px;
-}
-
-[data-position="above"] .modelarium-autocomplete__result-list {
-  margin-bottom: -1px;
-  border-bottom-color: transparent;
-  border-radius: 8px 8px 0 0;
-  padding-top: 8px;
-}
-
 .modelarium-autocomplete__total-results {
   padding: 0px 12px;
   font-size: 0.8rem;
   font-style: italic;
 }
 
-/* Single result item */
-.autocomplete-result {
+.modelarium-autocomplete__result-item {
   cursor: default;
-  padding: 12px 12px 12px 12px;
+}
+.modelarium-autocomplete__result-item:hover {
+  background-color: #eee;
 }
 
-.autocomplete-result:hover,
-.autocomplete-result[aria-selected="true"] {
-  background-color: rgba(0, 0, 0, 0.06);
+/* Loading spinner 
+.autocomplete[data-loading="true"]::after {
+    content: "";
+    border: 3px solid rgba(0, 0, 0, 0.12);
+    border-right: 3px solid rgba(0, 0, 0, 0.48);
+    border-radius: 100%;
+    width: 20px;
+    height: 20px;
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    animation: rotate 1s infinite linear;
 }
 
 @keyframes rotate {
-  from {
-    transform: translateY(-50%) rotate(0deg);
-  }
-  to {
-    transform: translateY(-50%) rotate(359deg);
-  }
-}
+    from {
+        transform: translateY(-50%) rotate(0deg);
+    }
+    to {
+        transform: translateY(-50%) rotate(359deg);
+    }
+} */
 </style>
