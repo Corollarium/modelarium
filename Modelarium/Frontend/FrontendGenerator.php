@@ -25,12 +25,19 @@ use Modelarium\GeneratedCollection;
 use Modelarium\GeneratedItem;
 use Modelarium\GeneratorInterface;
 use Modelarium\GeneratorNameTrait;
+use Modelarium\Options;
 
 use function Safe\json_encode;
 
 class FrontendGenerator implements GeneratorInterface
 {
     use GeneratorNameTrait;
+
+    /**
+     *
+     * @var Options
+     */
+    protected $options = null;
 
     /**
      * @var FrameworkComposer
@@ -106,12 +113,17 @@ class FrontendGenerator implements GeneratorInterface
     {
         $this->composer = $composer;
         $this->fModel = $model;
+        $this->options = new Options();
         $this->setBaseName($model->getName());
         // TODO: document keyAttribute renderable parameter
         $this->keyAttribute = $model->getRenderable('keyAttribute', 'id');
         $this->routeBase = $this->fModel->getRenderable('routeBase', $this->lowerName);
         $this->parser = $parser;
         $this->buildTemplateParameters();
+        $userPath = $this->options->getBasePath() . '/resources/modelarium/stubs/';
+        if (is_dir($userPath)) {
+            $this->stubDir = $userPath;
+        }
     }
 
     public function generate(): GeneratedCollection
@@ -651,5 +663,15 @@ EOF;
     public function getTitleFields()
     {
         return $this->titleFields;
+    }
+
+    /**
+     * Get the value of options
+     *
+     * @return  Options
+     */
+    public function getOptions()
+    {
+        return $this->options;
     }
 }

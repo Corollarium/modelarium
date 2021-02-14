@@ -28,12 +28,6 @@ class FrontendVueGenerator
     protected $generator = null;
 
     /**
-     *
-     * @var Options
-     */
-    protected $options = null;
-
-    /**
      * Option defaults
      *
      * @var array
@@ -73,8 +67,13 @@ class FrontendVueGenerator
     public function __construct(FrontendGenerator $generator)
     {
         $this->generator = $generator;
-        $this->options = (new Options())->setSectionDefaults('vue', self::DEFAULT_VUE_OPTIONS);
+        $this->getOptions()->setSectionDefaults('vue', self::DEFAULT_VUE_OPTIONS);
         $this->buildTemplateParameters();
+    }
+
+    public function getOptions(): Options
+    {
+        return $this->generator->getOptions();
     }
 
     public function getStubDir()
@@ -175,7 +174,7 @@ class FrontendVueGenerator
             true
         )->getRenderHTML();
 
-        if (!$hasCan && $this->options->getOption('vue', 'actionButtonsNoCan') === false) {
+        if (!$hasCan && $this->getOptions()->getOption('vue', 'actionButtonsNoCan') === false) {
             $this->generator->templateParameters['buttonCreate'] = '';
             $this->generator->templateParameters['buttonEdit'] = '';
             $this->generator->templateParameters['buttonDelete'] = '';
@@ -184,7 +183,7 @@ class FrontendVueGenerator
             $this->generator->templateParameters['buttonEdit'] = $buttonEdit;
             $this->generator->templateParameters['buttonDelete'] = $buttonDelete;
         }
-        $this->generator->templateParameters['options'] = $this->options->getSection('vue');
+        $this->generator->templateParameters['options'] = $this->getOptions()->getSection('vue');
 
         $this->generator->templateParameters['tableItemFields'] =
             array_values(array_map(function (Field $f) {
@@ -297,7 +296,7 @@ class FrontendVueGenerator
         }
         $vueCode->appendMethod(
             'escapeIdentifier(identifier)',
-            $this->options->getOption('vue', 'escapeIdentifierBody')
+            $this->getOptions()->getOption('vue', 'escapeIdentifierBody')
         );
 
         $this->makeVue($vue, 'Card', 'viewable', $cardFieldNames);

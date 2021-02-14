@@ -61,7 +61,7 @@ class Options
      *
      * @return string
      */
-    protected function getBasePath(): string
+    public function getBasePath(): string
     {
         if ($this->basePath) {
             return $this->basePath;
