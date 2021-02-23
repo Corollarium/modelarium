@@ -451,29 +451,35 @@ class FrontendVueGenerator
                 implode("\n", $export) . "\n};\n";
         };
 
-        // $items = [
-        //     'Card',
-        //     'Edit',
-        //     'Link',
-        //     'List',
-        //     'Show',
-        //     'Table',
-        // ];
+        $this->getCollection()->push(
+            new GeneratedItem(
+                GeneratedItem::TYPE_FRONTEND,
+                $contents,
+                $path
+            )
+        );
+    }
 
-        // $import = array_map(
-        //     function ($i) use ($name) {
-        //         return "import {$name}$i from './{$name}$i.vue';";
-        //     },
-        //     $items
-        // );
+    protected function makeVueIndexDynamic(): void
+    {
+        $path = $this->generator->getModel()->getName() . '/index.dynamic.js';
+        $name = $this->generator->getStudlyName();
 
-        // $export = array_map(
-        //     function ($i) use ($name) {
-        //         return "    {$name}$i,";
-        //     },
-        //     $items
-        // );
-
+        $contents = function ($basepath, $element) use ($name) {
+            $dir = $basepath . '/' . $name;
+            $import = [];
+            $export = [];
+            foreach (scandir($dir) as $i) {
+                if (StringUtil::endsWith($i, '.vue')) {
+                    $name = substr($i, 0, -4);
+                    $import[] = "const $name = () => import('./$name.vue');";
+                    $export[] = "    {$name},";
+                }
+            }
+            return implode("\n", $import) . "\n\n" .
+                "export default {\n" .
+                implode("\n", $export) . "\n};\n";
+        };
         $this->getCollection()->push(
             new GeneratedItem(
                 GeneratedItem::TYPE_FRONTEND,

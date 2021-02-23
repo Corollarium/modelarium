@@ -81,7 +81,7 @@ export default {
             console.error(result.data.errors);
             return;
           }
-          this.$router.push("/{|lowerName|}/");
+          this.$router.push("/{|routeBase|}/");
         });
     },
   },

@@ -64,7 +64,7 @@ export default {
             return;
           }
           const data = result.data.data;
-          this.$router.push("/{|lowerName|}/" + data.upsert{|studlyName|}.id);
+          this.$router.push("/{|routeBase|}/" + data.upsert{|studlyName|}.id);
         });
     },
 

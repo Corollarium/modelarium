@@ -270,6 +270,7 @@ class FrontendGenerator implements GeneratorInterface
             'filters' => $this->getFilters(),
             'keyAttribute' => $this->keyAttribute,
             'spinner' => $spinner,
+            'routeBase' => $this->getRouteBase(),
             'tablelist' => $table->getRenderHTML(),
             'tableItemFields' => array_keys(array_map(function (Field $f) {
                 return $f->getName();
