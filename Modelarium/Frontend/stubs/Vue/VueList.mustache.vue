@@ -23,7 +23,7 @@
         <{|StudlyName|}Card v-for="l in list" :key="l.id" v-bind="l"></{|StudlyName|}Card>
       </div>
 
-      <slot name="pagination">
+      <slot name="pagination" :pagination="pagination">
         <Pagination
           v-bind="pagination"
           @page="pagination.currentPage = $event"
