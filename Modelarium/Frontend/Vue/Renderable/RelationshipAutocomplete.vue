@@ -261,6 +261,20 @@ export default {
     },
   },
 
+  watch: {
+    selectableQuery(newval) {
+      if (this.isMultiple) {
+        // TODO
+      } else {
+        if (newval) {
+          return;
+        }
+        this.actualValues = undefined;
+        this.$emit("input", this.actualValues);
+      }
+    },
+  },
+
   mounted() {
     this.actualValues = this.isMultiple ? [] : undefined;
     if (this.value) {
@@ -276,21 +290,6 @@ export default {
         this.optionVal = val;
       }
       e.target.value = "";
-    },
-
-    /**
-     * handles when field is cleared.
-     */
-    checkEmpty() {
-      if (this.isMultiple) {
-        // TODO
-      } else {
-        if (this.selectableQuery) {
-          return;
-        }
-        this.actualValues = undefined;
-        this.$emit("input", this.actualValues);
-      }
     },
 
     /**
