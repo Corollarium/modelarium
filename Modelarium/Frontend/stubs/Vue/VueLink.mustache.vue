@@ -14,7 +14,7 @@ export default {
     computed: { {|{computedCode}|} },
     props: {|{propsCode}|},
     methods: {
-      escapeIdentifier(identifier) { {|{options.escapeIdentifierBody}|} },
+      escapeIdentifier(identifier) { {|{options.vue.escapeIdentifierBody}|} },
       {|{methodsCode}|}
     }
 };

@@ -38,7 +38,7 @@ export default {
     },
 
     cleanIdentifier(identifier) {
-      {|{options.cleanIdentifierBody}|}
+      {|{options.vue.cleanIdentifierBody}|}
     },
 
     get(id) {

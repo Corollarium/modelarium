@@ -108,7 +108,7 @@ class Options
                 $newarray[$key] = $merge[$key] ?? $val;
             }
         }
-      
+
         return $newarray;
     }
 
