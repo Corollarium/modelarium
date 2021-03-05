@@ -332,6 +332,27 @@ class FrontendVueGenerator
 
     public function vueForm(FrameworkVue $vue): void
     {
+        $vueCode = $vue->getVueCode();
+        $vueCode->setExtraProps([]);
+
+        $createGraphqlVariables = $this->generator->getModel()->mapFields(
+            function (Field $f) {
+                if (!$f->getRenderable('form', true)) {
+                    return null;
+                }
+                $d = $f->getDatatype();
+                if ($d->getBasetype() == 'relationship') {
+                    return $f->getName() . ": {connect: this.model." . $f->getName() . '}';
+                }
+                return $f->getName() . ": this.model." . $f->getName();
+            }
+        );
+        $createGraphqlVariables = join(",\n", array_filter($createGraphqlVariables));
+
+        $this->generator->templateParameters['createGraphqlVariables'] = $createGraphqlVariables;
+        // they're the same now
+        $this->generator->templateParameters['updateGraphqlVariables'] = $createGraphqlVariables;
+
         $this->makeVue(
             $vue,
             'Form',

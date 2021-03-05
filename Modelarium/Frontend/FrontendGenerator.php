@@ -522,10 +522,29 @@ EOF;
             )
         );
 
-        $upsertMutation = <<<EOF
-mutation upsert(\${$this->lowerName}: {$this->studlyName}Input!) {
-    upsert{$this->studlyName}(input: \${$this->lowerName}) {
+        $createMutation = <<<EOF
+mutation(\$input: Create{$this->studlyName}Input!) {
+    create{$this->studlyName}(input: \$input) {
         id
+        $graphqlQuery
+        $canAttribute
+    }
+}
+EOF;
+        $this->collection->push(
+            new GeneratedItem(
+                GeneratedItem::TYPE_FRONTEND,
+                $createMutation,
+                $this->fModel->getName() . '/mutationCreate.graphql'
+            )
+        );
+
+        $upsertMutation = <<<EOF
+mutation(\$input: Create{$this->studlyName}Input!) {
+    create{$this->studlyName}(input: \$input) {
+        id
+        $graphqlQuery
+        $canAttribute
     }
 }
 EOF;

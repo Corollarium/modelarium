@@ -1,6 +1,8 @@
 <template>
-  <div>
-    <{|StudlyName|}Form></{|StudlyName|}Form>
+  <div class="modelarium-edit {|lowerName|}-edit">
+    <div {|{containerAtts}|}>
+      <{|StudlyName|}Form></{|StudlyName|}Form>
+    </div>
   </div>
 </template>
 

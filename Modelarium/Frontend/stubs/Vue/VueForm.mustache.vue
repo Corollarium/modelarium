@@ -10,6 +10,7 @@
 
 <script>
 import {|options.axios.method|} from "{|options.axios.importFile|}";
+import mutationCreate from "raw-loader!./mutationCreate.graphql";
 import mutationUpsert from "raw-loader!./mutationUpsert.graphql";
 import queryItem from "raw-loader!./queryItem.graphql";
 import model from "./model";
@@ -20,6 +21,7 @@ export default {
     return {
       model: model,
       queryItem: queryItem,
+      mutationCreate: mutationCreate,
       mutationUpsert: mutationUpsert,
       {|{extraData}|}
     };
@@ -50,12 +52,40 @@ export default {
     },
 
     save() {
-      let postData = { ...this.model };
+      if (this.model.id) {
+        this.update();
+      }
+      else {
+        this.create();
+      }
+    },
+
+    update() {
+      let postData = { {|updateGraphqlVariables|} };
 
       return {|options.axios.method|}
         .post("/graphql", {
           query: this.mutationUpsert,
-          variables: { "{|lowerName|}": postData },
+          variables: { input: postData },
+        })
+        .then((result) => {
+          if (result.data.errors) {
+            // TODO
+            console.error("errors", result.data.errors);
+            return;
+          }
+          const data = result.data.data;
+          this.$router.push("/{|routeBase|}/" + data.upsert{|studlyName|}.id);
+        });
+    },
+
+    create() {
+      let postData = { {|createGraphqlVariables|} };
+
+      return {|options.axios.method|}
+        .post("/graphql", {
+          query: this.mutationCreate,
+          variables: { input: postData },
         })
         .then((result) => {
           if (result.data.errors) {
