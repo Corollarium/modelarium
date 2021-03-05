@@ -186,7 +186,7 @@ class ModelariumFrontendCommand extends Command
         );
         $this->info('Files generated.');
 
-        if ($this->option('prettier') ?? $this->modelariumOptions->getOption('frontend', 'prettier')) {
+        if ($this->option('prettier') !== null ?: $this->modelariumOptions->getOption('frontend', 'prettier')) {
             $this->info('Running prettier on generated files.');
             $useYarn = file_exists(base_path('yarn.lock'));
             if ($useYarn) {
@@ -205,7 +205,7 @@ class ModelariumFrontendCommand extends Command
             shell_exec($run . ' wait');
         }
 
-        if ($this->option('eslint') !== null ?? $this->modelariumOptions->getOption('frontend', 'eslint')) {
+        if ($this->option('eslint') !== null ?: $this->modelariumOptions->getOption('frontend', 'eslint')) {
             $this->info('Running eslint on generated files.');
             $useYarn = file_exists(base_path('yarn.lock'));
             if ($useYarn) {
