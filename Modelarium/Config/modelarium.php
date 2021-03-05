@@ -60,14 +60,39 @@ return [
     |
     */
     "vue" => [
-        "axios" => [
-            "importFile" => "",
-            "method" => "axios"
+        /**
+         * Use the runtimeValidator JS library
+         */
+        'runtimeValidator' => false,
+
+        /**
+         * The axios variable name
+         */
+        'axios' => [
+            'importFile' => 'axios',
+            'method' => 'axios'
         ],
-        "cleanIdentifierBody" => "return identifier;",
-        "escapeIdentifierBody" => "return identifier;",
-        "messages" => [
-            "nothingFound" => "Nothing found"
+
+        /**
+         * Generate action buttons even if we don't have a can field in the model
+         */
+        'actionButtonsNoCan' => false,
+
+        /**
+         * cleanIdentifier method
+         */
+        'cleanIdentifierBody' => 'return identifier;',
+        
+        /**
+         * escapeIdentifier method
+         */
+        'escapeIdentifierBody' => 'return identifier;',
+
+        /**
+         * Message text
+         */
+        'messages' => [
+            'nothingFound' => 'Nothing found'
         ]
     ]
 ];

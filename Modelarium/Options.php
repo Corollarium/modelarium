@@ -51,7 +51,7 @@ class Options
         if (!array_key_exists($section, $this->options)) {
             $this->options[$section] = $defaults;
         } else {
-            $this->options[$section] = array_merge($defaults, $this->options[$section]);
+            $this->options[$section] = array_merge_recursive($defaults, $this->options[$section]);
         }
         return $this;
     }
@@ -77,16 +77,18 @@ class Options
 
     protected function loadOptions(): array
     {
+        $defaultConfig = require(__DIR__ . "/Config/modelarium.php");
+
         // try json
         $filename = $this->getBasePath() . '/modelarium.json';
         if (file_exists($filename)) {
-            return json_decode(file_get_contents($filename), true);
+            return array_merge_recursive($defaultConfig, json_decode(file_get_contents($filename), true));
         }
 
         // try php
         $filename = $this->getBasePath() . '/config/modelarium.php';
         if (file_exists($filename)) {
-            return require($filename);
+            return array_merge_recursive($defaultConfig, require($filename));
         }
 
         return [];

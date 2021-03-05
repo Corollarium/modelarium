@@ -27,47 +27,9 @@ class FrontendVueGenerator
      */
     protected $generator = null;
 
-    /**
-     * Option defaults
-     *
-     * @var array
-     */
-    const DEFAULT_VUE_OPTIONS = [
-        /**
-         * Use the runtimeValidator JS library
-         */
-        'runtimeValidator' => false,
-
-        /**
-         * The axios variable name
-         */
-        'axios' => [
-            'importFile' => 'axios',
-            'method' => 'axios'
-        ],
-
-        /**
-         * Generate action buttons even if we don't have a can field in the model
-         */
-        'actionButtonsNoCan' => false,
-        /**
-         * cleanIdentifier method
-         */
-        'cleanIdentifierBody' => 'return identifier;',
-        /**
-         * escapeIdentifier method
-         */
-        'escapeIdentifierBody' => 'return identifier;',
-
-        'messages' => [
-            'nothingFound' => 'Nothing found'
-        ]
-    ];
-
     public function __construct(FrontendGenerator $generator)
     {
         $this->generator = $generator;
-        $this->getOptions()->setSectionDefaults('vue', self::DEFAULT_VUE_OPTIONS);
         $this->buildTemplateParameters();
     }
 

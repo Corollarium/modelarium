@@ -44,7 +44,7 @@ class ServiceProvider extends LaravelServiceProvider
          * Publishing
          */
         $this->publishes([
-            __DIR__ . '/Config/modelarium.php' => config_path('modelarium.php'),
+            __DIR__ . '/../Config/modelarium.php' => config_path('modelarium.php'),
         ], 'config');
 
         $this->publishes([
