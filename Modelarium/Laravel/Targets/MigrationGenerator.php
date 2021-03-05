@@ -104,6 +104,13 @@ class MigrationGenerator extends BaseGenerator
     protected $currentModel = '';
 
     /**
+     * The last migration code
+     *
+     * @var string
+     */
+    protected $lastMigrationCode = null;
+
+    /**
      * Time stamp
      *
      * @var string
@@ -119,12 +126,14 @@ class MigrationGenerator extends BaseGenerator
 
         if ($this->mode !== self::MODE_NO_CHANGE) {
             $code = $this->generateString();
-            $item = new GeneratedItem(
-                GeneratedItem::TYPE_MIGRATION,
-                $code,
-                $filename
-            );
-            $this->collection->prepend($item);
+            if ($this->checkMigrationCodeChange($code)) {
+                $item = new GeneratedItem(
+                    GeneratedItem::TYPE_MIGRATION,
+                    $code,
+                    $filename
+                );
+                $this->collection->prepend($item);
+            }
         }
         return $this->collection;
     }
@@ -476,10 +485,10 @@ EOF;
                 }
 
                 // get source
-                $data = \Safe\file_get_contents($basepath . '/' . $m);
+                $this->lastMigrationCode = \Safe\file_get_contents($basepath . '/' . $m);
 
                 // compare with this source
-                $model = trim(getStringBetween($data, '# start graphql', '# end graphql'));
+                $model = trim(getStringBetween($this->lastMigrationCode, '# start graphql', '# end graphql'));
 
                 // if equal ignore and don't output file
                 if ($model === trim($this->currentModel)) {
@@ -502,5 +511,59 @@ EOF;
             'table' .
             '.php'
         );
+    }
+
+    /**
+     * Compares with the latest migration
+     *
+     * @param string $newcode
+     * @return boolean
+     */
+    protected function checkMigrationCodeChange(string $newcode): bool
+    {
+        if (!$this->lastMigrationCode) {
+            return true;
+        }
+        $tokens = token_get_all($this->lastMigrationCode);
+        for ($i=0,$z=count($tokens); $i<$z; $i++) {
+            if (is_array($tokens[$i]) && $tokens[$i] === T_FUNCTION
+                && is_array($tokens[$i+1]) && $tokens[$i+1][0] == T_WHITESPACE
+                && is_array($tokens[$i+2]) && $tokens[$i+2][1] == 'up'
+            ) {
+                $accumulator = [];
+                // collect tokens from function head through opening brace
+                while ($tokens[$i] != '{' && ($i < $z)) {
+                    $accumulator[] = is_array($tokens[$i]) ? $tokens[$i][1] : $tokens[$i];
+                    $i++;
+                }
+                if ($i == $z) {
+                    // handle error
+                } else {
+                    // note, accumulate, and position index past brace
+                    $braceDepth = 1;
+                    $accumulator[] = '{';
+                    $i++;
+                }
+                while ($braceDepth > 0 && ($i < $z)) {
+                    if (is_array($tokens[$i])) {
+                        $accumulator[] = $tokens[$i][1];
+                    } else {
+                        $accumulator[] = $tokens[$i];
+                        if ($tokens[$i] == '{') {
+                            $braceDepth++;
+                        } elseif ($tokens[$i] == '}') {
+                            $braceDepth--;
+                        }
+                    }
+                }
+                $functionSrc = implode(null, $accumulator);
+                var_dump($functionSrc, $newcode);
+                if ($functionSrc == $newcode) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
     }
 }

@@ -196,6 +196,11 @@ class Parser
             NodeKind::SCALAR_TYPE_DEFINITION => function ($node) {
                 $scalarName = $node->name->value;
 
+                if (in_array($scalarName, ['BuilderValue', 'CanArgs', 'EnumValue', 'EqValue'])) {
+                    // special lighthouse scalar
+                    return null;
+                }
+
                 // load classes
                 $className = '';
                 foreach ($node->directives as $directive) {
@@ -217,7 +222,7 @@ class Parser
                 // Require special handler class for custom scalars:
                 if (!class_exists($className, true)) {
                     throw new \Modelarium\Exception\Exception(
-                        "Custom scalar must have corresponding handler class $className"
+                        "Custom scalar must have corresponding handler class: '$className' at {$scalarName}"
                     );
                 }
 
