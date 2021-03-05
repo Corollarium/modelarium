@@ -17,6 +17,9 @@ class ServiceProvider extends LaravelServiceProvider
      */
     public function boot(): void
     {
+        /*
+         * Commands
+         */
         if ($this->app->runningInConsole()) {
             $this->commands([
                 \Modelarium\Laravel\Console\Commands\ModelariumPublishCommand::class,
@@ -28,11 +31,21 @@ class ServiceProvider extends LaravelServiceProvider
             ]);
         }
 
+        /*
+         * Namespace registration
+         */
         DatatypeFactory::appendNamespace('App\\Datatypes');
         ValidatorFactory::appendNamespace('App\\Validators');
         DatatypeFactory::registerFactory(
             'Modelarium\\Laravel\\Datatypes\\RelationshipFactory::factoryName'
         );
+
+        /*
+         * Publishing
+         */
+        $this->publishes([
+            __DIR__ . '/Config/modelarium.php' => config_path('modelarium.php'),
+        ], 'config');
 
         $this->publishes([
             __DIR__ . '/../Types/Graphql/directives.graphql' => base_path('graphql/modelariumdirectives.graphql'),
@@ -54,6 +67,9 @@ class ServiceProvider extends LaravelServiceProvider
         }
         $this->publishes($vueStubs, 'vue');
 
+        /*
+         * Events
+         */
         Event::listen(
             RegisterDirectiveNamespaces::class,
             function (RegisterDirectiveNamespaces $registerDirectiveNamespaces): string {

@@ -77,10 +77,18 @@ class Options
 
     protected function loadOptions(): array
     {
+        // try json
         $filename = $this->getBasePath() . '/modelarium.json';
-        if (!file_exists($filename)) {
-            return [];
+        if (file_exists($filename)) {
+            return json_decode(file_get_contents($filename), true);
         }
-        return json_decode(file_get_contents($filename), true);
+
+        // try php
+        $filename = $this->getBasePath() . '/config/modelarium.php';
+        if (file_exists($filename)) {
+            return require($filename);
+        }
+
+        return [];
     }
 }
