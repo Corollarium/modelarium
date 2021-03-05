@@ -79,7 +79,7 @@ class ModelariumFrontendCommand extends Command
 
         // setup stuff
         // @phpstan-ignore-next-line
-        $this->frameworks = $this->option('framework') ?? $this->modelariumOptions->getOption('frontend', 'framework');
+        $this->frameworks = $this->option('framework') ?: $this->modelariumOptions->getOption('frontend', 'framework');
         if (empty($this->frameworks)) {
             $this->error('If you are generating frontend you need to specify frameworks. Example: `--framework=HTML --framework=Bootstrap --framework=Vue`');
             return;
@@ -115,7 +115,7 @@ class ModelariumFrontendCommand extends Command
         $files = [
             __DIR__ . '/../../../Types/Graphql/scalars.graphql'
         ];
-        if ($this->option('lighthouse')) {
+        if ($this->option('lighthouse') || $this->modelariumOptions->getSection('modelarium', 'lighthouse')) {
             $files[] = __DIR__ . '/../../Graphql/definitionsLighthouse.graphql';
         }
 

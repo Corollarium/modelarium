@@ -80,17 +80,32 @@ class Options
         $defaultConfig = require(__DIR__ . "/Config/modelarium.php");
 
         // try json
+        $config = $defaultConfig;
         $filename = $this->getBasePath() . '/modelarium.json';
         if (file_exists($filename)) {
-            return array_merge_recursive($defaultConfig, json_decode(file_get_contents($filename), true));
+            $config = array_merge_recursive($defaultConfig, json_decode(file_get_contents($filename), true));
+        } else {
+            // try php
+            $filename = $this->getBasePath() . '/config/modelarium.php';
+            if (file_exists($filename)) {
+                $config = array_merge_recursive($defaultConfig, require($filename));
+            }
         }
+        return self::array_unique_recursive($config);
+    }
 
-        // try php
-        $filename = $this->getBasePath() . '/config/modelarium.php';
-        if (file_exists($filename)) {
-            return array_merge_recursive($defaultConfig, require($filename));
+    protected static function array_unique_recursive(array $arr)
+    {
+        if (array_keys($arr) === range(0, count($arr) - 1)) {
+            $arr = array_unique($arr, SORT_REGULAR);
         }
-
-        return [];
+      
+        foreach ($arr as $key => $item) {
+            if (is_array($item)) {
+                $arr[$key] = self::array_unique_recursive($item);
+            }
+        }
+      
+        return $arr;
     }
 }
