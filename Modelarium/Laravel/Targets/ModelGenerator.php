@@ -282,7 +282,20 @@ class ModelGenerator extends BaseGenerator
         }
 
         if (!$relationshipDatatype) {
-            $this->warn("Could not find a relationship {$typeName} for {$field->name} in {$this->baseName}. Consider adding a @modelAccessor.");
+            // if target is a model...
+            $targetType = $this->parser->getSchema()->getType($typeName);
+            $directives = $targetType->astNode->directives;
+            $skip = false;
+            foreach ($directives as $directive) {
+                $dName = $directive->name->value;
+                if ($dName === 'typeSkip') {
+                    $skip = true;
+                    break;
+                }
+            }
+            if ($skip == false) {
+                $this->warn("Could not find a relationship {$typeName} for {$field->name} in {$this->baseName}. Consider adding a @modelAccessor or declaring the relationship (e.g. @hasMany, @belongsTo).");
+            }
             return;
         }
     

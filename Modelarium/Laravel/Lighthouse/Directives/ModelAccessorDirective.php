@@ -10,7 +10,7 @@ class ModelAccessorDirective extends BaseDirective
     {
         return /** @lang GraphQL */ <<<'SDL'
 """
-Describe it here.
+Creates an accessor method in the class.
 """
 directive @modelAccessor on FIELD_DEFINITION
 SDL;
