@@ -7,6 +7,7 @@ use Modelarium\GeneratedCollection;
 use Modelarium\GeneratedItem;
 use Modelarium\Laravel\Processor as LaravelProcessor;
 use Modelarium\Laravel\Targets\ModelGenerator;
+use Modelarium\Options;
 use Symfony\Component\Console\Output\BufferedOutput;
 
 class ModelariumScaffoldCommand extends Command
@@ -40,6 +41,11 @@ class ModelariumScaffoldCommand extends Command
     protected $description = 'Creates scaffolding using Modelarium';
 
     /**
+     * @var Options
+     */
+    protected $modelariumOptions = null;
+
+    /**
      * Create a new command instance.
      *
      * @return void
@@ -47,6 +53,9 @@ class ModelariumScaffoldCommand extends Command
     public function __construct()
     {
         parent::__construct();
+
+        // read from Options()
+        $this->modelariumOptions = new Options();
     }
 
     /**
@@ -70,6 +79,8 @@ class ModelariumScaffoldCommand extends Command
 
         if ($this->option('modelDir') && is_string($this->option('modelDir'))) {
             ModelGenerator::setModelDir($this->option('modelDir'));
+        } elseif ($this->modelariumOptions->getOption('modelarium', 'modelDir')) {
+            ModelGenerator::setModelDir($this->modelariumOptions->getOption('modelarium', 'modelDir'));
         }
 
         // this generates the missing types and fills them, but it loses the directives.
@@ -97,7 +108,7 @@ class ModelariumScaffoldCommand extends Command
                 __DIR__ . '/../../../Types/Graphql/scalars.graphql'
             ];
 
-        if ($this->option('lighthouse')) {
+        if ($this->option('lighthouse') ?? $this->modelariumOptions->getOption('modelarium', 'lighthouse')) {
             $files[] = __DIR__ . '/../../Graphql/definitionsLighthouse.graphql';
         }
 

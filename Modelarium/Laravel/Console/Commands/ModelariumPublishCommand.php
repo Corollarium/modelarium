@@ -52,6 +52,12 @@ class ModelariumPublishCommand extends Command
             unlink($f);
         }
 
+        $this->call('vendor:publish', [
+            '--provider' => "Modelarium\\Laravel\\ServiceProvider",
+            '--tag' => "config"
+        ]);
+
+
         foreach (Modelarium::getDirectiveLaravelLibraries() as $plugin) {
             $this->call('vendor:publish', [
                 '--provider' => "$plugin\\Laravel\\ServiceProvider",

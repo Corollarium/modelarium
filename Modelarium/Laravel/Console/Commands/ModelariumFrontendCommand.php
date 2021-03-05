@@ -11,6 +11,7 @@ use Modelarium\Parser;
 use Modelarium\Frontend\FrontendGenerator;
 use Modelarium\GeneratedItem;
 use Modelarium\Laravel\Processor as LaravelProcessor;
+use Modelarium\Options;
 
 class ModelariumFrontendCommand extends Command
 {
@@ -50,6 +51,11 @@ class ModelariumFrontendCommand extends Command
     protected $parser = null;
 
     /**
+     * @var Options
+     */
+    protected $modelariumOptions = null;
+
+    /**
      * Create a new command instance.
      *
      * @return void
@@ -57,6 +63,9 @@ class ModelariumFrontendCommand extends Command
     public function __construct()
     {
         parent::__construct();
+
+        // read from Options()
+        $this->modelariumOptions = new Options();
     }
 
     /**
@@ -70,7 +79,7 @@ class ModelariumFrontendCommand extends Command
 
         // setup stuff
         // @phpstan-ignore-next-line
-        $this->frameworks = $this->option('framework');
+        $this->frameworks = $this->option('framework') ?? $this->modelariumOptions->getOption('frontend', 'framework');
         if (empty($this->frameworks)) {
             $this->error('If you are generating frontend you need to specify frameworks. Example: `--framework=HTML --framework=Bootstrap --framework=Vue`');
             return;
@@ -177,7 +186,7 @@ class ModelariumFrontendCommand extends Command
         );
         $this->info('Files generated.');
 
-        if ($this->option('prettier')) {
+        if ($this->option('prettier') ?? $this->modelariumOptions->getOption('frontend', 'prettier')) {
             $this->info('Running prettier on generated files.');
             $useYarn = file_exists(base_path('yarn.lock'));
             if ($useYarn) {
@@ -196,7 +205,7 @@ class ModelariumFrontendCommand extends Command
             shell_exec($run . ' wait');
         }
 
-        if ($this->option('eslint')) {
+        if ($this->option('eslint') !== null ?? $this->modelariumOptions->getOption('frontend', 'eslint')) {
             $this->info('Running eslint on generated files.');
             $useYarn = file_exists(base_path('yarn.lock'));
             if ($useYarn) {
