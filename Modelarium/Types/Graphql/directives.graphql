@@ -139,7 +139,7 @@ directive @migrationUniqueIndex (
 ) on FIELD_DEFINITION | OBJECT
 
 """
-Describe it here.
+Creates an accessor method in the class.
 """
 directive @modelAccessor on FIELD_DEFINITION
 
@@ -198,6 +198,9 @@ directive @renderable (
 
     """Is this field the title field for this object?"""
     title: Boolean
+    
+    """Should this field be used in the form? Default is true"""
+    form: Boolean
     
     """Should this field be used in card components?"""
     card: Boolean

@@ -25,6 +25,9 @@ directive @renderable (
     """Is this field the title field for this object?"""
     title: Boolean
     
+    """Should this field be used in the form? Default is true"""
+    form: Boolean
+    
     """Should this field be used in card components?"""
     card: Boolean
 
