@@ -340,7 +340,6 @@ class FrontendVueGenerator
                 if (!$f->getExtradata('modelFillable')) {
                     return false;
                 }
-                var_dump($f->getName(), $f->getRenderable('form', "aa"));
                 return $f->getRenderable('form', true);
             }
         );
