@@ -29,7 +29,7 @@
         "corollarium/formularium": "^0.8",
         "nette/php-generator": "^3.4",
         "haydenpierce/class-finder": "^0.4.2",
-        "nuwave/lighthouse": "^5.1",
+        "nuwave/lighthouse": "^5.3",
         "zordius/lightncandy": "^1.2"
     },
     "require-dev": {
