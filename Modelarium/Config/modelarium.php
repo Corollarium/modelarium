@@ -36,8 +36,9 @@ return [
          * The frameworks you are using for frontend. Order matters.
          */
         "framework" => [
-            "HTML",
-            "HTMLValidation"
+            // "HTML",
+            // "HTMLValidation"
+            // etc
         ],
 
         /*

@@ -83,29 +83,40 @@ class Options
         $config = $defaultConfig;
         $filename = $this->getBasePath() . '/modelarium.json';
         if (file_exists($filename)) {
-            $config = array_merge_recursive($defaultConfig, json_decode(file_get_contents($filename), true));
+            $config = self::mergeArrays($defaultConfig, json_decode(file_get_contents($filename), true));
         } else {
             // try php
             $filename = $this->getBasePath() . '/config/modelarium.php';
             if (file_exists($filename)) {
-                $config = array_merge_recursive($defaultConfig, require($filename));
+                $config = self::mergeArrays($defaultConfig, require($filename));
             }
         }
-        return self::array_unique_recursive($config);
+        return $config;
     }
 
-    protected static function array_unique_recursive(array $arr)
+    protected static function mergeArrays(array $base, array $merge)
     {
-        if (array_keys($arr) === range(0, count($arr) - 1)) {
-            $arr = array_unique($arr, SORT_REGULAR);
-        }
-      
-        foreach ($arr as $key => $item) {
-            if (is_array($item)) {
-                $arr[$key] = self::array_unique_recursive($item);
+        $newarray = [];
+        foreach ($base as $key => $val) {
+            if (is_array($val)) {
+                if (self::isAssoc($val)) {
+                    $newarray[$key] = self::mergeArrays($val, $merge[$key] ?? []);
+                } else {
+                    $newarray[$key] = $merge[$key] ?? $val;
+                }
+            } else {
+                $newarray[$key] = $merge[$key] ?? $val;
             }
         }
       
-        return $arr;
+        return $newarray;
+    }
+
+    protected static function isAssoc(array $arr)
+    {
+        if (array() === $arr) {
+            return false;
+        }
+        return array_keys($arr) !== range(0, count($arr) - 1);
     }
 }
