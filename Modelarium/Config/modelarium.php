@@ -49,7 +49,15 @@ return [
         /*
          * Should we run eslint after generating the components?
          */
-        "eslint" => true
+        "eslint" => true,
+
+        /**
+         * Messages
+         */
+        'messages' => [
+            'nothingFound' => 'Nothing found',
+            'submit' => 'Submit'
+        ]
     ],
 
     /*
@@ -88,12 +96,5 @@ return [
          * escapeIdentifier method
          */
         'escapeIdentifierBody' => 'return identifier;',
-
-        /**
-         * Message text
-         */
-        'messages' => [
-            'nothingFound' => 'Nothing found'
-        ]
     ]
 ];

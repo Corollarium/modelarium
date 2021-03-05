@@ -9,7 +9,7 @@
 </template>
 
 <script>
-import {|options.axios.method|} from "{|options.axios.importFile|}";
+import {|options.vue.axios.method|} from "{|options.vue.axios.importFile|}";
 import mutationCreate from "raw-loader!./mutationCreate.graphql";
 import mutationUpsert from "raw-loader!./mutationUpsert.graphql";
 import queryItem from "raw-loader!./queryItem.graphql";
@@ -35,7 +35,7 @@ export default {
 
   methods: {
     get(id) {
-      return {|options.axios.method|}
+      return {|options.vue.axios.method|}
         .post("/graphql", {
           query: this.queryItem,
           variables: { id },
@@ -63,7 +63,7 @@ export default {
     update() {
       let postData = { {|updateGraphqlVariables|} };
 
-      return {|options.axios.method|}
+      return {|options.vue.axios.method|}
         .post("/graphql", {
           query: this.mutationUpsert,
           variables: { input: postData },
@@ -82,7 +82,7 @@ export default {
     create() {
       let postData = { {|createGraphqlVariables|} };
 
-      return {|options.axios.method|}
+      return {|options.vue.axios.method|}
         .post("/graphql", {
           query: this.mutationCreate,
           variables: { input: postData },

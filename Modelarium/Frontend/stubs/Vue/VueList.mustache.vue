@@ -43,7 +43,7 @@
 
 <script>
 import {|StudlyName|}Card from "./{|StudlyName|}Card";
-import {|options.axios.method|} from "{|options.axios.importFile|}";
+import {|options.vue.axios.method|} from "{|options.vue.axios.importFile|}";
 import queryList from 'raw-loader!./queryList.graphql';
 {|#if options.runtimeValidator|}
 import { tObject, tString, tNumber, tBoolean, optional } from 'runtime-validator';
@@ -87,7 +87,7 @@ export default {
     },
     messageNothingFound: {
       type: String,
-      default: '{|options.messages.nothingFound|}'
+      default: '{|options.frontend.messages.nothingFound|}'
     }
   },
 
@@ -144,7 +144,7 @@ export default {
 
     index(page) {
       this.isLoading = true;
-      return {|options.axios.method|}.post(
+      return {|options.vue.axios.method|}.post(
         '/graphql',
         {
             query: this.queryList,

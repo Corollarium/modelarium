@@ -28,7 +28,7 @@
 
 <script>
 import {|StudlyName|}TableItem from "./{|StudlyName|}TableItem";
-import {|options.axios.method|} from "{|options.axios.importFile|}";
+import {|options.vue.axios.method|} from "{|options.vue.axios.importFile|}";
 import queryTable from 'raw-loader!./queryTable.graphql';
 
 export default {
@@ -65,7 +65,7 @@ export default {
     },
     messageNothingFound: {
       type: String,
-      default: '{|options.messages.nothingFound|}'
+      default: '{|options.frontend.messages.nothingFound|}'
     }
   },
 
@@ -121,7 +121,7 @@ export default {
     index(page) {
       this.isLoading = true;
 
-      return {|options.axios.method|}.post(
+      return {|options.vue.axios.method|}.post(
         '/graphql',
         {
             query: this.queryTable,

@@ -261,7 +261,7 @@ class FrontendGenerator implements GeneratorInterface
                 'Button',
                 [
                     Button::TYPE => 'submit',
-                    Element::LABEL => 'Submit'
+                    Element::LABEL => $this->getOptions()->getOption("frontend", "submit", "Submit")
                 ]
             ),
             'buttonCreate' => $buttonCreate,

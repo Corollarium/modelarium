@@ -9,7 +9,7 @@
 </template>
 
 <script>
-import {|options.axios.method|} from "{|options.axios.importFile|}";
+import {|options.vue.axios.method|} from "{|options.vue.axios.importFile|}";
 import queryItem from "raw-loader!./queryItem.graphql";
 import mutationDelete from "raw-loader!./mutationDelete.graphql";
 import model from "./model";
@@ -42,7 +42,7 @@ export default {
     },
 
     get(id) {
-      return {|options.axios.method|}
+      return {|options.vue.axios.method|}
         .post("/graphql", {
           query: this.queryItem,
           variables: { {|keyAttribute|}: this.cleanIdentifier(id) },
@@ -70,7 +70,7 @@ export default {
       if (!window.confirm("Really delete?")) {
         return;
       }
-      return {|options.axios.method|}
+      return {|options.vue.axios.method|}
         .post("/graphql", {
           query: this.mutationDelete,
           variables: { id: this.model.id },

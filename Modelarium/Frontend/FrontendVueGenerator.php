@@ -145,13 +145,14 @@ class FrontendVueGenerator
             $this->generator->templateParameters['buttonEdit'] = $buttonEdit;
             $this->generator->templateParameters['buttonDelete'] = $buttonDelete;
         }
-        $this->generator->templateParameters['options'] = $this->getOptions()->getSection('vue');
+        $this->generator->templateParameters['options'] = $this->getOptions()->options;
 
         $this->generator->templateParameters['tableItemFields'] =
             array_values(array_map(function (Field $f) {
+                $required = $f->getValidator('required', false);
                 if ($f->getDatatype()->getBasetype() === 'relationship') {
                     $name = $f->getName();
-                    return "<{$name}-link v-bind=\"{$name}\"></{$name}-link>";
+                    return "<{$name}-link " . ($required ? '' : "v-if=\"{$name}\"") . "v-bind=\"{$name}\"></{$name}-link>";
                 }
                 return '{{ ' . $f->getName() . ' }}';
             }, $this->generator->getTableFields()));
@@ -316,11 +317,24 @@ class FrontendVueGenerator
         );
 
         foreach ($this->generator->getTableFields() as $f) {
-            $vueCode->appendExtraProp($f->getName(), [
+            /**
+             * @var Field $f
+             */
+            $required = $f->getValidator('required', false);
+            $prop = [
                 'name' => $f->getName(),
                 'type' => $vueCode->mapTypeToJs($f->getDatatype()),
-                'required' => true
-            ]);
+                'required' => $required
+            ];
+            if (!$required) {
+                if ($f->getDatatype()->getBasetype() === 'relationship') {
+                    $prop['default'] = '() => null';
+                } else {
+                    $prop['default'] = $f->getDatatype()->getDefault;
+                }
+            }
+
+            $vueCode->appendExtraProp($f->getName(), $prop);
         }
         $this->makeVue($vue, 'TableItem', 'viewable', $tableFieldNames);
     }

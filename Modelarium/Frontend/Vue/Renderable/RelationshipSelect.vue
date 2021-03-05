@@ -13,7 +13,7 @@
   </select>
 </template>
 <script>
-import {|options.axios.method|} from "{|options.axios.importFile|}";
+import {|options.vue.axios.method|} from "{|options.vue.axios.importFile|}";
 
 export default {
   data() {
@@ -93,7 +93,7 @@ export default {
   methods: {
     async fetch() {
       this.isLoading = true;
-      return {|options.axios.method|}
+      return {|options.vue.axios.method|}
         .post("/graphql", {
           query: this.query,
           variables: {
