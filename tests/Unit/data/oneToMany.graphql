@@ -1,4 +1,5 @@
 #import lighthouse.graphql
+#import modelarium.graphql
 
 type Post {
   id: ID!

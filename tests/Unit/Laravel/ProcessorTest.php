@@ -148,21 +148,21 @@ final class ProcessorTest extends TestCase
         $roleToUser = $data->filter(
             function (GeneratedItem $i) {
                 return $i->type == GeneratedItem::TYPE_MIGRATION &&
-                    stripos($i->filename, 'role_user') > 0;
+                    stripos($i->filename, 'create_role_user') > 0;
             }
         )->first();
 
         $userMigration = $data->filter(
             function (GeneratedItem $i) {
                 return $i->type == GeneratedItem::TYPE_MIGRATION &&
-                    strpos($i->filename, 'create_user_table') > 0;
+                    strpos($i->filename, 'create_user') > 0;
             }
         )->first();
 
         $roleMigration = $data->filter(
             function (GeneratedItem $i) {
                 return $i->type == GeneratedItem::TYPE_MIGRATION &&
-                    strpos($i->filename, 'role') > 0;
+                    strpos($i->filename, 'create_role_2') > 0;
             }
         )->first();
 
