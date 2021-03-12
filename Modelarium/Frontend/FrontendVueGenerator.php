@@ -470,9 +470,9 @@ class FrontendVueGenerator
             $export = [];
             foreach (scandir($dir) as $i) {
                 if (StringUtil::endsWith($i, '.vue')) {
-                    $name = substr($i, 0, -4);
-                    $import[] = "const $name = () => import('./$name.vue');";
-                    $export[] = "    {$name},";
+                    $componentName = substr($i, 0, -4);
+                    $import[] = "const $componentName = () => import(/* webpackChunkName: \"$name\" */ './$componentName.vue');";
+                    $export[] = "    {$componentName},";
                 }
             }
             return implode("\n", $import) . "\n\n" .
