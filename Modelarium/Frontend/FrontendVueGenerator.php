@@ -82,6 +82,7 @@ class FrontendVueGenerator
         $this->makeVueRoutes();
         $this->makeVueCrud();
         $this->makeVueIndex();
+        $this->makeVueIndexDynamic();
     }
 
     public function buildTemplateParameters(): void
