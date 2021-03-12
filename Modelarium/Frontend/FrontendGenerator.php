@@ -178,7 +178,7 @@ class FrontendGenerator implements GeneratorInterface
                 ],
             ]
         )->setContent(
-            '<i class="fa fa-plus"></i> Add new',
+            '<i class="fa fa-plus"></i> '  . $this->getOptions()->getOption('frontend', 'messages')['addNew'],
             true,
             true
         )->getRenderHTML();
@@ -192,7 +192,7 @@ class FrontendGenerator implements GeneratorInterface
                 ],
             ]
         )->setContent(
-            '<i class="fa fa-pencil"></i> Edit',
+            '<i class="fa fa-pencil"></i> ' . $this->getOptions()->getOption('frontend', 'messages')['edit'],
             true,
             true
         )->getRenderHTML();
@@ -208,7 +208,7 @@ class FrontendGenerator implements GeneratorInterface
                 ],
             ]
         )->setContent(
-            '<i class="fa fa-trash"></i> Delete',
+            '<i class="fa fa-trash"></i> ' . $this->getOptions()->getOption('frontend', 'messages')['delete'],
             true,
             true
         )->getRenderHTML();
@@ -540,8 +540,8 @@ EOF;
         );
 
         $upsertMutation = <<<EOF
-mutation(\$input: Create{$this->studlyName}Input!) {
-    create{$this->studlyName}(input: \$input) {
+mutation(\$input: Update{$this->studlyName}Input!) {
+    update{$this->studlyName}(input: \$input) {
         id
         $graphqlQuery
         $canAttribute
@@ -552,7 +552,7 @@ EOF;
             new GeneratedItem(
                 GeneratedItem::TYPE_FRONTEND,
                 $upsertMutation,
-                $this->fModel->getName() . '/mutationUpsert.graphql'
+                $this->fModel->getName() . '/mutationUpdate.graphql'
             )
         );
 

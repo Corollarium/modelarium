@@ -56,6 +56,10 @@ return [
          */
         'messages' => [
             'nothingFound' => 'Nothing found',
+            'addNew' => 'Add new',
+            'edit' => 'Edit',
+            'delete' => 'Delete',
+            'reallyDelete' => 'Really delete?',
             'submit' => 'Submit'
         ]
     ],

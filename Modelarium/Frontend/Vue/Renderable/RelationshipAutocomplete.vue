@@ -262,6 +262,9 @@ export default {
   },
 
   watch: {
+    value() {
+      this.selectableQuery = this.value;
+    },
     selectableQuery(newval) {
       if (this.isMultiple) {
         // TODO
@@ -273,6 +276,12 @@ export default {
         this.$emit("input", this.actualValues);
       }
     },
+  },
+
+  created() {
+    if (this.prefetch) {
+      this.fetch();
+    }
   },
 
   mounted() {

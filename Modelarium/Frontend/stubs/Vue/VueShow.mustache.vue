@@ -9,9 +9,9 @@
 </template>
 
 <script>
-import {|options.vue.axios.method|} from "{|options.vue.axios.importFile|}";
 import queryItem from "raw-loader!./queryItem.graphql";
 import mutationDelete from "raw-loader!./mutationDelete.graphql";
+import crud from "./crud";
 import model from "./model";
 
 export default {
@@ -23,6 +23,8 @@ export default {
       {|{extraData}|}
     };
   },
+
+  mixins: [ crud ],
 
   created() {
     this.load();
@@ -37,52 +39,8 @@ export default {
       return this.model.can.find((i) => i.ability === ability && i.value);
     },
 
-    cleanIdentifier(identifier) {
-      {|{options.vue.cleanIdentifierBody}|}
-    },
-
-    get(id) {
-      return {|options.vue.axios.method|}
-        .post("/graphql", {
-          query: this.queryItem,
-          variables: { {|keyAttribute|}: this.cleanIdentifier(id) },
-        })
-        .then((result) => {
-          if (result.data.errors) {
-            // TODO
-            console.error(result.data.errors);
-            return;
-          }
-          const data = result.data.data;
-          if (data.{|lowerName|} === null) {
-            this.notFound404();
-            return;
-          }
-          this.$set(this, "model", data.{|lowerName|});
-        });
-    },
-
     notFound404() {
        window.location = '/404';
-    },
-
-    remove() {
-      if (!window.confirm("Really delete?")) {
-        return;
-      }
-      return {|options.vue.axios.method|}
-        .post("/graphql", {
-          query: this.mutationDelete,
-          variables: { id: this.model.id },
-        })
-        .then((result) => {
-          if (result.data.errors) {
-            // TODO
-            console.error(result.data.errors);
-            return;
-          }
-          this.$router.push("/{|routeBase|}/");
-        });
     },
   },
 };

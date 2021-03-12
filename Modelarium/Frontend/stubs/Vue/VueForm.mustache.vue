@@ -11,8 +11,9 @@
 <script>
 import {|options.vue.axios.method|} from "{|options.vue.axios.importFile|}";
 import mutationCreate from "raw-loader!./mutationCreate.graphql";
-import mutationUpsert from "raw-loader!./mutationUpsert.graphql";
+import mutationUpdate from "raw-loader!./mutationUpdate.graphql";
 import queryItem from "raw-loader!./queryItem.graphql";
+import crud from "./crud";
 import model from "./model";
 {|{imports}|}
 
@@ -22,82 +23,20 @@ export default {
       model: model,
       queryItem: queryItem,
       mutationCreate: mutationCreate,
-      mutationUpsert: mutationUpsert,
+      mutationUpdate: mutationUpdate,
       {|{extraData}|}
     };
   },
 
+  mixins: [ crud ],
+
   created() {
-    if (this.$route.params.id) {
-      this.get(this.$route.params.id);
+    if (this.$route.params.{|keyAttribute|}) {
+      this.get(this.$route.params.{|keyAttribute|});
     }
   },
 
   methods: {
-    get(id) {
-      return {|options.vue.axios.method|}
-        .post("/graphql", {
-          query: this.queryItem,
-          variables: { id },
-        })
-        .then((result) => {
-          if (result.data.errors) {
-            // TODO
-            console.error(result.data.errors);
-            return;
-          }
-          const data = result.data.data;
-          this.$set(this, "model", data.post);
-        });
-    },
-
-    save() {
-      if (this.model.id) {
-        this.update();
-      }
-      else {
-        this.create();
-      }
-    },
-
-    update() {
-      let postData = { {|updateGraphqlVariables|} };
-
-      return {|options.vue.axios.method|}
-        .post("/graphql", {
-          query: this.mutationUpsert,
-          variables: { input: postData },
-        })
-        .then((result) => {
-          if (result.data.errors) {
-            // TODO
-            console.error("errors", result.data.errors);
-            return;
-          }
-          const data = result.data.data;
-          this.$router.push("/{|routeBase|}/" + data.upsert{|studlyName|}.id);
-        });
-    },
-
-    create() {
-      let postData = { {|createGraphqlVariables|} };
-
-      return {|options.vue.axios.method|}
-        .post("/graphql", {
-          query: this.mutationCreate,
-          variables: { input: postData },
-        })
-        .then((result) => {
-          if (result.data.errors) {
-            // TODO
-            console.error("errors", result.data.errors);
-            return;
-          }
-          const data = result.data.data;
-          this.$router.push("/{|routeBase|}/" + data.upsert{|studlyName|}.id);
-        });
-    },
-
     changedFile(name, event) {
       // TODO
     },

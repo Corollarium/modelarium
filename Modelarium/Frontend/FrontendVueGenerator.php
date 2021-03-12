@@ -80,6 +80,7 @@ class FrontendVueGenerator
         $this->makeVue($vue, 'Edit', 'editable');
         $this->vueForm($vue);
         $this->makeVueRoutes();
+        $this->makeVueCrud();
         $this->makeVueIndex();
     }
 
@@ -101,7 +102,7 @@ class FrontendVueGenerator
                 ] + ($hasCan ? [ "v-if" => 'can(\'create\')' ]: []),
             ]
         )->setContent(
-            '<i class="fa fa-plus"></i> Add new',
+            '<i class="fa fa-plus"></i> ' . $this->getOptions()->getOption('frontend', 'messages')['addNew'],
             true,
             true
         )->getRenderHTML();
@@ -115,7 +116,7 @@ class FrontendVueGenerator
                 ] + ($hasCan ? [ "v-if" => 'can(\'edit\')' ]: []),
             ]
         )->setContent(
-            '<i class="fa fa-pencil"></i> Edit',
+            '<i class="fa fa-pencil"></i> ' . $this->getOptions()->getOption('frontend', 'messages')['edit'],
             true,
             true
         )->getRenderHTML();
@@ -127,11 +128,11 @@ class FrontendVueGenerator
                 Button::COLOR => Button::COLOR_WARNING,
                 Button::ATTRIBUTES => [
                     'href' => '#',
-                    '@click.prevent' => 'remove',
+                    '@click.prevent' => 'remove(model.id)',
                 ] + ($hasCan ? [ "v-if" => 'can(\'delete\')' ]: []),
             ]
         )->setContent(
-            '<i class="fa fa-trash"></i> Delete',
+            '<i class="fa fa-trash"></i> ' . $this->getOptions()->getOption('frontend', 'messages')['delete'],
             true,
             true
         )->getRenderHTML();
@@ -499,6 +500,22 @@ class FrontendVueGenerator
                         'routeName' => $this->generator->getRouteBase(),
                         'keyAttribute' => $this->generator->getKeyAttribute()
                     ]
+                ),
+                $path
+            )
+        );
+    }
+ 
+    protected function makeVueCrud(): void
+    {
+        $path = $this->generator->getModel()->getName() . '/crud.js';
+        
+        $this->getCollection()->push(
+            new GeneratedItem(
+                GeneratedItem::TYPE_FRONTEND,
+                $this->generator->templateFile(
+                    $this->getStubDir() . "/crud.mustache.js",
+                    $this->generator->templateParameters
                 ),
                 $path
             )
