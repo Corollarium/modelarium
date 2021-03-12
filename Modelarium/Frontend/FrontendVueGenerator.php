@@ -446,7 +446,7 @@ class FrontendVueGenerator
                 }
             }
             return implode("\n", $import) . "\n\n" .
-                "export default {\n" .
+                "export {\n" .
                 implode("\n", $export) . "\n};\n";
         };
 
@@ -476,7 +476,7 @@ class FrontendVueGenerator
                 }
             }
             return implode("\n", $import) . "\n\n" .
-                "export default {\n" .
+                "export {\n" .
                 implode("\n", $export) . "\n};\n";
         };
         $this->getCollection()->push(
