@@ -38,7 +38,7 @@ class FrontendVueGenerator
         return $this->generator->getOptions();
     }
 
-    public function getStubDir()
+    public function getStubDir(): string
     {
         return $this->generator->getStubDir() . '/Vue/';
     }
@@ -332,7 +332,7 @@ class FrontendVueGenerator
                 if ($f->getDatatype()->getBasetype() === 'relationship') {
                     $prop['default'] = '() => null';
                 } else {
-                    $prop['default'] = $f->getDatatype()->getDefault;
+                    $prop['default'] = $f->getDatatype()->getDefault();
                 }
             }
 

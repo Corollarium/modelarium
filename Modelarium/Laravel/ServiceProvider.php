@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider as LaravelServiceProvider;
 use Nuwave\Lighthouse\Events\RegisterDirectiveNamespaces;
 
+use function Safe\scandir;
+
 class ServiceProvider extends LaravelServiceProvider
 {
     /**
@@ -44,6 +46,7 @@ class ServiceProvider extends LaravelServiceProvider
          * Publishing
          */
         $this->publishes([
+            //
             __DIR__ . '/../Config/modelarium.php' => config_path('modelarium.php'),
         ], 'config');
 

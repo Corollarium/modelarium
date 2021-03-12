@@ -284,6 +284,7 @@ class ModelGenerator extends BaseGenerator
         if (!$relationshipDatatype) {
             // if target is a model...
             $targetType = $this->parser->getSchema()->getType($typeName);
+            /** @phpstan-ignore-next-line */
             $directives = $targetType->astNode->directives;
             $skip = false;
             foreach ($directives as $directive) {

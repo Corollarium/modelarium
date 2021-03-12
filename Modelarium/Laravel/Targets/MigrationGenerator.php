@@ -31,6 +31,7 @@ use Nette\PhpGenerator\ClassType;
 use function Safe\array_combine;
 use function Safe\rsort;
 use function Safe\date;
+use function Safe\preg_match;
 
 function getStringBetween(string $string, string $start, string $end): string
 {
@@ -525,12 +526,13 @@ EOF;
             return true;
         }
         $tokens = token_get_all($this->lastMigrationCode);
-        for ($i=0,$z=count($tokens); $i<$z; $i++) {
-            if (is_array($tokens[$i]) && $tokens[$i] === T_FUNCTION
+        for ($i=0, $z=count($tokens); $i < $z; $i++) {
+            if (is_array($tokens[$i]) && $tokens[$i][0] === T_FUNCTION
                 && is_array($tokens[$i+1]) && $tokens[$i+1][0] == T_WHITESPACE
                 && is_array($tokens[$i+2]) && $tokens[$i+2][1] == 'up'
             ) {
                 $accumulator = [];
+                $braceDepth = 0;
                 // collect tokens from function head through opening brace
                 while ($tokens[$i] != '{' && ($i < $z)) {
                     $accumulator[] = is_array($tokens[$i]) ? $tokens[$i][1] : $tokens[$i];
@@ -556,8 +558,7 @@ EOF;
                         }
                     }
                 }
-                $functionSrc = implode(null, $accumulator);
-                var_dump($functionSrc, $newcode);
+                $functionSrc = implode("", $accumulator);
                 if ($functionSrc == $newcode) {
                     return false;
                 }

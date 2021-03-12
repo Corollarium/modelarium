@@ -94,7 +94,7 @@ class Options
         return $config;
     }
 
-    protected static function mergeArrays(array $base, array $merge)
+    protected static function mergeArrays(array $base, array $merge): array
     {
         $newarray = [];
         foreach ($base as $key => $val) {
@@ -112,7 +112,7 @@ class Options
         return $newarray;
     }
 
-    protected static function isAssoc(array $arr)
+    protected static function isAssoc(array $arr): bool
     {
         if (array() === $arr) {
             return false;
