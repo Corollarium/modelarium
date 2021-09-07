@@ -2,6 +2,7 @@
 
 namespace Modelarium\Frontend;
 
+use Formularium\CodeGenerator\GraphQL\CodeGenerator as GraphQLCodeGenerator;
 use Formularium\Element;
 use Formularium\Field;
 use Formularium\Framework;
@@ -368,6 +369,8 @@ class FrontendGenerator implements GeneratorInterface
 
     protected function makeGraphql(): void
     {
+        $gcg = new GraphQLCodeGenerator();
+
         /*
          * card
          */
@@ -378,10 +381,10 @@ class FrontendGenerator implements GeneratorInterface
             $this->cardFields
         );
         $graphqlQuery = $this->fModel->mapFields(
-            function (Field $f) use ($cardFieldNames) {
+            function (Field $f) use ($cardFieldNames, $gcg) {
                 if (in_array($f->getName(), $cardFieldNames)) {
                     // TODO: filter subfields in relationships
-                    return $f->toGraphqlQuery();
+                    return $gcg->field($f);
                 }
                 return null;
             }
@@ -450,10 +453,10 @@ EOF;
         );
 
         $graphqlQuery = $this->fModel->mapFields(
-            function (Field $f) use ($tableFieldNames) {
+            function (Field $f) use ($tableFieldNames, $gcg) {
                 if (in_array($f->getName(), $tableFieldNames)) {
                     // TODO: filter subfields in relationships
-                    return $f->toGraphqlQuery();
+                    return $gcg->field($f);
                 }
                 return null;
             }
@@ -490,8 +493,8 @@ EOF;
          * item
          */
         $graphqlQuery = $this->fModel->mapFields(
-            function (Field $f) {
-                return \Modelarium\Frontend\Util::fieldShow($f) ? $f->toGraphqlQuery() : null;
+            function (Field $f) use ($gcg) {
+                return \Modelarium\Frontend\Util::fieldShow($f) ? $gcg->field($f) : null;
             }
         );
         $graphqlQuery = join("\n", array_filter($graphqlQuery));
@@ -501,7 +504,7 @@ EOF;
         if ($this->keyAttribute === 'id') {
             $keyAttributeType = 'ID';
         } else {
-            $keyAttributeType = $this->fModel->getField($this->keyAttribute)->getDatatype()->getGraphqlType();
+            $keyAttributeType = $gcg->datatypeDeclaration($this->fModel->getField($this->keyAttribute)->getDatatype());
         }
 
         $itemQuery = <<<EOF

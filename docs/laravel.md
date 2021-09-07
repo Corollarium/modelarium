@@ -6,8 +6,6 @@ Here's an overview of what scaffolding is done for Laravel.
 
 Migration file is generated for all types. Migration specific directives start with `@migration`. We try to support [most of the migration API](https://laravel.com/docs/7.x/migrations). If you miss anything send a PR or open an issue.
 
-The `Datatype` classes declare a `getLaravelSQLType()` method, which maps it to the SQL migration code.
-
 Any changes in the type will generate a `_patch_` migration. As of now patch files are generated but we do not generate the patch code. This is planned for a later version.
 
 ## Factories

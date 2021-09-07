@@ -73,16 +73,6 @@ abstract class Datatype_relationship extends Datatype
         return 0;
     }
 
-    public function getSQLType(string $database = '', array $options = []): string
-    {
-        return 'BIGINT';
-    }
-
-    public function getLaravelSQLType(string $name, array $options = []): string
-    {
-        return "unsignedBigInteger(\"{$name}_id\")";
-    }
-
     /**
      * @return  bool
      */

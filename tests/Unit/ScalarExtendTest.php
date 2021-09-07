@@ -2,6 +2,8 @@
 
 namespace ModelariumTests;
 
+use Formularium\Datatype;
+use Formularium\Datatype\Datatype_text;
 use GraphQL\Language\Parser as GParser;
 
 use Modelarium\Parser;
@@ -69,25 +71,9 @@ class TestScalarType extends \Modelarium\Types\ScalarType
         return $valueNode->value;
     }
 
-    /**
-     * Returns the suggested SQL type for this datatype, such as 'TEXT'.
-     *
-     * @param string $database The database
-     * @return string
-     */
-    public function getSQLType(string $database = '', array $options = []): string
+    public function getDatatype(): Datatype
     {
-        return 'TEXT';
-    }
-
-    /**
-     * Returns the suggested Laravel Database type for this datatype.
-     *
-     * @return string
-     */
-    public function getLaravelSQLType(string $name, array $options = []): string
-    {
-        return "text('$name')";
+        return new Datatype_text();
     }
 }
 

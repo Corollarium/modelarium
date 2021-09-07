@@ -2,9 +2,11 @@
 
 namespace Modelarium\Types;
 
+use Formularium\CodeGenerator\SQL\CodeGenerator as SQLCodeGenerator;
 use Formularium\Datatype;
 use Formularium\Factory\DatatypeFactory;
 use Formularium\Exception\ValidatorException;
+use Formularium\Field;
 use GraphQL\Error\Error;
 
 abstract class FormulariumScalarType extends ScalarType
@@ -82,7 +84,8 @@ abstract class FormulariumScalarType extends ScalarType
      */
     public function getGraphqlType(): string
     {
-        return $this->datatype->getGraphqlType(); // TODO: studlycase?
+        $scg = new SQLCodeGenerator();
+        return $scg->datatypeDeclaration($this->datatype); // TODO: studlycase?
     }
 
     /**
@@ -95,27 +98,8 @@ abstract class FormulariumScalarType extends ScalarType
      */
     public function getGraphqlField(string $name, array $params = []): string
     {
-        return $this->datatype->getGraphqlField($name, $params); // TODO: studlycase?
-    }
-
-    /**
-     * Returns the suggested SQL type for this datatype, such as 'TEXT'.
-     *
-     * @param string $database The database
-     * @return string
-     */
-    public function getSQLType(string $database = '', array $options = []): string
-    {
-        return $this->datatype->getSQLType($database, $options);
-    }
-
-    /**
-     * Returns the suggested Laravel Database type for this datatype.
-     *
-     * @return string
-     */
-    public function getLaravelSQLType(string $name, array $options = []): string
-    {
-        return $this->datatype->getLaravelSQLType($name, $options);
+        $scg = new SQLCodeGenerator();
+        // TODO fix
+        return ''; // $scg->field(new Field($name)); // TODO: studlycase?
     }
 }

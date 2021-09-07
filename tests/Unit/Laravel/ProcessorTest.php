@@ -355,7 +355,7 @@ EOF;
         $this->assertStringNotContainsString('->references;', $postMigration->contents);
 
         $this->assertStringContainsString('$table->bigIncrements("id");', $tagMigration->contents);
-        $this->assertStringContainsString('string("name")', $tagMigration->contents);
+        $this->assertStringContainsString('string(\'name\', 256)', $tagMigration->contents);
 
         $this->assertStringNotContainsString('increments', $taggablesMigration->contents);
         $this->assertStringContainsString("create('taggables'", $taggablesMigration->contents);

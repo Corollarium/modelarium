@@ -2,6 +2,8 @@
 
 namespace ModelariumTests\Laravel;
 
+use Formularium\Datatype;
+use Formularium\Datatype\Datatype_text;
 use Modelarium\Laravel\Targets\MigrationGenerator;
 use ModelariumTests\TestCase;
 
@@ -31,25 +33,9 @@ class ScalarTestText extends \Modelarium\Types\ScalarType
         return $value;
     }
 
-    /**
-     * Returns the suggested SQL type for this datatype, such as 'TEXT'.
-     *
-     * @param string $database The database
-     * @return string
-     */
-    public function getSQLType(string $database = '', array $options = []): string
+    public function getDatatype(): Datatype
     {
-        return 'TEXT';
-    }
-
-    /**
-     * Returns the suggested Laravel Database type for this datatype.
-     *
-     * @return string
-     */
-    public function getLaravelSQLType(string $name, array $options = []): string
-    {
-        return "text(\"$name\")";
+        return new Datatype_text();
     }
 }
 
@@ -61,8 +47,8 @@ final class MigrationGeneratorTest extends TestCase
         $data = $gen->generateString();
         $this->assertNotNull($data);
         $this->assertStringContainsString('$table->bigIncrements("id")', $data);
-        $this->assertStringContainsString('$table->string("name");', $data);
-        $this->assertStringContainsString('$table->string("email");', $data);
+        $this->assertStringContainsString('$table->string(\'name\', 256);', $data);
+        $this->assertStringContainsString('$table->string(\'email\', 256);', $data);
     }
 
     public function testGenerateWithUnique()
@@ -140,7 +126,7 @@ final class MigrationGeneratorTest extends TestCase
         $gen = new MigrationGenerator($this->getParser('userUnsigned'), 'User');
         $data = $gen->generateString();
         $this->assertNotNull($data);
-        $this->assertStringContainsString('$table->integer("counter")->unsigned();', $data);
+        $this->assertStringContainsString('$table->integer(\'counter\')->unsigned();', $data);
     }
 
     public function testGenerateWithExtendScalar()
@@ -157,7 +143,7 @@ final class MigrationGeneratorTest extends TestCase
         $gen = new MigrationGenerator($this->getParser('userNullableField'), 'User');
         $data = $gen->generateString();
         $this->assertNotNull($data);
-        $this->assertStringContainsString('$table->string("someField")->nullable();', $data);
+        $this->assertStringContainsString('$table->string(\'someField\', 256)->nullable();', $data);
     }
 
     public function testBaseTypes()
@@ -165,10 +151,10 @@ final class MigrationGeneratorTest extends TestCase
         $gen = new MigrationGenerator($this->getParser('userBaseTypes'), 'User');
         $data = $gen->generateString();
         $this->assertNotNull($data);
-        $this->assertStringContainsString('$table->integer("ainteger");', $data);
-        $this->assertStringContainsString('$table->float("afloat");', $data);
-        $this->assertStringContainsString('$table->string("astring");', $data);
-        $this->assertStringContainsString('$table->boolean("aboolean");', $data);
+        $this->assertStringContainsString('$table->integer(\'ainteger\');', $data);
+        $this->assertStringContainsString('$table->float(\'afloat\');', $data);
+        $this->assertStringContainsString('$table->string(\'astring\', 256);', $data);
+        $this->assertStringContainsString('$table->boolean(\'aboolean\');', $data);
     }
 
     public function testExtendedTypes()
@@ -176,7 +162,7 @@ final class MigrationGeneratorTest extends TestCase
         $gen = new MigrationGenerator($this->getParser('userExtendedScalar'), 'User');
         $data = $gen->generateString();
         $this->assertNotNull($data);
-        $this->assertStringContainsString('$table->text("description");', $data);
+        $this->assertStringContainsString('$table->text(\'description\');', $data);
     }
 
     public function testFormulariumExtendedTypes()

@@ -2,9 +2,12 @@
 
 namespace Modelarium\Laravel\Targets;
 
+use Formularium\CodeGenerator\LaravelEloquent\CodeGenerator as LaravelCodeGenerator;
+use Formularium\Datatype;
 use Formularium\Datatype\Datatype_enum;
 use Formularium\Exception\ClassNotFoundException;
 use Formularium\Factory\DatatypeFactory;
+use Formularium\Field;
 use Illuminate\Support\Str;
 use GraphQL\Language\AST\DirectiveNode;
 use GraphQL\Type\Definition\BooleanType;
@@ -150,24 +153,48 @@ class MigrationGenerator extends BaseGenerator
     ): void {
         $fieldName = $field->name;
 
+        $required = false;
         if ($field->getType() instanceof NonNull) {
+            $required = true;
             $type = $field->getType()->getWrappedType();
         } else {
             $type = $field->getType();
         }
 
         $codeFragment = new MigrationCodeFragment();
+        $lcg = new LaravelCodeGenerator();
+        $formulariumField = null;
 
         if ($type instanceof IDType) {
             $codeFragment->appendBase('$table->bigIncrements("id")');
         } elseif ($type instanceof StringType) {
-            $codeFragment->appendBase('$table->string("' . $fieldName . '")');
+            $formulariumField = new Field(
+                $fieldName,
+                'string',
+                [],
+                [ Datatype::REQUIRED => ['value' => $required ] ]
+            );
         } elseif ($type instanceof IntType) {
-            $codeFragment->appendBase('$table->integer("' . $fieldName . '")');
+            $formulariumField = new Field(
+                $fieldName,
+                'integer',
+                [],
+                [ Datatype::REQUIRED => ['value' => $required ] ]
+            );
         } elseif ($type instanceof BooleanType) {
-            $codeFragment->appendBase('$table->boolean("' . $fieldName . '")');
+            $formulariumField = new Field(
+                $fieldName,
+                'boolean',
+                [],
+                [ Datatype::REQUIRED => ['value' => $required ] ]
+            );
         } elseif ($type instanceof FloatType) {
-            $codeFragment->appendBase('$table->float("' . $fieldName . '")');
+            $formulariumField = new Field(
+                $fieldName,
+                'float',
+                [],
+                [ Datatype::REQUIRED => ['value' => $required ] ]
+            );
         } elseif ($type instanceof EnumType) {
             $this->processEnum($field, $type, $codeFragment);
         } elseif ($type instanceof UnionType) {
@@ -175,17 +202,32 @@ class MigrationGenerator extends BaseGenerator
         } elseif ($type instanceof CustomScalarType) {
             $ourType = $this->parser->getScalarType($type->name);
             if (!$ourType) {
+                throw new Exception("Null scalar type: " . get_class($type));
+            } elseif (!is_a($ourType, FormulariumScalarType::class) &&
+                !is_a($ourType, \Modelarium\Types\ScalarType::class)
+            ) {
                 throw new Exception("Invalid extended scalar type: " . get_class($type));
             }
-            $options = []; // TODO: from directives
-            $codeFragment->appendBase('$table->' . $ourType->getLaravelSQLType($fieldName, $options));
+            /**
+             * @var FormulariumScalarType $ourType
+             */
+            $formulariumField = new Field(
+                $fieldName,
+                $ourType->getDatatype(),
+                [],
+                [ Datatype::REQUIRED => ['value' => $required ] ]
+            );
         } elseif ($type instanceof ListOfType) {
             throw new Exception("Invalid field type: " . get_class($type));
         } else {
             throw new Exception("Invalid field type: " . get_class($type));
         }
-
-        if (!($field->getType() instanceof NonNull)) {
+    
+        if ($formulariumField) {
+            $codeFragment->appendBase(
+                '$table->' . $lcg->field($formulariumField)
+            );
+        } elseif (!($field->getType() instanceof NonNull)) {
             $codeFragment->appendBase('->nullable()');
         }
 
@@ -279,8 +321,12 @@ class MigrationGenerator extends BaseGenerator
             $this->warn('Enum had its possible values changed. Please review the datatype class.');
         }
 
-        $options = []; // TODO: from directives
-        $codeFragment->appendBase('$table->'  . $ourType->getLaravelSQLType($fieldName, $options));
+        $lcg = new LaravelCodeGenerator();
+        $codeFragment->appendBase(
+            '$table->' . $lcg->field(
+                new Field($fieldName, $ourType->getDatatype())
+            )
+        );
     }
 
     /**
