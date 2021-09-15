@@ -34,21 +34,22 @@ class DatatypeGenerator_relationship extends GraphQLDatatypeGenerator
          * @var GraphQLCodeGenerator $generator
          */
 
+        $name = $field->getName();
+
         /**
          * @var Datatype_relationship
          */
         $datatype = $field->getDatatype();
-        $name = $field->getName();
         
         $params = [];
 
-        $recurseLevel = $params[self::RECURSE] ?? 1;
-        if (!$recurseLevel) {
-            return '';
-        }
-        if (!($params[self::RECURSE_INVERSE] ?? true) && $this->isInverse) {
-            return '';
-        }
+        // $recurseLevel = $params[self::RECURSE] ?? 1;
+        // if (!$recurseLevel) {
+        //     return '';
+        // }
+        // if (!($params[self::RECURSE_INVERSE] ?? true) && $this->isInverse) {
+        //     return '';
+        // }
 
         $model = $datatype->getTargetClass();
         if ($datatype->getIsInverse()) {
@@ -80,7 +81,7 @@ class DatatypeGenerator_relationship extends GraphQLDatatypeGenerator
                 $graphqlQuery = array_merge(
                     $graphqlQuery,
                     $formulariumModel->mapFields(
-                        function (Field $f) use ($recurseLevel) {
+                        function (Field $f) { // use ($recurseLevel) {
                             $type = $f->getDatatype();
                             if ($type instanceof Datatype_relationship && !$type->getIsInverse()) {
                                 return '';
@@ -97,7 +98,7 @@ class DatatypeGenerator_relationship extends GraphQLDatatypeGenerator
              */
             $formulariumModel = call_user_func("$model::getFormularium"); /** @phpstan-ignore-line */
             $graphqlQuery = $formulariumModel->mapFields(
-                function (Field $f) use ($recurseLevel) {
+                function (Field $f) { // use ($recurseLevel) {
                     return \Modelarium\Frontend\Util::fieldShow($f) ? /* $f->toGraphqlQuery([self::RECURSE => $recurseLevel-1]) */ 'zzz' : null;
                 }
             );
