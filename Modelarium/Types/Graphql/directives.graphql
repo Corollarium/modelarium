@@ -2,25 +2,25 @@
 Casts type
 """
 directive @casts(
-    """
-    The value
-    """
-    type: String!
+  """
+  The value
+  """
+  type: String!
 ) on FIELD_DEFINITION
 
 """
 Eager load relationships using Laravel Model::$with();
 """
-directive @eagerLoad (
-    """
-    If present, use this name as the with($name) parameter. Otherwise try to guess from field.
-    """
-    name: String
+directive @eagerLoad(
+  """
+  If present, use this name as the with($name) parameter. Otherwise try to guess from field.
+  """
+  name: String
 
-    """
-    If present, append these values to the with($name) model class.
-    """
-    tables: [String!] 
+  """
+  If present, append these values to the with($name) model class.
+  """
+  tables: [String!]
 ) on FIELD_DEFINITION | OBJECT
 
 """
@@ -37,65 +37,65 @@ directive @hidden on FIELD_DEFINITION
 Alters a table on migration after it was created.
 """
 directive @migrationAlterTable(
-    """
-    The commands to run, which will be prepended with 'ALTER TABLE tablename"
-    """
-    values: [String!]!
+  """
+  The commands to run, which will be prepended with 'ALTER TABLE tablename"
+  """
+  values: [String!]!
 ) on OBJECT
 
 """
 Default value for database column
 """
 directive @migrationDefaultValue(
-    """
-    The value
-    """
-    value: String!
+  """
+  The value
+  """
+  value: String!
 ) on FIELD_DEFINITION
 
 """
 Foreign keys
 """
 directive @migrationForeign(
-    """
-    What field it references
-    """
-    references: String
+  """
+  What field it references
+  """
+  references: String
 
-    """
-    What table it references
-    """
-    on: String
+  """
+  What table it references
+  """
+  on: String
 
-    """
-    What to do onDelete
-    """
-    onDelete: String
+  """
+  What to do onDelete
+  """
+  onDelete: String
 
-    """
-    What to do on Update
-    """
-    onUpdate: String
+  """
+  What to do on Update
+  """
+  onUpdate: String
 ) on FIELD_DEFINITION
 
 """
 Add a full text index to table
 """
 directive @migrationFulltextIndex(
-    """
-    The fields to index. Must be an array even if it is just one field.
-    """
-    fields: [String!]!
+  """
+  The fields to index. Must be an array even if it is just one field.
+  """
+  fields: [String!]!
 ) on OBJECT
 
 """
 Generates a composed index on the database for a type
 """
 directive @migrationIndex(
-    """
-    The list of fields to compose in the index
-    """
-    fields: [String!]!
+  """
+  The list of fields to compose in the index
+  """
+  fields: [String!]!
 ) on OBJECT
 
 """
@@ -117,10 +117,10 @@ directive @migrationSoftDeletes on OBJECT
 Generates a migrationSpatialIndex
 """
 directive @migrationSpatialIndex(
-    """
-    The field for the index
-    """
-    field: String!
+  """
+  The field for the index
+  """
+  field: String!
 ) on OBJECT
 
 """
@@ -131,11 +131,11 @@ directive @migrationTimestamps on OBJECT
 """
 Generates a unique index on the database for that field
 """
-directive @migrationUniqueIndex (
-    """
-    The list of fields to compose in the index
-    """
-    fields: [String!]
+directive @migrationUniqueIndex(
+  """
+  The list of fields to compose in the index
+  """
+  fields: [String!]
 ) on FIELD_DEFINITION | OBJECT
 
 """
@@ -147,10 +147,10 @@ directive @modelAccessor on FIELD_DEFINITION
 Base class to extend on model.
 """
 directive @modelExtends(
-    """
-    The base class name with namespace
-    """
-    class: String!
+  """
+  The base class name with namespace
+  """
+  class: String!
 ) on OBJECT
 
 """
@@ -186,38 +186,59 @@ directive @morphedByMany on FIELD_DEFINITION
 """
 Generate renderable
 """
-directive @renderable (
-    """Label for this field"""
-    label: String
+directive @renderable(
+  """
+  Label for this field
+  """
+  label: String
 
-    """Comment for this field"""
-    comment: String
+  """
+  Comment for this field
+  """
+  comment: String
 
-    """Should this field be used in show pages?"""
-    show: Boolean
+  """
+  Comment for this field
+  """
+  placeholder: String
 
-    """Is this field the title field for this object?"""
-    title: Boolean
-    
-    """Should this field be used in the form? Default is true"""
-    form: Boolean
-    
-    """Should this field be used in card components?"""
-    card: Boolean
+  """
+  Should this field be used in show pages?
+  """
+  show: Boolean
 
-    """Should this field be used in table components?"""
-    table: Boolean
+  """
+  Is this field the title field for this object?
+  """
+  title: Boolean
 
-    """Field size in render"""
-    size: String
+  """
+  Should this field be used in the form? Default is true
+  """
+  form: Boolean
 
-    # move to schemaRenderable()
-    itemtype: String
+  """
+  Should this field be used in card components?
+  """
+  card: Boolean
 
-    # move to typeRenderable()
-    routeBase: String
-    keyAttribute: String
-    name: String
+  """
+  Should this field be used in table components?
+  """
+  table: Boolean
+
+  """
+  Field size in render
+  """
+  size: String
+
+  # move to schemaRenderable()
+  itemtype: String
+
+  # move to typeRenderable()
+  routeBase: String
+  keyAttribute: String
+  name: String
 ) on FIELD_DEFINITION | OBJECT
 
 """

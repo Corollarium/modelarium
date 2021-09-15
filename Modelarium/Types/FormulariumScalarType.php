@@ -2,7 +2,7 @@
 
 namespace Modelarium\Types;
 
-use Formularium\CodeGenerator\SQL\CodeGenerator as SQLCodeGenerator;
+use Formularium\CodeGenerator\GraphQL\CodeGenerator as GraphQLCodeGenerator;
 use Formularium\Datatype;
 use Formularium\Factory\DatatypeFactory;
 use Formularium\Exception\ValidatorException;
@@ -84,22 +84,7 @@ abstract class FormulariumScalarType extends ScalarType
      */
     public function getGraphqlType(): string
     {
-        $scg = new SQLCodeGenerator();
+        $scg = new GraphQLCodeGenerator();
         return $scg->datatypeDeclaration($this->datatype); // TODO: studlycase?
-    }
-
-    /**
-     * Returns the Graphql query for this datatype.
-     *
-     * @param string $name The field name
-     * @param array $params User supplied list of parameters, which may be used
-     * to control behavior (like recursion)
-     * @return string
-     */
-    public function getGraphqlField(string $name, array $params = []): string
-    {
-        $scg = new SQLCodeGenerator();
-        // TODO fix
-        return ''; // $scg->field(new Field($name)); // TODO: studlycase?
     }
 }

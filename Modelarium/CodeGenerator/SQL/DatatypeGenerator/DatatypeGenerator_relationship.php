@@ -9,7 +9,7 @@ use Formularium\CodeGenerator\SQL\SQLDatatypeGenerator;
 use Formularium\CodeGenerator\SQL\CodeGenerator as SQLCodeGenerator;
 use Formularium\Datatype;
 
-class DatatypeGenerator_integer extends SQLDatatypeGenerator
+class DatatypeGenerator_relationship extends SQLDatatypeGenerator
 {
     public function field(CodeGenerator $generator, Field $field)
     {
