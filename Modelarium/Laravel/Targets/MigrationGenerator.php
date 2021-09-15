@@ -416,7 +416,7 @@ class MigrationGenerator extends BaseGenerator
         ];
 
         if ($this->mode === self::MODE_CREATE) {
-            $context['className'] = 'Create' . $this->studlyName;
+            $context['className'] = 'Create' . $this->studlyName . str_replace('_', '', $this->stamp);
             $context['upOperation'] = 'create';
             $context['downOperation'] = 'dropIfExists';
             $context['dummyCode'] = join("\n            ", $this->createCode);
