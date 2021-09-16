@@ -603,6 +603,7 @@ EOF;
                             $braceDepth--;
                         }
                     }
+                    $i++;
                 }
                 $functionSrc = implode("", $accumulator);
                 if ($functionSrc == $newcode) {
