@@ -41,7 +41,7 @@ class MorphToManyDirective implements ModelDirectiveInterface, SeedDirectiveInte
         list($type, $isRequired) = Parser::getUnwrappedType($field->getType());
         $typeName = $type->name;
 
-        $lowerName = mb_strtolower($generator->getInflector()->singularize($field->name));
+        $lowerName = lcfirst($generator->getInflector()->singularize($field->name));
         $lowerNamePlural = $generator->getInflector()->pluralize($lowerName);
 
         $sourceTypeName = $generator->getLowerName();
@@ -99,10 +99,10 @@ class MorphToManyDirective implements ModelDirectiveInterface, SeedDirectiveInte
         \GraphQL\Language\AST\DirectiveNode $directive
     ): void {
         $type1 = $generator->getLowerName();
-        $type2 = mb_strtolower($generator->getInflector()->singularize($field->name));
+        $type2 = $generator->getInflector()->singularize($field->name);
 
         if (strcasecmp($type1, $type2) < 0) { // TODO: check this, might not work
-            $relationship = mb_strtolower($generator->getInflector()->pluralize($field->name));
+            $relationship = lcfirst($generator->getInflector()->pluralize($field->name));
             $generator->extraCode[] = self::makeManyToManySeed($type1, $type2, $relationship);
         }
     }

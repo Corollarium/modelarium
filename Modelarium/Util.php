@@ -18,7 +18,6 @@ final class Util
      */
     public static function generateLighthouseTypeFile(string $name, string $ns): string
     {
-        $date = date('c');
         $HEADER = <<<EOF
 <?php declare(strict_types=1);
 /**
@@ -29,7 +28,6 @@ final class Util
 EOF;
 
         $printer = new \Nette\PhpGenerator\PsrPrinter;
-        $typeName = Str::lower($name);
 
         $namespace = new PhpNamespace($ns);
         $namespace->addClass('Datatype_' . $name)

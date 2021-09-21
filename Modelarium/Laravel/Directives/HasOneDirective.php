@@ -71,11 +71,11 @@ class HasOneDirective implements ModelDirectiveInterface, SeedDirectiveInterface
         \GraphQL\Type\Definition\FieldDefinition $field,
         \GraphQL\Language\AST\DirectiveNode $directive
     ): void {
-        $type1 = $generator->getLowerName();
-        $type2 = mb_strtolower($generator->getInflector()->singularize($field->name));
+        $type1 = $generator->getBaseName();
+        $type2 = $generator->getInflector()->singularize($field->name);
 
         if (strcasecmp($type1, $type2) < 0) { // TODO: check this, might not work
-            $relationship = mb_strtolower($generator->getInflector()->pluralize($field->name));
+            $relationship = lcfirst($generator->getInflector()->pluralize($field->name));
             $generator->extraCode[] = self::makeManyToManySeed($type1, $type2, $relationship);
         }
     }

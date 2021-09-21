@@ -114,7 +114,7 @@ abstract class Datatype_relationship extends Datatype
     public function getTargetPlural(): string
     {
         $inflector = InflectorFactory::create()->build();
-        return $inflector->pluralize(mb_strtolower($this->getTarget()));
+        return $inflector->pluralize($this->getTarget());
     }
 
     public function getTargetTable(): string

@@ -41,7 +41,7 @@ class BelongsToDirective implements MigrationDirectiveInterface, ModelDirectiveI
         \GraphQL\Language\AST\DirectiveNode $directive,
         MigrationCodeFragment $codeFragment
     ): void {
-        $lowerName = mb_strtolower($generator->getInflector()->singularize($field->name));
+        $lowerName = lcfirst($generator->getInflector()->singularize($field->name));
         $fieldName = $lowerName . '_id';
 
         list($type, $isRequired) = Parser::getUnwrappedType($field->getType());
@@ -59,10 +59,11 @@ class BelongsToDirective implements MigrationDirectiveInterface, ModelDirectiveI
             $targetField = $targetType->getField($tableName);
         } catch (\GraphQL\Error\InvariantViolation $e) {
             try {
+                //  many to many
                 $targetField = $targetType->getField($generator->getTableName());
             } catch (\GraphQL\Error\InvariantViolation $e) {
                 // one to one
-                $targetField = $targetType->getField($generator->getLowerName());
+                $targetField = $targetType->getField($generator->getLowerFirstLetterName());
             }
         }
 
@@ -99,19 +100,18 @@ class BelongsToDirective implements MigrationDirectiveInterface, ModelDirectiveI
         \GraphQL\Language\AST\DirectiveNode $directive,
         \Formularium\Datatype $datatype = null
     ): ?\Formularium\Datatype {
-        $lowerName = mb_strtolower($generator->getInflector()->singularize($field->name));
-        $lowerNamePlural = $generator->getInflector()->pluralize($lowerName);
+        $fieldName = $generator->getInflector()->singularize($field->name);
 
-        $sourceTypeName = $generator->getLowerName();
-        $targetTypeName = $lowerName;
+        $sourceTypeName = $generator->getLowerFirstLetterName();
+        $targetTypeName = $fieldName;
         $relationship = null;
         $isInverse = false;
 
-        $targetClass = Str::studly($generator->getInflector()->singularize($field->name));
+        $targetClass = Str::studly($fieldName);
         $generateRandom = true; // TODO
         $relationship = RelationshipFactory::RELATIONSHIP_ONE_TO_MANY;
         $isInverse = true;
-        $generator->class->addMethod($lowerName)
+        $generator->class->addMethod($fieldName)
             ->setPublic()
             ->setReturnType('\\Illuminate\\Database\\Eloquent\\Relations\\BelongsTo')
             ->setBody("return \$this->belongsTo($targetClass::class);");
@@ -138,10 +138,10 @@ class BelongsToDirective implements MigrationDirectiveInterface, ModelDirectiveI
         \GraphQL\Language\AST\DirectiveNode $directive
     ): void {
         $type1 = $generator->getLowerName();
-        $type2 = mb_strtolower($generator->getInflector()->singularize($field->name));
+        $type2 = $generator->getInflector()->singularize($field->name);
 
         if (strcasecmp($type1, $type2) < 0) { // TODO: check this, might not work
-            $relationship = mb_strtolower($generator->getInflector()->pluralize($field->name));
+            $relationship = $generator->getInflector()->pluralize($field->name);
             $generator->extraCode[] = self::makeManyToManySeed($type1, $type2, $relationship);
         }
     }

@@ -304,7 +304,7 @@ class FrontendGenerator implements GeneratorInterface
         $filters = [];
         // find the query that matches our pagination model
         foreach ($query->getFields() as $field) {
-            if ($field->name === $this->lowerNamePlural) {
+            if (mb_strtolower($field->name) === $this->lowerNamePlural) {
                 // found. parse its parameters.
 
                 /**

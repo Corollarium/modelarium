@@ -56,7 +56,7 @@ class EagerLoadDirective implements ModelDirectiveInterface
                 throw new DirectiveException("@eagerLoad got a datatype that is not a relationship");
             }
 
-            $targetSingle = mb_strtolower($generator->getInflector()->singularize($datatype->getTarget()));
+            $targetSingle = lcfirst($generator->getInflector()->singularize($datatype->getTarget()));
             $targetPlural = $datatype->getTargetTable();
             switch ($datatype->getRelationship()) {
                 case RelationshipFactory::RELATIONSHIP_ONE_TO_ONE:

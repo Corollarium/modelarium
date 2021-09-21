@@ -33,7 +33,7 @@ class MigrationForeignDirective implements MigrationDirectiveInterface
         MigrationCodeFragment $code
     ): void {
         $tableName = MigrationGenerator::toTableName($field->name);
-        $lowerName = mb_strtolower($generator->getInflector()->singularize($field->name));
+        $lowerName = lcfirst($generator->getInflector()->singularize($field->name));
         $fieldName = $lowerName . '_id';
         $directives = $field->astNode->directives;
 

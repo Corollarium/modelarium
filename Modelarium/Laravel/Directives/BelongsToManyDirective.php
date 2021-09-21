@@ -38,10 +38,8 @@ class BelongsToManyDirective implements MigrationDirectiveInterface, ModelDirect
         \GraphQL\Language\AST\DirectiveNode $directive,
         MigrationCodeFragment $code
     ): void {
-        $lowerName = mb_strtolower($generator->getInflector()->singularize($field->name));
-
-        $type1 = $generator->getLowerName();
-        $type2 = $lowerName;
+        $type1 = $generator->getLowerFirstLetterName();
+        $type2 = lcfirst($generator->getInflector()->singularize($field->name));
 
         // we only generate once, so use a comparison for that
         if (strcasecmp($type1, $type2) < 0) {
@@ -71,8 +69,8 @@ class BelongsToManyDirective implements MigrationDirectiveInterface, ModelDirect
         \GraphQL\Language\AST\DirectiveNode $directive,
         \Formularium\Datatype $datatype = null
     ): ?\Formularium\Datatype {
-        $lowerName = mb_strtolower($generator->getInflector()->singularize($field->name));
-        $lowerNamePlural = $generator->getInflector()->pluralize($lowerName);
+        $lowerName = lcfirst($generator->getInflector()->singularize($field->name));
+        $lowerNamePlural = lcfirst($generator->getInflector()->pluralize($lowerName));
 
         $sourceTypeName = $generator->getLowerName();
         $targetTypeName = $lowerName;
@@ -109,10 +107,10 @@ class BelongsToManyDirective implements MigrationDirectiveInterface, ModelDirect
         \GraphQL\Language\AST\DirectiveNode $directive
     ): void {
         $type1 = $generator->getLowerName();
-        $type2 = mb_strtolower($generator->getInflector()->singularize($field->name));
+        $type2 = lcfirst($generator->getInflector()->singularize($field->name));
 
         if (strcasecmp($type1, $type2) < 0) { // TODO: check this, might not work
-            $relationship = mb_strtolower($generator->getInflector()->pluralize($field->name));
+            $relationship = lcfirst($generator->getInflector()->pluralize($field->name));
             $generator->extraCode[] = self::makeManyToManySeed($type1, $type2, $relationship);
         }
     }

@@ -22,7 +22,7 @@ abstract class FormulariumScalarType extends ScalarType
     public function __construct(array $config = [])
     {
         parent::__construct($config);
-        $name = mb_strtolower(str_replace('Datatype_', '', $this->name));
+        $name = str_replace('Datatype_', '', $this->name);
         $this->datatype = DatatypeFactory::factory($name);
     }
 

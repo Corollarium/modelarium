@@ -45,7 +45,7 @@ class MorphToDirective implements MigrationDirectiveInterface, ModelDirectiveInt
         \GraphQL\Language\AST\DirectiveNode $directive,
         MigrationCodeFragment $codeFragment
     ): void {
-        $lowerName = mb_strtolower($generator->getInflector()->singularize($field->name));
+        $lowerName = lcfirst($generator->getInflector()->singularize($field->name));
         list($type, $isRequired) = Parser::getUnwrappedType($field->getType());
         $relation = Parser::getDirectiveArgumentByName($directive, 'relation', $lowerName);
         $codeFragment->appendBase('->unsignedBigInteger("' . $relation . '_id")');
@@ -97,10 +97,8 @@ class MorphToDirective implements MigrationDirectiveInterface, ModelDirectiveInt
         \GraphQL\Language\AST\DirectiveNode $directive,
         \Formularium\Datatype $datatype = null
     ): ?\Formularium\Datatype {
-        $lowerName = mb_strtolower($generator->getInflector()->singularize($field->name));
-
         $sourceTypeName = $generator->getLowerName();
-        $targetTypeName = $lowerName;
+        $targetTypeName = $generator->getInflector()->singularize($field->name);
         $relationship = null;
         $isInverse = false;
         $generateRandom = true; // TODO
@@ -134,10 +132,10 @@ class MorphToDirective implements MigrationDirectiveInterface, ModelDirectiveInt
         \GraphQL\Language\AST\DirectiveNode $directive
     ): void {
         $type1 = $generator->getLowerName();
-        $type2 = mb_strtolower($generator->getInflector()->singularize($field->name));
+        $type2 = $generator->getInflector()->singularize($field->name);
 
         if (strcasecmp($type1, $type2) < 0) { // TODO: check this, might not work
-            $relationship = mb_strtolower($generator->getInflector()->pluralize($field->name));
+            $relationship = lcfirst($generator->getInflector()->pluralize($field->name));
             $generator->extraCode[] = self::makeManyToManySeed($type1, $type2, $relationship);
         }
     }

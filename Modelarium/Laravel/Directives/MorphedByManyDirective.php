@@ -41,7 +41,7 @@ class MorphedByManyDirective implements MigrationDirectiveInterface, ModelDirect
         \GraphQL\Language\AST\DirectiveNode $directive,
         MigrationCodeFragment $codeFragment
     ): void {
-        $lowerName = mb_strtolower($generator->getInflector()->singularize($field->name));
+        $lowerName = $generator->getInflector()->singularize($field->name);
         $relation = Parser::getDirectiveArgumentByName($directive, 'relation', $lowerName);
         $generator->generateManyToManyMorphTable($generator->getLowerName(), $relation);
     }
@@ -72,7 +72,7 @@ class MorphedByManyDirective implements MigrationDirectiveInterface, ModelDirect
         list($type, $isRequired) = Parser::getUnwrappedType($field->getType());
         $typeName = $type->name;
 
-        $lowerName = mb_strtolower($generator->getInflector()->singularize($field->name));
+        $lowerName = lcfirst($generator->getInflector()->singularize($field->name));
         $lowerNamePlural = $generator->getInflector()->pluralize($lowerName);
 
         $sourceTypeName = $generator->getLowerName();
@@ -107,7 +107,7 @@ class MorphedByManyDirective implements MigrationDirectiveInterface, ModelDirect
                     continue;
                 }
 
-                $methodName = $generator->getInflector()->pluralize(mb_strtolower((string)$name));
+                $methodName = lcfirst($generator->getInflector()->pluralize((string)$name));
                 $generator->class->addMethod($methodName)
                         ->setReturnType('\\Illuminate\\Database\\Eloquent\\Relations\\MorphToMany')
                         ->setPublic()
@@ -137,10 +137,10 @@ class MorphedByManyDirective implements MigrationDirectiveInterface, ModelDirect
         \GraphQL\Language\AST\DirectiveNode $directive
     ): void {
         $type1 = $generator->getLowerName();
-        $type2 = mb_strtolower($generator->getInflector()->singularize($field->name));
+        $type2 = $generator->getInflector()->singularize($field->name);
 
         if (strcasecmp($type1, $type2) < 0) { // TODO: check this, might not work
-            $relationship = mb_strtolower($generator->getInflector()->pluralize($field->name));
+            $relationship = lcfirst($generator->getInflector()->pluralize($field->name));
             $generator->extraCode[] = self::makeManyToManySeed($type1, $type2, $relationship);
         }
     }

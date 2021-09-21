@@ -280,7 +280,6 @@ class MigrationGenerator extends BaseGenerator
             );
     
             $path = base_path('app/Datatypes');
-            $lowerTypeName = mb_strtolower($type->name);
 
             $retval = DatatypeFactory::generateFile(
                 $code,
@@ -288,8 +287,8 @@ class MigrationGenerator extends BaseGenerator
                 base_path('tests/Unit/')
             );
 
-            $php = \Modelarium\Util::generateLighthouseTypeFile($lowerTypeName, 'App\\Datatypes\\Types');
-            $filename = $path . "/Types/Datatype_{$lowerTypeName}.php";
+            $php = \Modelarium\Util::generateLighthouseTypeFile($type->name, 'App\\Datatypes\\Types');
+            $filename = $path . "/Types/Datatype_{$type->name}.php";
             if (!is_dir($path . "/Types")) {
                 \Safe\mkdir($path . "/Types", 0777, true);
             }
@@ -301,7 +300,7 @@ class MigrationGenerator extends BaseGenerator
             // load php files that were just created
             require_once($retval['filename']);
             require_once($filename);
-            $this->parser->appendScalar($type->name, 'App\\Datatypes\\Types\\Datatype_' . $lowerTypeName);
+            $this->parser->appendScalar($type->name, 'App\\Datatypes\\Types\\Datatype_' . $type->name);
             $ourType = $this->parser->getScalarType($type->name);
         }
         if (!($ourType instanceof FormulariumScalarType)) {
@@ -395,7 +394,12 @@ class MigrationGenerator extends BaseGenerator
                 // relationship
                 $this->processRelationship($field, $directives);
             } else {
-                $this->processBasetype($field, $directives);
+                try {
+                    $this->processBasetype($field, $directives);
+                } catch (ClassNotFoundException $e) {
+                    var_dump(get_class($type), get_class($type->getWrappedType()), $type->name, $type->getWrappedType()->name);
+                    throw $e;
+                }
             }
         }
 

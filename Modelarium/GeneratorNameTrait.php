@@ -23,6 +23,16 @@ trait GeneratorNameTrait
     /**
      * @var string
      */
+    protected $lowerFirstLetterName = '';
+
+    /**
+     * @var string
+     */
+    protected $lowerFirstLetterNamePlural = '';
+
+    /**
+     * @var string
+     */
     protected $lowerName = '';
 
     /**
@@ -48,6 +58,8 @@ trait GeneratorNameTrait
     {
         $this->baseName = $name;
         $this->studlyName = Str::studly($this->baseName);
+        $this->lowerFirstLetterName = lcfirst($this->baseName);
+        $this->lowerFirstLetterNamePlural = lcfirst($this->getInflector()->pluralize($this->lowerName));
         $this->lowerName = mb_strtolower($this->baseName);
         $this->lowerNamePlural = $this->getInflector()->pluralize($this->lowerName);
         $this->tableName = self::toTableName($this->baseName);
@@ -148,6 +160,8 @@ trait GeneratorNameTrait
     {
         $renderer = $this->compileMustacheFromFile($path);
         $context['StudlyName'] = $context['studlyName'] = $this->studlyName;
+        $context['lowerFirstLetterName'] = $this->lowerFirstLetterName;
+        $context['lowerFirstLetterNamePlural'] = $this->lowerFirstLetterNamePlural;
         $context['lowerName'] = $this->lowerName;
         $context['lowerNamePlural'] = $this->lowerNamePlural;
         $context['date'] = date("c");
@@ -196,5 +210,25 @@ trait GeneratorNameTrait
     public function getLowerNamePlural(): string
     {
         return $this->lowerNamePlural;
+    }
+
+    /**
+     * Get the value of lowerFirstLetterName
+     *
+     * @return  string
+     */
+    public function getLowerFirstLetterName()
+    {
+        return $this->lowerFirstLetterName;
+    }
+
+    /**
+     * Get the value of lowerFirstLetterNamePlural
+     *
+     * @return  string
+     */
+    public function getLowerFirstLetterNamePlural()
+    {
+        return $this->lowerFirstLetterNamePlural;
     }
 }

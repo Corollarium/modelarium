@@ -58,8 +58,8 @@ class ModelariumTypeCommand extends Command
 
         $graphql = <<<EOF
 extend type Query {
-    {$this->lowerNamePlural}: [{$this->studlyName}!]! @paginate(defaultCount: 10)
-    {$this->lowerName}(id: ID @eq): {$this->studlyName} @find
+    {$this->lowerFirstLetterNamePlural}: [{$this->studlyName}!]! @paginate(defaultCount: 10)
+    {$this->lowerFirstLetterName}(id: ID @eq): {$this->studlyName} @find
 }
 
 extend type Mutation {
@@ -76,7 +76,7 @@ type {$this->studlyName} {
     can: [Can!]
 }
 EOF;
-        $target = base_path('graphql/data/' . $this->lowerName . '.graphql');
+        $target = base_path('graphql/data/' . $this->studlyName . '.graphql');
         $this->writeFile(
             $target,
             (bool)$this->option('overwrite'),
