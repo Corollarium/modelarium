@@ -15,7 +15,7 @@ To fetch policies in your application, add a `can` field to your type. It should
 
 ```graphql
 type Example {
-  can: [Can!] @skipMigration
+  can: [Can!] @migrationSkip
 }
 ```
 
