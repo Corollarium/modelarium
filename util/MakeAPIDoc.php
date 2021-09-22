@@ -30,9 +30,9 @@ function datatypes()
 nav_order: 12
 ---
 
-# Datatypes
+# Datatype reference
 
-List of validators and its parameters generated automatically.
+List of datatypes and its parameters generated automatically.
 
 ' . join("\n", $markdown);
 
