@@ -59,7 +59,7 @@ trait GeneratorNameTrait
         $this->baseName = $name;
         $this->studlyName = Str::studly($this->baseName);
         $this->lowerFirstLetterName = lcfirst($this->baseName);
-        $this->lowerFirstLetterNamePlural = lcfirst($this->getInflector()->pluralize($this->lowerName));
+        $this->lowerFirstLetterNamePlural = lcfirst($this->getInflector()->pluralize($this->baseName));
         $this->lowerName = mb_strtolower($this->baseName);
         $this->lowerNamePlural = $this->getInflector()->pluralize($this->lowerName);
         $this->tableName = self::toTableName($this->baseName);

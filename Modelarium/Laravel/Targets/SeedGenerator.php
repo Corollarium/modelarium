@@ -8,7 +8,8 @@ use Modelarium\Exception\Exception;
 use Modelarium\FormulariumUtils;
 use Modelarium\GeneratedCollection;
 use Modelarium\GeneratedItem;
-use Modelarium\Parser;
+use Illuminate\Support\Str;
+use Modelarium\Laravel\Util as LaravelUtil;
 
 class SeedGenerator extends BaseGenerator
 {
@@ -69,6 +70,12 @@ class SeedGenerator extends BaseGenerator
 
     public function getGenerateFilename(): string
     {
-        return $this->getBasePath('database/seeds/'. $this->studlyName . 'Seeder.php');
+        $seedDirectoryName = 'seeders';
+        $laravelVersion = LaravelUtil::getLaravelVersion();
+        if (Str::startsWith($laravelVersion, '6.') || Str::startsWith($laravelVersion, '7.')) {
+            $seedDirectoryName = 'seeders';
+        }
+
+        return $this->getBasePath('database/' . $seedDirectoryName . '/'. $this->studlyName . 'Seeder.php');
     }
 }

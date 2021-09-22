@@ -54,17 +54,33 @@ class BelongsToDirective implements MigrationDirectiveInterface, ModelDirectiveI
         } elseif (!($targetType instanceof ObjectType)) {
             throw new DirectiveException("{$typeName} is not a type for a relationship to {$generator->getBaseName()}");
         }
+
         // we don't know what is the reverse relationship name at this point. so let's guess all possibilities
+        $targetField = null;
         try {
             $targetField = $targetType->getField($tableName);
         } catch (\GraphQL\Error\InvariantViolation $e) {
+            // pass
+        }
+        if (!$targetField) {
             try {
-                //  many to many
+                // many to many
                 $targetField = $targetType->getField($generator->getTableName());
             } catch (\GraphQL\Error\InvariantViolation $e) {
-                // one to one
-                $targetField = $targetType->getField($generator->getLowerFirstLetterName());
+                // pass
             }
+        }
+        if (!$targetField) {
+            try {
+                // one to many
+                $targetField = $targetType->getField($generator->getLowerFirstLetterNamePlural());
+            } catch (\GraphQL\Error\InvariantViolation $e) {
+                // pass
+            }
+        }
+        if (!$targetField) {
+            // one to one
+            $targetField = $targetType->getField($generator->getLowerFirstLetterName());
         }
 
         $targetDirectives = $targetField->astNode->directives;
