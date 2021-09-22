@@ -118,7 +118,7 @@ class BelongsToDirective implements MigrationDirectiveInterface, ModelDirectiveI
     ): ?\Formularium\Datatype {
         $fieldName = $generator->getInflector()->singularize($field->name);
 
-        $sourceTypeName = $generator->getLowerFirstLetterName();
+        $sourceTypeName = $generator->getBaseName();
         $targetTypeName = $fieldName;
         $relationship = null;
         $isInverse = false;
@@ -153,7 +153,7 @@ class BelongsToDirective implements MigrationDirectiveInterface, ModelDirectiveI
         \GraphQL\Type\Definition\FieldDefinition $field,
         \GraphQL\Language\AST\DirectiveNode $directive
     ): void {
-        $type1 = $generator->getLowerName();
+        $type1 = $generator->getLowerFirstLetterName();
         $type2 = $generator->getInflector()->singularize($field->name);
 
         if (strcasecmp($type1, $type2) < 0) { // TODO: check this, might not work

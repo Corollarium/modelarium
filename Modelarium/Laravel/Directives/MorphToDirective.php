@@ -97,7 +97,7 @@ class MorphToDirective implements MigrationDirectiveInterface, ModelDirectiveInt
         \GraphQL\Language\AST\DirectiveNode $directive,
         \Formularium\Datatype $datatype = null
     ): ?\Formularium\Datatype {
-        $sourceTypeName = $generator->getLowerName();
+        $sourceTypeName = $generator->getBaseName();
         $targetTypeName = $generator->getInflector()->singularize($field->name);
         $relationship = null;
         $isInverse = false;

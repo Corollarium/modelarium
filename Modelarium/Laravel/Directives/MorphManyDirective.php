@@ -42,9 +42,8 @@ class MorphManyDirective implements ModelDirectiveInterface, SeedDirectiveInterf
         $typeName = $type->name;
 
         $lowerName = lcfirst($generator->getInflector()->singularize($field->name));
-        $lowerNamePlural = $generator->getInflector()->pluralize($lowerName);
 
-        $sourceTypeName = $generator->getLowerName();
+        $sourceTypeName = $generator->getBaseName();
         $targetTypeName = $lowerName;
         $relationship = null;
         $isInverse = false;

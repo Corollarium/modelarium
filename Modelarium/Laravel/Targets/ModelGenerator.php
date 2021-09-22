@@ -273,7 +273,7 @@ class ModelGenerator extends BaseGenerator
                 );
                 if ($r) {
                     if ($relationshipDatatype) {
-                        throw new Exception("Overwriting relationship in {$typeName} for {$field->name} in {$this->lowerName}");
+                        throw new Exception("Overwriting relationship in {$typeName} for {$field->name} in {$this->baseName}");
                     }
                     $relationshipDatatype = $r;
                 }

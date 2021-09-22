@@ -37,7 +37,7 @@ class HasManyDirective implements ModelDirectiveInterface, SeedDirectiveInterfac
     ): ?\Formularium\Datatype {
         list($type, $isRequired) = Parser::getUnwrappedType($field->getType());
 
-        $sourceTypeName = $generator->getLowerName();
+        $sourceTypeName = $generator->getBaseName();
         $targetTypeName = $type->name;
         $relationship = null;
         $isInverse = false;

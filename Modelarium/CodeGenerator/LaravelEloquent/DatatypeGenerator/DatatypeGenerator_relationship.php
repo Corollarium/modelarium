@@ -6,7 +6,6 @@ use Formularium\Field;
 use Formularium\CodeGenerator\CodeGenerator;
 use Formularium\CodeGenerator\LaravelEloquent\CodeGenerator as LaravelEloquentCodeGenerator;
 use Formularium\CodeGenerator\LaravelEloquent\LaravelEloquentDatatypeGenerator;
-use Formularium\DatabaseEnum;
 use Formularium\Datatype;
 
 class DatatypeGenerator_relationship extends LaravelEloquentDatatypeGenerator

@@ -72,7 +72,7 @@ class BelongsToManyDirective implements MigrationDirectiveInterface, ModelDirect
         $lowerName = lcfirst($generator->getInflector()->singularize($field->name));
         $lowerNamePlural = lcfirst($generator->getInflector()->pluralize($lowerName));
 
-        $sourceTypeName = $generator->getLowerName();
+        $sourceTypeName = $generator->getBaseName();
         $targetTypeName = $lowerName;
         $relationship = null;
         $isInverse = false;
