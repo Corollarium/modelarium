@@ -421,7 +421,11 @@ class MigrationGenerator extends BaseGenerator
         ];
 
         if ($this->mode === self::MODE_CREATE) {
-            $context['className'] = 'Create' . $this->studlyName . str_replace('_', '', $this->stamp);
+            if ($this->lowerName == 'user') {
+                $context['className'] = 'CreateUsers';
+            } else {
+                $context['className'] = 'Create' . $this->studlyName . str_replace('_', '', $this->stamp);
+            }
             $context['upOperation'] = 'create';
             $context['downOperation'] = 'dropIfExists';
             $context['dummyCode'] = join("\n            ", $this->createCode);
@@ -551,6 +555,12 @@ EOF;
                 }
                 break;
             }
+        }
+
+        if ($this->mode === self::MODE_CREATE && $this->lowerName === 'user') {
+            return $this->getBasePath(
+                'database/migrations/2014_10_12_000000_create_users_table.php'
+            );
         }
 
         return $this->getBasePath(
