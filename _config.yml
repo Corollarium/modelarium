@@ -1,3 +1,17 @@
 title: Modelarium
 description: Modern Code Scaffolding for PHP and JS
 remote_theme: pmarsceill/just-the-docs
+footer_content: '<a href="https://github.com/Corollarium/modelarium">Modelarium source code</a>, <a href="https://github.com/pmarsceill/just-the-docs/tree/master/LICENSE.txt">MIT license.</a>'
+
+# Footer "Edit this page on GitHub" link text
+gh_edit_link: true # show or hide edit this page link
+gh_edit_link_text: "Edit this page on GitHub."
+gh_edit_repository: "https://github.com/Corollarium/modelarium" # the github URL for your repo
+gh_edit_branch: "master" # the branch that your docs is served from
+gh_edit_source: docs # the source that your files originate from
+gh_edit_view_mode: "tree" # "tree" or "edit" if you want the user to jump into the editor immediately
+
+# Aux links for the upper right navigation
+aux_links:
+  "Modelarium on GitHub":
+    - "//github.com/Corollarium/modelarium"

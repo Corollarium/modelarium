@@ -1,3 +1,9 @@
+---
+layout: default
+title: Home
+nav_order: 1
+---
+
 # Modelarium
 
 This is an [open source general backend/frontend scaffold generator and validator for PHP](https://github.com/Corollarium/modelarium/).
@@ -8,20 +14,22 @@ Your models and operations are described as a Graphql files. It uses [Formulariu
 
 While you can use it as a standalone package, it includes integrations with Laravel, which is the easiest way to use it.
 
-## Documentation
+## Get started
 
-- ["I don't read docs but want a tutorial with Laravel please"](./laraveltutorial.md)
+- ["I want a short tutorial with Laravel please"](./laraveltutorial.md)
 - ["I don't read tutorials, I want to see hello world code"](https://github.com/Corollarium/modelarium-helloworld)
 - ["I don't read tutorials and I want something more complicated than hello world"](https://github.com/Corollarium/modelarium-example)
-- [why modelarium was created](./philosophy.md)
-- [creating datatypes](./datatype.md)
-- [creating new validators](./validator.md)
-- [relationships](./relationships.md)
-- [Laravel scaffolding in detail](./laravel.md)
 
-Reference:
+## Learn more
+
+- [why modelarium was created](./philosophy.md)
+- [relationships](./relationships.md)
+- [Laravel integration reference](./laravel.md)
+
+## Reference:
 
 - [creating a new directive](./directive.md)
+- [creating datatypes](./datatype.md)
 - [all supported datatypes](./api-datatypes.md)
 - [all supported directives](./api-directives.md)
 

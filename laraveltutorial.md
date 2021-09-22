@@ -1,8 +1,14 @@
+---
+layout: default
+title: Getting started
+nav_order: 3
+---
+
 # Getting started tutorial: a Laravel Graphql backend application in two minutes
 
 So let's create a web application using Laravel and Lighthouse with a Graphql endpoint. A [full example with source code ready to use is available](https://github.com/Corollarium/modelarium-example).
 
-## Deps
+## Dependencies
 
 Create a base Laravel project:
 
@@ -20,13 +26,19 @@ We strongly suggest installing `mll-lab/laravel-graphql-playground` as well to t
 
 ## My first model
 
-Init the basic data. This will publish a base Graphql file and a `User` graphql schema that matches Laravel's defaults. Note that it will delete `app/User.php` and `database/migrations/2014_10_12_000000_create_users_table.php` -- if you just need the .graphql files, run `php artisan vendor:publish --provider="Modelarium\Laravel\ServiceProvider" --tag=schema` instead.
+Init the basic data. This will publish a base Graphql file and a `User` graphql schema that matches Laravel's defaults. Note that it will delete `app/User.php` and overwrite `database/migrations/2014_10_12_000000_create_users_table.php` -- if you just need the .graphql files, run `php artisan vendor:publish --provider="Modelarium\Laravel\ServiceProvider" --tag=schema` instead.
 
 ```
 artisan modelarium:publish
 ```
 
-At this point you are ready to go, just write your schema. We extend Graphql SDL to support `#import file` syntax, similar to other projects. Let's create a new model `Post`. Add a line `#import data/post.graphql` to `schema.graphql`, then create a file in `graphql/data/post.graphql` with the following:
+At this point you are ready to create your data. Let's create a Post type.
+
+```
+artisan modelarium:type Post
+```
+
+This will add create a `graphql/data/Post.graphql` file, which will have a basic structure for your model. Add the line `#import data/Post.graphql` to `graphql/schema.graphql` to make sure it's included. Now let's alter `Post`, filling it with some actual:
 
 ```graphql
 type Post @migrationTimestamps {
@@ -39,7 +51,7 @@ type Post @migrationTimestamps {
 }
 ```
 
-`Post` has a series of directives to control its behavior:
+This is a standard GraphQL description, but we added some directives to control its behavior:
 
 - `@migrationTimestamps` adds timestamps to the migration schema.
 - `@belongsTo` adds one-to-many relationship to `User`.
@@ -79,7 +91,7 @@ php artisan serve --host 0.0.0.0 --port 8000
 
 ## Queries
 
-You need to declare queries to fetch data from your database. Let's declare two, one to list and one to fetch data from an individual item. Add this to your `post.graphql` file:
+You need to declare queries to fetch data from your database. Let's declare two, one to list and one to fetch data from an individual item. Modelarium already created two basic queries for you:
 
 ```graphql
 extend type Query {
@@ -90,7 +102,7 @@ extend type Query {
 
 Note that we are using `extend type Query` (and should use `extend type Mutation` too) since we'll merge all the .graphql files together and have many queries and mutations. We haven't changed anything that needs scaffolding, so there's no need to run anything else.
 
-If you installed `mll-lab/laravel-graphql-playground` you can test the graphql endpoint at `http://localhost:8000/graphql-playground`. Run a simple query to check it all works:
+If you installed `mll-lab/laravel-graphql-playground` you can test the graphql endpoint at `http://localhost:8000/graphql-playground`. We should have some seeded data from the `migrate --seed` command above, automatically generated for you. Run a simple query to check it all works:
 
 ```graphql
 {
@@ -147,7 +159,7 @@ We use Lighthouse's `@create` directive to automatically get a create endpoint, 
 php artisan modelarium:scaffold '*' --everything --lighthouse
 ```
 
-You can change the policy to this to avoid needing to authenticate for this tutorial. This opens it for everyone:
+You can change the policy file to avoid needing to authenticate for this tutorial. This opens it for everyone:
 
 ```php
     public function create(?User $user): bool
@@ -188,7 +200,7 @@ Remember to add `#import types.graphql` to your `graphql/schema.graphql` file.
 
 So add `#import types.graphql` to your `graphql/schema.graphql` file. `types.graphql` has all the types you generate in your application and is regenerated when a new one is created.
 
-In `Datatypes/Datatype_title.php` we set this up. We're inheriting from `string`, so it's easy to just modify its parameters:
+In `Datatypes/Datatype_title.php` we set this up. We're inheriting from `string`, so it's easy to just modify its parameters to change the validation:
 
 ```php
 class Datatype_title extends \Formularium\Datatype\Datatype_string
