@@ -224,9 +224,12 @@ class MigrationGenerator extends BaseGenerator
         }
     
         if ($formulariumField) {
-            $codeFragment->appendBase(
-                '$table->' . $lcg->field($formulariumField)
-            );
+            $fieldList = $lcg->field($formulariumField);
+            foreach (is_array($fieldList) ? $fieldList : [$fieldList] as $f) {
+                $codeFragment->appendBase(
+                    '$table->' . $f
+                );
+            }
         } elseif (!($field->getType() instanceof NonNull)) {
             $codeFragment->appendBase('->nullable()');
         }
@@ -321,11 +324,14 @@ class MigrationGenerator extends BaseGenerator
         }
 
         $lcg = new LaravelCodeGenerator();
-        $codeFragment->appendBase(
-            '$table->' . $lcg->field(
-                new Field($fieldName, $ourType->getDatatype())
-            )
+        $fieldList = $lcg->field(
+            new Field($fieldName, $ourType->getDatatype())
         );
+        foreach (is_array($fieldList) ? $fieldList : [$fieldList] as $f) {
+            $codeFragment->appendBase(
+                '$table->' . $f
+            );
+        }
     }
 
     /**
@@ -394,12 +400,7 @@ class MigrationGenerator extends BaseGenerator
                 // relationship
                 $this->processRelationship($field, $directives);
             } else {
-                try {
-                    $this->processBasetype($field, $directives);
-                } catch (ClassNotFoundException $e) {
-                    var_dump(get_class($type), get_class($type->getWrappedType()), $type->name, $type->getWrappedType()->name);
-                    throw $e;
-                }
+                $this->processBasetype($field, $directives);
             }
         }
 
