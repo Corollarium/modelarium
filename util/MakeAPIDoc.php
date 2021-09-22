@@ -26,6 +26,10 @@ function datatypes()
     ksort($markdown);
 
     $datatypeAPI = '
+---
+nav_order: 12
+---
+
 # Datatypes
 
 List of validators and its parameters generated automatically.
@@ -38,7 +42,11 @@ List of validators and its parameters generated automatically.
 function directives()
 {
     $directiveMD = <<<EOF
-# Directives\n\n
+---
+nav_order: 12
+---
+        
+# Directive reference
 
 Directives supported by Modelarium.
 

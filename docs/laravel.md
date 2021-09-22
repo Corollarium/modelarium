@@ -1,6 +1,21 @@
-# Laravel documentation
+---
+nav_order: 5
+---
 
-Here's an overview of what scaffolding is done for Laravel.
+# Laravel integration
+
+Here's an overview of the Laravel integration
+
+## Available commands:
+
+Commands have integrated help.
+
+- `modelarium:datatype`: create a new datatype.
+- `modelarium:frontend`: generate frontend code.
+- `modelarium:publish`: publish Modelarium files (run when installing)
+- `modelarium:renderable`: create a new renderable.
+- `modelarium:scaffold`: generate the backend code.
+- `modelarium:type`: generate a new type (model).
 
 ## Migrations
 

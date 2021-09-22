@@ -1,4 +1,8 @@
-# Datatype
+---
+nav_order: 9
+---
+
+# Datatypes
 
 Here's how to create a new Datatype in your application that works in your application. [Datatypes are created with Formularium](https://github.com/Corollarium/Formularium/).
 

@@ -1,3 +1,7 @@
+---
+nav_order: 2
+---
+
 # Philosophy
 
 The idea behind Modelarium is to avoid tedious coding and increase safety.
