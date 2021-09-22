@@ -1,4 +1,4 @@
-<h1 align="center">Modelarium - Scaffolding for PHP and JS</h1>
+<h1 align="center">Modelarium - Modern Code Scaffolding for PHP and JS</h1>
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Build Status](https://github.com/Corollarium/modelarium/workflows/build/badge.svg)](https://github.com/Corollarium/modelarium/actions?query=workflow%3Abuild)
