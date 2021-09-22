@@ -39,12 +39,19 @@ type Post @migrationTimestamps {
 }
 ```
 
-`Post` has a series of directives to control its behavior, such as creating timestamps for the database entry and foreign keys.
+`Post` has a series of directives to control its behavior:
+
+- `@migrationTimestamps` adds timestamps to the migration schema.
+- `@belongsTo` adds one-to-many relationship to `User`.
+- `@migrationForeign` specified a foreign key and its behavior for delete and update events.
 
 Since we are declaring a `belongsTo` relationship, We'll also need to declare the relationship to `User`, adding this to the `type User` in `user.graphql`:
 
 ```graphql
-    posts: [Post!] @hasMany
+type User {
+  # other stuff here
+  posts: [Post!] @hasMany
+}
 ```
 
 Once you are done you can generate all scaffolding with:
