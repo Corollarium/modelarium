@@ -4,6 +4,7 @@ namespace Modelarium\Types;
 
 use Formularium\CodeGenerator\GraphQL\CodeGenerator as GraphQLCodeGenerator;
 use Formularium\Datatype;
+use Formularium\Exception\ClassNotFoundException;
 use Formularium\Factory\DatatypeFactory;
 use Formularium\Exception\ValidatorException;
 use Formularium\Field;
@@ -23,7 +24,12 @@ abstract class FormulariumScalarType extends ScalarType
     {
         parent::__construct($config);
         $name = str_replace('Datatype_', '', $this->name);
-        $this->datatype = DatatypeFactory::factory($name);
+        // TODO: we really should use a map scalar name => datatype name here instead of this lcfirst hack
+        try {
+            $this->datatype = DatatypeFactory::factory($name);
+        } catch (ClassNotFoundException $e) {
+            $this->datatype = DatatypeFactory::factory(lcfirst($name));
+        }
     }
 
     public function getDatatype(): Datatype

@@ -1,6 +1,30 @@
 # FAQ
 
-## How do I return the list of policies of a model?
+## How to make a `type` in GraphQL not generate a model?
+
+Sometimes you have `types` in GraphQL that should not create a model class or migration in PHP. To skip it, just add a `@typeSkip` directive to the type like this:
+
+```graphql
+type AuthPayload @typeSkip {
+  access_token: String
+  refresh_token: String
+  expires_in: Int
+  token_type: String
+  user: User
+}
+```
+
+## I'm getting errors with foreign keys not creating.
+
+If you get an error like this:
+
+```
+SQLSTATE[HY000]: General error: 1005 Can't create table `mydatabase`.`projects` (errno: 150 "Foreign key constraint is incorrectly formed") (SQL: alter table `projects` add constraint `projects_account_id_foreign` foreign key (`account_id`) references `accounts` (`id`))
+```
+
+While GraphQL doesn't care about the order of the fields, SQL does and you cannot create a foreign index before creating the target table. Tables are created in the same order that types appear in the GraphQL files, so reorder the fields to make sure that they appear in order of dependencies, or sort manually the migration files.
+
+## How can I get the list of policy permissions of a model?
 
 Since you can use `@can` use a policy, you may also need to get these values in your application, to show an 'Edit' button or similar.
 

@@ -79,7 +79,6 @@ EOF;
         );
     } */
 
-
     /**
      * Generate the scalar Graphql file
      *
