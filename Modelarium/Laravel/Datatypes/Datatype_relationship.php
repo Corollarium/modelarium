@@ -6,7 +6,7 @@ use Formularium\Exception\ValidatorException;
 use Formularium\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Datatype_relationship extends \Modelarium\Datatypes\Datatype_relationship
+class Datatype_relationship extends \Modelarium\Datatype\Datatype_relationship
 {
     public function getDefault()
     {

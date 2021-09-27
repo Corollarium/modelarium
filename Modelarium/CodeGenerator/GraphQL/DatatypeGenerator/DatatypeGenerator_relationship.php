@@ -9,7 +9,7 @@ use Formularium\Field;
 use Formularium\CodeGenerator\CodeGenerator;
 use Formularium\CodeGenerator\GraphQL\CodeGenerator as GraphQLCodeGenerator;
 use Formularium\CodeGenerator\GraphQL\GraphQLDatatypeGenerator;
-use Modelarium\Datatypes\Datatype_relationship;
+use Modelarium\Datatype\Datatype_relationship;
 
 class DatatypeGenerator_relationship extends GraphQLDatatypeGenerator
 {
@@ -40,7 +40,7 @@ class DatatypeGenerator_relationship extends GraphQLDatatypeGenerator
          * @var Datatype_relationship
          */
         $datatype = $field->getDatatype();
-        
+
         $params = [];
 
         // $recurseLevel = $params[self::RECURSE] ?? 1;

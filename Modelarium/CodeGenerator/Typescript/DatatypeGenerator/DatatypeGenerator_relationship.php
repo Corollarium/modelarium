@@ -6,7 +6,7 @@ use Formularium\Field;
 use Formularium\CodeGenerator\CodeGenerator;
 use Formularium\CodeGenerator\DatatypeGenerator;
 use Formularium\CodeGenerator\Typescript\CodeGenerator as TypescriptCodeGenerator;
-use Modelarium\Datatypes\Datatype_relationship;
+use Modelarium\Datatype\Datatype_relationship;
 
 class DatatypeGenerator_relationship implements DatatypeGenerator
 {

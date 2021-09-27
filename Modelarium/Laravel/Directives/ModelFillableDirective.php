@@ -2,7 +2,7 @@
 
 namespace Modelarium\Laravel\Directives;
 
-use Modelarium\Datatypes\Datatype_relationship;
+use Modelarium\Datatype\Datatype_relationship;
 use Modelarium\Laravel\Targets\ModelGenerator;
 use Modelarium\Laravel\Targets\Interfaces\ModelDirectiveInterface;
 

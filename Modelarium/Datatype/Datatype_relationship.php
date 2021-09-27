@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Modelarium\Datatypes;
+namespace Modelarium\Datatype;
 
 use Formularium\Datatype;
 use Doctrine\Inflector\InflectorFactory;
@@ -62,8 +62,8 @@ abstract class Datatype_relationship extends Datatype
         parent::__construct($name, 'relationship');
         $this->source = $source;
         $this->target = $target;
-        $this->sourceClass = 'App\\Models\\' . Str::studly($this->source);
-        $this->targetClass = 'App\\Models\\' . Str::studly($this->target);
+        $this->sourceClass = 'App\\Models\\' . $this->source;
+        $this->targetClass = 'App\\Models\\' . $this->target;
         $this->relationship = $relationship;
         $this->isInverse = $isInverse;
     }

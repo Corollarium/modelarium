@@ -2,7 +2,7 @@
 
 namespace Modelarium\Laravel\Datatypes;
 
-use Modelarium\Datatypes\RelationshipFactory as DatatypesRelationshipFactory;
+use Modelarium\Datatype\RelationshipFactory as DatatypesRelationshipFactory;
 
 final class RelationshipFactory extends DatatypesRelationshipFactory
 {

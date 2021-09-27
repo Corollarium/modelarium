@@ -2,8 +2,8 @@
 
 namespace Modelarium\Laravel\Directives;
 
-use Modelarium\Datatypes\Datatype_relationship;
-use Modelarium\Datatypes\RelationshipFactory;
+use Modelarium\Datatype\Datatype_relationship;
+use Modelarium\Datatype\RelationshipFactory;
 use Modelarium\Exception\DirectiveException;
 use Modelarium\Laravel\Targets\ModelGenerator;
 use Modelarium\Laravel\Targets\Interfaces\ModelDirectiveInterface;
@@ -74,7 +74,7 @@ class EagerLoadDirective implements ModelDirectiveInterface
             }
         }
         $generator->with[] = $target;
-        
+
         return null;
     }
 }

@@ -4,7 +4,7 @@ namespace Modelarium\Laravel\Directives;
 
 use Formularium\Factory\DatatypeFactory;
 use Illuminate\Support\Str;
-use Modelarium\Datatypes\RelationshipFactory;
+use Modelarium\Datatype\RelationshipFactory;
 use Modelarium\Laravel\Targets\ModelGenerator;
 use Modelarium\Laravel\Targets\SeedGenerator;
 use Modelarium\Laravel\Targets\Interfaces\ModelDirectiveInterface;

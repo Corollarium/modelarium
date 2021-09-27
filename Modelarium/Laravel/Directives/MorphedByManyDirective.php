@@ -7,7 +7,7 @@ use GraphQL\Type\Definition\ObjectType;
 use Illuminate\Support\Str;
 use Modelarium\Exception\Exception;
 use Modelarium\Parser;
-use Modelarium\Datatypes\RelationshipFactory;
+use Modelarium\Datatype\RelationshipFactory;
 use Modelarium\Exception\DirectiveException;
 use Modelarium\Laravel\Targets\Interfaces\MigrationDirectiveInterface;
 use Modelarium\Laravel\Targets\ModelGenerator;

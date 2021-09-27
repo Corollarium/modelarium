@@ -11,7 +11,7 @@ use GraphQL\Type\Definition\UnionType;
 use Illuminate\Support\Str;
 use Modelarium\Exception\Exception;
 use Modelarium\Parser;
-use Modelarium\Datatypes\RelationshipFactory;
+use Modelarium\Datatype\RelationshipFactory;
 use Modelarium\Exception\DirectiveException;
 use Modelarium\Laravel\Targets\Interfaces\MigrationDirectiveInterface;
 use Modelarium\Laravel\Targets\ModelGenerator;
@@ -54,7 +54,7 @@ class MorphToDirective implements MigrationDirectiveInterface, ModelDirectiveInt
             ($isRequired ? '' : '->nullable()') . ';'
         );
     }
-    
+
     public static function processModelTypeDirective(
         ModelGenerator $generator,
         \GraphQL\Language\AST\DirectiveNode $directive

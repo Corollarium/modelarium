@@ -10,8 +10,8 @@ use Formularium\Renderable;
 use Formularium\HTMLNode;
 use Formularium\Frontend\Vue\RenderableVueTrait;
 use Formularium\Frontend\Vue\Framework as VueFramework;
-use Modelarium\Datatypes\Datatype_relationship;
-use Modelarium\Datatypes\RelationshipFactory;
+use Modelarium\Datatype\Datatype_relationship;
+use Modelarium\Datatype\RelationshipFactory;
 
 class Renderable_relationship extends Renderable
 {
@@ -101,7 +101,7 @@ class Renderable_relationship extends Renderable
          * @var Datatype_relationship $datatype
          */
         $datatype = $field->getDatatype();
-        
+
         if ($datatype->isMorph()) {
             // TODO
             return $previous;
@@ -130,7 +130,7 @@ class Renderable_relationship extends Renderable
         $targetStudly = Str::studly($datatype->getTarget());
         $vueCode->appendImport($query, "raw-loader!../" . $targetStudly . "/queryList.graphql");
         $vueCode->appendExtraData($query, $query);
-        
+
         $relationship = $datatype->getRelationship();
         if ($relationship === RelationshipFactory::RELATIONSHIP_MANY_TO_MANY ||
             $relationship === RelationshipFactory::MORPH_MANY_TO_MANY

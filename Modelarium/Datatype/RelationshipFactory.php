@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Modelarium\Datatypes;
+namespace Modelarium\Datatype;
 
 use Formularium\Datatype;
 use Formularium\Exception\ClassNotFoundException;

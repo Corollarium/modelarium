@@ -7,8 +7,8 @@ use Formularium\Field;
 use Formularium\Frontend\HTML\Framework;
 use Formularium\Frontend\HTML\Renderable;
 use Formularium\HTMLNode;
-use Modelarium\Datatypes\Datatype_relationship;
-use Modelarium\Datatypes\RelationshipFactory;
+use Modelarium\Datatype\Datatype_relationship;
+use Modelarium\Datatype\RelationshipFactory;
 
 class Renderable_relationship extends Renderable
 {
@@ -74,7 +74,7 @@ class Renderable_relationship extends Renderable
                 $input->setAttribute($v, $v);
             }
         }
-    
+
         return $this->container($input, $field);
     }
 
@@ -87,7 +87,7 @@ class Renderable_relationship extends Renderable
     public function editableAutocomplete($value, Field $field, HTMLNode $previous): HTMLNode
     {
         $input = new HTMLNode('input');
-    
+
         $renderable = $field->getRenderables();
         $validators = $field->getValidators();
         $input->setAttributes([
@@ -112,7 +112,7 @@ class Renderable_relationship extends Renderable
                 $input->setAttribute($v, $v);
             }
         }
-    
+
         return $this->container($input, $field);
     }
 }
