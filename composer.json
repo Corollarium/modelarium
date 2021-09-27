@@ -26,7 +26,7 @@
         "composer/composer": "^1.10",
         "webonyx/graphql-php": "^14.5",
         "thecodingmachine/safe": "^1.1",
-        "corollarium/formularium": "^0.9",
+        "corollarium/formularium": "^0.10",
         "nette/php-generator": "^3.4",
         "haydenpierce/class-finder": "^0.4.2",
         "nuwave/lighthouse": "^5.23",
