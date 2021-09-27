@@ -2,8 +2,8 @@
 
 namespace Modelarium\Laravel;
 
+use Formularium\Factory\AbstractFactory;
 use Formularium\Factory\DatatypeFactory;
-use Formularium\Factory\ValidatorFactory;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider as LaravelServiceProvider;
 use Nuwave\Lighthouse\Events\RegisterDirectiveNamespaces;
@@ -24,11 +24,14 @@ class ServiceProvider extends LaravelServiceProvider
          */
         if ($this->app->runningInConsole()) {
             $this->commands([
-                \Modelarium\Laravel\Console\Commands\ModelariumPublishCommand::class,
-                \Modelarium\Laravel\Console\Commands\ModelariumFrontendCommand::class,
-                \Modelarium\Laravel\Console\Commands\ModelariumScaffoldCommand::class,
+                \Modelarium\Laravel\Console\Commands\ModelariumCodeCommand::class,
                 \Modelarium\Laravel\Console\Commands\ModelariumDatatypeCommand::class,
+                \Modelarium\Laravel\Console\Commands\ModelariumDirectiveCommand::class,
+                \Modelarium\Laravel\Console\Commands\ModelariumFrontendCommand::class,
+                \Modelarium\Laravel\Console\Commands\ModelariumModelCommand::class,
+                \Modelarium\Laravel\Console\Commands\ModelariumPublishCommand::class,
                 \Modelarium\Laravel\Console\Commands\ModelariumRenderableCommand::class,
+                \Modelarium\Laravel\Console\Commands\ModelariumScaffoldCommand::class,
                 \Modelarium\Laravel\Console\Commands\ModelariumTypeCommand::class,
             ]);
         }
@@ -36,8 +39,7 @@ class ServiceProvider extends LaravelServiceProvider
         /*
          * Namespace registration
          */
-        DatatypeFactory::appendNamespace('App\\Datatypes');
-        ValidatorFactory::appendNamespace('App\\Validators');
+        AbstractFactory::appendBaseNamespace('App\\Modelarium');
         DatatypeFactory::registerFactory(
             'Modelarium\\Laravel\\Datatypes\\RelationshipFactory::factoryName'
         );
@@ -82,7 +84,7 @@ class ServiceProvider extends LaravelServiceProvider
         Event::listen(
             RegisterDirectiveNamespaces::class,
             function (RegisterDirectiveNamespaces $registerDirectiveNamespaces): string {
-                return 'App\\Datatypes\\Types';
+                return 'App\\Datatype\\Types';
             }
         );
     }

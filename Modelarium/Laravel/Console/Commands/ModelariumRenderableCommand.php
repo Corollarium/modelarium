@@ -19,7 +19,7 @@ class ModelariumRenderableCommand extends Command
     protected $signature = 'modelarium:renderable
         {name : The datatype name}
         {--framework=* : The frameworks to use. You can use this options several times. Use "*" for all.}
-        {--namespace=App\\Frontend : path to save the file. Defaults to "App\\Frontend" }
+        {--namespace=App\\Modelarium\\Frontend : path to save the file. Defaults to "App\\Modelarium\\Frontend" }
         {--path= : base path of the namespace. Defaults to base_path("app/Frontend") }
     ';
 

@@ -21,7 +21,7 @@ class ModelariumDirectiveCommand extends Command
         {name : The directive name}
         {--generator= : the generator it inherits from. May have more than one.}
         {--namespace=Modelarium\Laravel\Directives : the class namespace. Defaults to "Modelarium\Laravel\Directives"}
-        {--path= : path to save the file. Defaults to base_path("app/Datatypes") }
+        {--path= : path to save the file. Defaults to base_path("app/Modelarium/Datatype") }
     ';
 
     /**

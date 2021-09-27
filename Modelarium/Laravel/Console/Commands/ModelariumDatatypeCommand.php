@@ -19,8 +19,8 @@ class ModelariumDatatypeCommand extends Command
     protected $signature = 'modelarium:datatype
         {name : The datatype name}
         {--basetype=string : the basetype it inherits from ("string"), if there is one.}
-        {--namespace=App\\Datatypes : the class namespace. Defaults to "App\\Datatypes"}
-        {--path= : path to save the file. Defaults to base_path("app/Datatypes") }
+        {--namespace=App\\Modelarium\\Datatype : the class namespace. Defaults to "App\\Modelarium\\Datatype"}
+        {--path= : path to save the file. Defaults to base_path("app/Modelarium/Datatype") }
         {--test-path= : path to save the file. Defaults to base_path("tests/Unit") }
     ';
 
@@ -58,7 +58,7 @@ class ModelariumDatatypeCommand extends Command
             $this->error('Namespace must be a string');
             return;
         }
-        $path = $this->option('path') ?: base_path("app/Datatypes");
+        $path = $this->option('path') ?: base_path("app/Modelarium/Datatype");
 
         if (!is_dir($path)) {
             \Safe\mkdir($path, 0777, true);

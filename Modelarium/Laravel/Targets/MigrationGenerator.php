@@ -222,7 +222,7 @@ class MigrationGenerator extends BaseGenerator
         } else {
             throw new Exception("Invalid field type: " . get_class($type));
         }
-    
+
         if ($formulariumField) {
             $fieldList = $lcg->field($formulariumField);
             foreach (is_array($fieldList) ? $fieldList : [$fieldList] as $f) {
@@ -274,15 +274,15 @@ class MigrationGenerator extends BaseGenerator
             $code = DatatypeFactory::generate(
                 $type->name,
                 'enum',
-                'App\\Datatypes',
+                'App\\Modelarium\\Datatype',
                 'Tests\\Unit',
                 function (ClassType $enumClass) use ($enumValues) {
                     $enumClass->addConstant('CHOICES', $enumValues);
                     $enumClass->getMethod('__construct')->addBody('$this->choices = self::CHOICES;');
                 }
             );
-    
-            $path = base_path('app/Datatypes');
+
+            $path = base_path('app/Modelarium/Datatype');
 
             $retval = DatatypeFactory::generateFile(
                 $code,
@@ -290,20 +290,20 @@ class MigrationGenerator extends BaseGenerator
                 base_path('tests/Unit/')
             );
 
-            $php = \Modelarium\Util::generateLighthouseTypeFile($type->name, 'App\\Datatypes\\Types');
+            $php = \Modelarium\Util::generateLighthouseTypeFile($type->name, 'App\\Modelarium\\Datatype\\Types');
             $filename = $path . "/Types/Datatype_{$type->name}.php";
             if (!is_dir($path . "/Types")) {
                 \Safe\mkdir($path . "/Types", 0777, true);
             }
             \Safe\file_put_contents($filename, $php);
-    
+
             // recreate scalars
-            \Modelarium\Util::generateScalarFile('App\\Datatypes', base_path('graphql/types.graphql'));
+            \Modelarium\Util::generateScalarFile('App\\Datatype', base_path('graphql/types.graphql'));
 
             // load php files that were just created
             require_once($retval['filename']);
             require_once($filename);
-            $this->parser->appendScalar($type->name, 'App\\Datatypes\\Types\\Datatype_' . $type->name);
+            $this->parser->appendScalar($type->name, 'App\\Datatype\\Types\\Datatype_' . $type->name);
             $ourType = $this->parser->getScalarType($type->name);
         }
         if (!($ourType instanceof FormulariumScalarType)) {
@@ -378,7 +378,7 @@ class MigrationGenerator extends BaseGenerator
             }
             $this->createCode[] = '$table' . $codeFragment->base . ';';
         }
-        
+
         $this->createCode = array_merge($this->createCode, $codeFragment->extraLines);
     }
 
