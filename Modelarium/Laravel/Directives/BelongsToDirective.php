@@ -119,7 +119,7 @@ class BelongsToDirective implements MigrationDirectiveInterface, ModelDirectiveI
         $fieldName = $generator->getInflector()->singularize($field->name);
 
         $sourceTypeName = $generator->getBaseName();
-        $targetTypeName = $fieldName;
+        $targetTypeName = ucfirst($fieldName);
         $relationship = null;
         $isInverse = false;
 
