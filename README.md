@@ -6,6 +6,7 @@
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/Corollarium/modelarium/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/Corollarium/modelarium/?branch=master)
 [![Latest Stable Version](https://img.shields.io/packagist/v/corollarium/modelarium.svg?style=flat-square)](https://packagist.org/packages/corollarium/modelarium)
 [![Total Downloads](https://img.shields.io/packagist/dt/corollarium/modelarium.svg?style=flat-square)](https://packagist.org/packages/corollarium/modelarium)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/Corollarium/modelarium/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/Corollarium/modelarium/?branch=master)
 
 ---
 
