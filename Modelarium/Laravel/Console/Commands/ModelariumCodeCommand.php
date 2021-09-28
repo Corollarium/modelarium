@@ -159,13 +159,16 @@ class ModelariumCodeCommand extends Command
             )
         );
 
-        $collection->push(
-            new GeneratedItem(
-                GeneratedItem::TYPE_FRONTEND,
-                $generator->datatypeDeclarations(),
-                $generator->getFilename('Scalars')
-            )
-        );
+        $datatypeDeclarations = $generator->datatypeDeclarations();
+        if ($datatypeDeclarations) {
+            $collection->push(
+                new GeneratedItem(
+                    GeneratedItem::TYPE_FRONTEND,
+                    $datatypeDeclarations,
+                    $generator->getFilename('Scalars')
+                )
+            );
+        }
 
         if (!$collection->count()) {
             $this->info('Nothing generated.');
