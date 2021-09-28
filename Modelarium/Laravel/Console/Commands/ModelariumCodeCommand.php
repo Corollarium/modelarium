@@ -155,7 +155,15 @@ class ModelariumCodeCommand extends Command
             new GeneratedItem(
                 GeneratedItem::TYPE_FRONTEND,
                 $code,
-                $generator->typeFilename($model)
+                $generator->getFilename($model->getName())
+            )
+        );
+
+        $collection->push(
+            new GeneratedItem(
+                GeneratedItem::TYPE_FRONTEND,
+                $generator->datatypeDeclarations(),
+                $generator->getFilename('Scalars')
             )
         );
 
