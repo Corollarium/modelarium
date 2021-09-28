@@ -327,17 +327,6 @@ To build it while developing:
 npm run watch
 ```
 
-## Authentication
+### More
 
-There's nothing specific to Modelarium about authentication, and all the usual methods of authenticating will work. But this is a tutorial, so let's show how to add authentication to our app.
-
-By default Modelarium creates models in `app/Models` instead of `app`. For this to work with authentication you should change this in `config/auth.php`. You can also pass `--modelDir=app` if you prefer Laravel's default behavior.
-
-```php
-    'providers' => [
-        'users' => [
-            'driver' => 'eloquent',
-            'model' => App\Models\User::class,
-        ],
-    ]
-```
+[See the next section for more advanced topics.](./laraveltutorial2.md)
