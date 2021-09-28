@@ -75,15 +75,19 @@ class ModelariumCodeCommand extends Command
         $name = $this->argument('name');
 
         // setup stuff
-        $this->generatorName = $this->option('generator');
+        $generatorName = $this->option('generator');
+        if (!is_string($this->generatorName)) {
+            $this->error('Please specify a single generator.');
+            return;
+        }
         if (empty($this->generatorName)) {
             $this->error('Which code format to generate. Example: `--generator=TypeScript`');
             return;
         }
-        if (is_array($this->generatorName)) {
-            $this->error('Please specify a single generator.');
-            return;
-        }
+        /**
+         * @var string $generatorName
+         */
+        $this->generatorName = (string)$generatorName;
 
         $this->loadParser();
         if ($name === '*' || $name === 'all') {
