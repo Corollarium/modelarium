@@ -384,7 +384,7 @@ class FrontendGenerator implements GeneratorInterface
             function (Field $f) use ($cardFieldNames, $gcg) {
                 if (in_array($f->getName(), $cardFieldNames)) {
                     // TODO: filter subfields in relationships
-                    return $gcg->field($f);
+                    return $gcg->variable($f);
                 }
                 return null;
             }
@@ -456,7 +456,7 @@ EOF;
             function (Field $f) use ($tableFieldNames, $gcg) {
                 if (in_array($f->getName(), $tableFieldNames)) {
                     // TODO: filter subfields in relationships
-                    return $gcg->field($f);
+                    return $gcg->variable($f);
                 }
                 return null;
             }
@@ -494,7 +494,7 @@ EOF;
          */
         $graphqlQuery = $this->fModel->mapFields(
             function (Field $f) use ($gcg) {
-                return \Modelarium\Frontend\Util::fieldShow($f) ? $gcg->field($f) : null;
+                return \Modelarium\Frontend\Util::fieldShow($f) ? $gcg->variable($f) : null;
             }
         );
         $graphqlQuery = join("\n", array_filter($graphqlQuery));

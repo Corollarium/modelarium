@@ -9,6 +9,8 @@ use Formularium\Field;
 use Formularium\CodeGenerator\CodeGenerator;
 use Formularium\CodeGenerator\GraphQL\CodeGenerator as GraphQLCodeGenerator;
 use Formularium\CodeGenerator\GraphQL\GraphQLDatatypeGenerator;
+use Formularium\Extradata;
+use Formularium\ExtradataParameter;
 use Modelarium\Datatype\Datatype_relationship;
 
 class DatatypeGenerator_relationship extends GraphQLDatatypeGenerator
@@ -16,19 +18,31 @@ class DatatypeGenerator_relationship extends GraphQLDatatypeGenerator
     /**
      * Key for getGraphqlField() params. If false, do not recurse to relationship fields, only id.
      */
-    const RECURSE = 'RECURSE';
-
-    /**
-     * Key for getGraphqlField() params
-     */
-    const RECURSE_INVERSE = 'RECURSE_INVERSE';
+    const RECURSE = 'RECURSE_RELATIONSHIP';
 
     public function getBasetype(): string
     {
-        return 'XXXXXXX';
+        return 'relationship';
     }
 
     public function field(CodeGenerator $generator, Field $field)
+    {
+        return $this->recurse($generator, $field, 'field');
+    }
+
+    public function variable(CodeGenerator $generator, Field $field): string
+    {
+        return $this->recurse($generator, $field, 'variable');
+    }
+
+    /**
+     * Does a recursive rendering for relationship types.
+     *
+     * @param CodeGenerator $generator
+     * @param Field $field
+     * @return mixed
+     */
+    protected function recurse(CodeGenerator $generator, Field $field, string $method)
     {
         /**
          * @var GraphQLCodeGenerator $generator
@@ -41,15 +55,10 @@ class DatatypeGenerator_relationship extends GraphQLDatatypeGenerator
          */
         $datatype = $field->getDatatype();
 
-        $params = [];
-
-        // $recurseLevel = $params[self::RECURSE] ?? 1;
-        // if (!$recurseLevel) {
-        //     return '';
-        // }
-        // if (!($params[self::RECURSE_INVERSE] ?? true) && $this->isInverse) {
-        //     return '';
-        // }
+        $recurseLevel = $field->getExtradataValue(self::RECURSE, 'value', 2);
+        if (!$recurseLevel) {
+            return '';
+        }
 
         $model = $datatype->getTargetClass();
         if ($datatype->getIsInverse()) {
@@ -81,12 +90,22 @@ class DatatypeGenerator_relationship extends GraphQLDatatypeGenerator
                 $graphqlQuery = array_merge(
                     $graphqlQuery,
                     $formulariumModel->mapFields(
-                        function (Field $f) { // use ($recurseLevel) {
+                        function (Field $f) use ($generator, $method, $recurseLevel) {
                             $type = $f->getDatatype();
                             if ($type instanceof Datatype_relationship && !$type->getIsInverse()) {
                                 return '';
                             }
-                            return 'xxx'; // TODO $f->toGraphqlQuery([self::RECURSE => $recurseLevel]); // don't subtract
+
+                            $extradata = new Extradata(
+                                self::RECURSE,
+                                [
+                                    new ExtradataParameter('value', $recurseLevel)
+                                ]
+                            );
+                            $f->appendExtradata($extradata);
+                            $retval = $generator->$method($f);
+                            $f->removeExtraData(self::RECURSE);
+                            return $retval;
                         }
                     )
                 );
@@ -98,8 +117,18 @@ class DatatypeGenerator_relationship extends GraphQLDatatypeGenerator
              */
             $formulariumModel = call_user_func("$model::getFormularium"); /** @phpstan-ignore-line */
             $graphqlQuery = $formulariumModel->mapFields(
-                function (Field $f) { // use ($recurseLevel) {
-                    return \Modelarium\Frontend\Util::fieldShow($f) ? /* $f->toGraphqlQuery([self::RECURSE => $recurseLevel-1]) */ 'zzz' : null;
+                function (Field $f) use ($generator, $method, $recurseLevel) {
+                    $extradata = new Extradata(
+                        self::RECURSE,
+                        [
+                            new ExtradataParameter('value', $recurseLevel-1)
+                        ]
+                    );
+
+                    $f->appendExtradata($extradata);
+                    $retval = \Modelarium\Frontend\Util::fieldShow($f) ? $generator->$method($f) : null;
+                    $f->removeExtraData(self::RECURSE);
+                    return $retval;
                 }
             );
             array_unshift($graphqlQuery, 'id');
