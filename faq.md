@@ -14,7 +14,25 @@ type AuthPayload @typeSkip {
 }
 ```
 
-## I'm getting errors with foreign keys not creating.
+## What code formatting standards do you use?
+
+Generated code is optionally ran through ESlint and Prettier, so it will follow your conventions. You can of course run it through other formatters as well.
+
+You can enable these on the Laravel binding with `--eslint --prettier` as arguments, or change these settings on `config/modelarium.php` instead:
+
+```php
+        /*
+         * Should we run prettier after generating the components?
+         */
+        "prettier" => true,
+
+        /*
+         * Should we run eslint after generating the components?
+         */
+        "eslint" => true,
+```
+
+## I'm getting errors with foreign keys not being created.
 
 If you get an error like this:
 
