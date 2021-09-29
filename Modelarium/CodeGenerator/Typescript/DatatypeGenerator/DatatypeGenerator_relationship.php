@@ -27,4 +27,17 @@ class DatatypeGenerator_relationship implements DatatypeGenerator
          */
         return $generator->fieldDeclaration($dt->getTarget(), $field->getName());
     }
+
+    public function variable(CodeGenerator $generator, Field $field): string
+    {
+        /**
+         * @var Datatype_relationship
+         */
+        $dt = $field->getDatatype();
+
+        /**
+         * @var TypescriptCodeGenerator $generator
+         */
+        return $generator->variable($field);
+    }
 }

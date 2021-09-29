@@ -11,6 +11,8 @@ use Formularium\Frontend\HTML\Element\Button;
 use Formularium\Frontend\HTML\Element\Table;
 use Formularium\Frontend\Vue\Element\Pagination as PaginationVue;
 use Formularium\Frontend\Vue\Framework as FrameworkVue;
+use Formularium\Frontend\Vue\VueCode\Computed;
+use Formularium\Frontend\Vue\VueCode\Prop;
 use Modelarium\GeneratedCollection;
 use Modelarium\GeneratedItem;
 use Modelarium\Options;
@@ -58,11 +60,11 @@ class FrontendVueGenerator
 
         // set basic data for vue
         $extraprops = [
-            [
-                'name' => 'id',
-                'type' => 'String',
-                'required' => true
-            ]
+            new Prop(
+                'id',
+                'string',
+                true
+            )
         ];
         $vueCode->setExtraProps($extraprops);
 
@@ -229,9 +231,12 @@ class FrontendVueGenerator
     protected function vueCodeLinkItem(FrameworkVue $vue): void
     {
         $vue->getVueCode()->appendComputed(
-            'link',
-            'return "/' . $this->generator->getRouteBase() .
-                '/" + this.escapeIdentifier(this.' . $this->generator->getKeyAttribute() . ')'
+            new Computed(
+                'link',
+                'string',
+                'return "/' . $this->generator->getRouteBase() .
+                    '/" + this.escapeIdentifier(this.' . $this->generator->getKeyAttribute() . ')'
+            )
         );
     }
 
@@ -240,11 +245,11 @@ class FrontendVueGenerator
         $vueCode = $vue->getVueCode();
         // set basic data for vue
         $extraprops = [
-            [
-                'name' => 'id',
-                'type' => 'String',
-                'required' => true
-            ]
+            new Prop(
+                'id',
+                'String',
+                true
+            )
         ];
         $cardFieldNames = array_map(function (Field $f) {
             return $f->getName();
@@ -253,11 +258,13 @@ class FrontendVueGenerator
         $this->vueCodeLinkItem($vue);
 
         foreach ($this->generator->getCardFields() as $f) {
-            $vueCode->appendExtraProp($f->getName(), [
-                'name' => $f->getName(),
-                'type' => $vueCode->mapTypeToJs($f->getDatatype()),
-                'required' => true
-            ]);
+            $vueCode->appendExtraProp(
+                new Prop(
+                    $f->getName(),
+                    $vueCode->mapTypeToJs($f->getDatatype()),
+                    true
+                )
+            );
         }
         $vueCode->appendMethod(
             'escapeIdentifier(identifier)',
@@ -276,26 +283,32 @@ class FrontendVueGenerator
             return $f->getName();
         }, $this->generator->getCardFields());
         foreach ($this->generator->getCardFields() as $f) {
-            $vueCode->appendExtraProp($f->getName(), [
-                'name' => $f->getName(),
-                'type' => $vueCode->mapTypeToJs($f->getDatatype()),
-                'required' => true
-            ]);
+            $vueCode->appendExtraProp(
+                new Prop(
+                    $f->getName(),
+                    $vueCode->mapTypeToJs($f->getDatatype()),
+                    true
+                )
+            );
         }
         foreach ($this->generator->getTitleFields() as $f) {
-            $vueCode->appendExtraProp($f->getName(), [
-                'name' => $f->getName(),
-                'type' => $vueCode->mapTypeToJs($f->getDatatype()),
-                'required' => true
-            ]);
+            $vueCode->appendExtraProp(
+                new Prop(
+                    $f->getName(),
+                    $vueCode->mapTypeToJs($f->getDatatype()),
+                    true
+                )
+            );
         }
 
         if (!$vueCode->getExtraProps()) {
-            $vueCode->appendExtraProp('id', [
-                'name' => 'id',
-                'type' => 'String',
-                'required' => true
-            ]);
+            $vueCode->appendExtraProp(
+                new Prop(
+                    'id',
+                    'String',
+                    true
+                )
+            );
         }
 
         $this->vueCodeLinkItem($vue);
@@ -310,12 +323,11 @@ class FrontendVueGenerator
         }, $this->generator->getTableFields());
         $vueCode->setExtraProps([]);
         $vueCode->appendExtraProp(
-            'id',
-            [
-                'name' => 'id',
-                'type' => 'String',
-                'required' => true
-            ]
+            new Prop(
+                'id',
+                'String',
+                true
+            )
         );
 
         foreach ($this->generator->getTableFields() as $f) {
@@ -323,20 +335,20 @@ class FrontendVueGenerator
              * @var Field $f
              */
             $required = $f->getValidator('required', false);
-            $prop = [
-                'name' => $f->getName(),
-                'type' => $vueCode->mapTypeToJs($f->getDatatype()),
-                'required' => $required
-            ];
+            $prop = new Prop(
+                $f->getName(),
+                $vueCode->mapTypeToJs($f->getDatatype()),
+                $required
+            );
             if (!$required) {
                 if ($f->getDatatype()->getBasetype() === 'relationship') {
-                    $prop['default'] = '() => null';
+                    $prop->default = '() => null';
                 } else {
-                    $prop['default'] = $f->getDatatype()->getDefault();
+                    $prop->default = $f->getDatatype()->getDefault();
                 }
             }
 
-            $vueCode->appendExtraProp($f->getName(), $prop);
+            $vueCode->appendExtraProp($prop);
         }
         $this->makeVue($vue, 'TableItem', 'viewable', $tableFieldNames);
     }
@@ -506,11 +518,11 @@ class FrontendVueGenerator
             )
         );
     }
- 
+
     protected function makeVueCrud(): void
     {
         $path = $this->generator->getModel()->getName() . '/crud.js';
-        
+
         $this->getCollection()->push(
             new GeneratedItem(
                 GeneratedItem::TYPE_FRONTEND,
